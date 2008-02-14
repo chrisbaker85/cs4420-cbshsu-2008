@@ -1,6 +1,12 @@
-package systemCatalog;
+/**
+ * 
+ */
 
-public class SystemCatalog {
+/**
+ * @author chrisb
+ *
+ */
+public class RelationInfo {
 
 	/**
 	 * @param args
