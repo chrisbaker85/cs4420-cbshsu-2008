@@ -1,4 +1,3 @@
-package systemCatalog;
 
 public class Relation {
 

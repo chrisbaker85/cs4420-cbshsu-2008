@@ -1,13 +1,5 @@
-/**
- * 
- */
-package BufferManager;
 
-/**
- * @author chrisb
- *
- */
-public class BufferManager {
+public class SystemCatalog {
 
 	/**
 	 * @param args
