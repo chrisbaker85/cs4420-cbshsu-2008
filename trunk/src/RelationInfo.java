@@ -7,9 +7,36 @@ public class RelationInfo {
 	private String numTuples;
 	private String id;
 	private String colsIndexed;
-	private String filenames;
+	private String filename;
 	private String numDataBlocks;
 	
+	/**
+	 * This is the constructor
+	 * @param name
+	 * @param dateCreated
+	 * @param dateModified
+	 * @param numTuple
+	 * @param id
+	 * @param colsIndexed
+	 * @param filename
+	 * @param numDataBlocks
+	 */
+	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, String id, String colsIndexed, String filename, String numDataBlocks)
+	{
+		this.name = name;
+		this.dateCreated = dateCreated;
+		this.dateModified = dateModified;
+		this.numTuples = numTuples;
+		this.id = id;
+		this.colsIndexed = colsIndexed;
+		this.filename = filename;
+		this.numDataBlocks = numDataBlocks;
+	}
+	
+	public RelationInfo()
+	{
+		// do nothing, just test constructor
+	}
 	void setName(String name) {
 		
 		this.name = name; 
@@ -82,15 +109,15 @@ public class RelationInfo {
 		
 	}
 	
-	void setFilenames(String filenames) {
+	void setFilenames(String filename) {
 		
-		this.filenames = filenames;
+		this.filename = filename;
 		
 	}
 	
 	String getFilenames() {
 		
-		return this.filenames;
+		return this.filename;
 		
 	}
 	
