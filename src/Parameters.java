@@ -8,7 +8,7 @@
  */
 public class Parameters {
 
-	public static int BLOCK_SIZE=512;
+	public static int BLOCK_SIZE=1024;
 	public static int NUM_BLOCK_BUFFER=200;
 	public static int BTREE_ORDER = 5;//example
 	
