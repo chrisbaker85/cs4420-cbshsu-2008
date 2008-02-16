@@ -31,14 +31,12 @@ public class Block {
 	public Block()
 	{}
 	
-	// added by sovandy
 	public int getRecordNumber()
 	{
 		// how to map from array to int? 
 		return 0;
 	}
-	
-	// added by sovandy
+
 	public int getBlockNumber()
 	{
 		int[] temp = Utility.split(this.blockID);
