@@ -58,8 +58,12 @@ public class BufferManager
 	
 	Hashtable<Long, Integer> lookupTable = null;
 	
+	
 	public void initialize()
-	{}
+	{
+		buffer = new Block [Parameters.NUM_BLOCK_BUFFER]; // initialize the buffer 
+		lookupTable = new Hashtable <Long, Integer> ();	// initialize the lookupTable
+	}
 	
 	/**
 	 * Flush all the blocks which were modified to the discs.
