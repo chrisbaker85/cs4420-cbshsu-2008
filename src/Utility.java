@@ -19,10 +19,9 @@ public class Utility {
 	 * 
 	 * @Return - blockID
 	 */ 
-	public long combine(int fileID, int block_num)
-	{
+	public long combine(int fileID, int block_num) {
 		
-		return (long)0;
+		return ((fileID & 0xffffffffL) << 32 | (block_num & 0xffffffffL));
 		
 	}
 		
@@ -32,8 +31,8 @@ public class Utility {
 	 */ 
 	public int[] split(long blockID)
 	{
-		int [] temp = {0,1};
-		return temp; 
+		int[] larr = {(int)(blockID >> 32), (int)blockID};
+		return larr; 
 		
 	}
 		
@@ -75,7 +74,17 @@ public class Utility {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
+	    Utility u = new Utility();
+	    
+	    Integer i1 = new Integer(1000);
+	    Integer i2 = new Integer(512);
+	    Long l = new Long(u.combine(i1, i2));
+        int[] temp = u.split(l);
+	    System.out.println("i1: " + Integer.toBinaryString(i1));
+	    System.out.println("i2: " + Integer.toBinaryString(i2));
+	    System.out.println(" l: " + Long.toBinaryString(l));
+	    System.out.println(temp[0] + ", " + temp[1]);
 
 	}
 
