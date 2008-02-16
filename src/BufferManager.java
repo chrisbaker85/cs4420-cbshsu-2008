@@ -77,11 +77,6 @@ public class BufferManager {
 				if (temp.isUpdated) {	//check if block has been updated
 					writeBlock(buffer[i].blockID);	//write block to disk
 				}
-
-				if (!temp.isPinned) {	//check if block is not pinned
-					lookupTable.remove(temp.blockID);	//evict block
-					buffer[i] = null;
-				}
 			}
 			i++;
 		}
@@ -140,8 +135,34 @@ public class BufferManager {
 	 */
 	private int nextSlot() {
 
+		int i = 0;
+		Block temp = null;
+		
+		while (i < Parameters.NUM_BLOCK_BUFFER)
+		{
+			if (buffer[i] == null)
+			{
+				return i;
+			}
+			i++;
+		}
+		
+		i = 0;
+		
+		while (i < Parameters.NUM_BLOCK_BUFFER) {	// iterate through the buffer and not pinned
+			temp = buffer[i];
+			if (temp != null) {
+				if (temp.isUpdated && !temp.isPinned) {	//check if block has been updated
+					writeBlock(buffer[i].blockID);	//write block to disk
+					lookupTable.remove(temp.blockID);	//evict block
+					buffer[i] = null;
+					return i;
+				}
+			}
+		}
+		
 		return -1;
-
+		
 	}
 
 	/**
@@ -175,6 +196,7 @@ public class BufferManager {
 	 * updated, it does nothing.
 	 */
 	private void writeBlock(long blockID) {
+		
 	}
 
 	/**
