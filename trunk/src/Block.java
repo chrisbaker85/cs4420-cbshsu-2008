@@ -41,8 +41,8 @@ public class Block {
 	// added by sovandy
 	public int getBlockNumber()
 	{
-		// how to map from array to int?
-		return 0;
+		int[] temp = Utility.split(this.blockID);
+		return temp[1];
 	}
 	
 	/**
