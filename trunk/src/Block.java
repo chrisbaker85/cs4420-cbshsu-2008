@@ -28,8 +28,6 @@ public class Block {
 	 */
 	public boolean isUpdated = false;
 	
-	public static int SIZE = 512;
-	
 	public Block()
 	{}
 	
