@@ -19,7 +19,7 @@ public class Utility {
 	 * 
 	 * @Return - blockID
 	 */ 
-	public long combine(int fileID, int block_num) {
+	public static long combine(int fileID, int block_num) {
 		
 		return ((fileID & 0xffffffffL) << 32 | (block_num & 0xffffffffL));
 		
@@ -29,7 +29,7 @@ public class Utility {
 	 * Given a block ID, return the file ID (which is file name, i.e filename "1") 
 	 * and the block number relative to the beginning of the file.
 	 */ 
-	public int[] split(long blockID)
+	public static int[] split(long blockID)
 	{
 		int[] larr = {(int)(blockID >> 32), (int)blockID};
 		return larr; 
