@@ -193,7 +193,8 @@ public class BufferManager {
 			if (temp != null)
 			{
 				try {
-					FileInputStream fin = new FileInputStream();
+					File file = new File("test.txt");
+					FileInputStream fin = new FileInputStream(file);
 					FileChannel fc = fin.getChannel();
 					MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, 0, 1024);
 					temp.isUpdated = false;
