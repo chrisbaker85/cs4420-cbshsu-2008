@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 
 public class RelationInfo {
 
@@ -5,10 +6,11 @@ public class RelationInfo {
 	private String dateCreated;
 	private String dateModified;
 	private String numTuples;
-	private String id;
+	private int id;
 	private String colsIndexed;
-	// private String filename;
+	private String indexFilename;
 	private String numDataBlocks;
+	private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
 	
 	/**
 	 * This is the constructor
@@ -21,7 +23,8 @@ public class RelationInfo {
 	 * @param filename
 	 * @param numDataBlocks
 	 */
-	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, String id, String colsIndexed, String numDataBlocks)
+	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, int id, String colsIndexed, String filename, String numDataBlocks)
+
 	{
 		this.name = name;
 		this.dateCreated = dateCreated;
@@ -29,6 +32,7 @@ public class RelationInfo {
 		this.numTuples = numTuples;
 		this.id = id;
 		this.colsIndexed = colsIndexed;
+		this.indexFilename = filename;
 		this.numDataBlocks = numDataBlocks;
 	}
 	
@@ -84,13 +88,13 @@ public class RelationInfo {
 		
 	}
 	
-	void setId(String id) {
+	void setId(int id) {
 		
 		this.id = id;
 		
 	}
 	
-	String getId() {
+	int getId() {
 		
 		return this.id;
 		
@@ -108,14 +112,16 @@ public class RelationInfo {
 		
 	}
 	
-	/*
-	void setFilenames(String filename) {
-		this.filename = filename;
+	void setFilenames(String iFilename) {
+		this.indexFilename = iFilename;
+		
 	}
+
 	String getFilenames() {
-		return this.filename;	
+		
+		return this.indexFilename;	
+
 	}
-	*/
 	
 	void setNumDataBlocks(String numDataBlocks) {
 		
@@ -130,10 +136,69 @@ public class RelationInfo {
 	}
 	
 	/**
+	 * Adds an attribute to this relation
+	 * @param name The Attribute name
+	 * @param type The Attribute type (int/string)
+	 * @param length The Attribute length)
+	 * @param isN Nullable
+	 */
+	public void addAttribute(String name, String type, int length, boolean isN) {
+		
+		Attribute att = new Attribute(name, type, length, isN, this.getName());
+		this.attributes.add(att);
+	}
+	
+	/**
+	 * Should return the byte offset for this field
+	 * relative to the tuple's first byte.
+	 * @param i the ith column
+	 * @return the byte offset
+	 */
+	public int getFieldOffset(int i) {
+		int j = 0;
+		int offset = 0;
+		
+		// Iterate through the attributes until i
+		for (j = 0; j < i; j++ ) {
+			
+			Attribute att = this.attributes.get(j);
+			String type = att.getType();
+
+			if (type.equals("str")) {
+				
+				// If the attribute is a string, add 4 * length
+				offset += 4*att.getLength();
+				
+			} else if (type.equals("int")) {
+
+				// If the attribute is an int, add 4
+				offset += 4;
+				
+			} else {
+				
+				System.out.println("invalid data type");
+				
+			}
+
+			
+			
+		}
+		
+		return offset;
+		
+	}
+	
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
+		RelationInfo ri = new RelationInfo();
+		ri.addAttribute("first_name", "str", 20, false);
+		ri.addAttribute("last_name", "str", 20, false);
+		ri.addAttribute("age", "int", 0, false);
+		
+		System.out.println(ri.getFieldOffset(2));
 
 	}
 
