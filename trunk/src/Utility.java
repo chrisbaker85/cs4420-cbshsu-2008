@@ -35,6 +35,31 @@ public class Utility {
 		return larr; 
 		
 	}
+	
+	/**
+	 * found at
+	 * http://forum.java.sun.com/thread.jspa?threadID=628082&messageID=3599007
+	 * @param b byte array of size 4
+	 * @return the int
+	 */
+	public static final int makeIntFromByte4(byte[] b) {
+		
+		return b[0]<<24 | (b[1]&0xff)<<16 | (b[2]&0xff)<<8 | (b[3]&0xff);
+		
+	}
+	
+	/**
+	 * found at
+	 * http://forum.java.sun.com/thread.jspa?threadID=628082&messageID=3599007
+	 * @param i int to split
+	 * @return the byte array of size 4
+	 */
+	public static final byte[] makeByte4FromInt(int i) {
+		
+		return new byte[] { (byte)(i>>24), (byte)(i>>16), (byte)(i>>8), (byte)i };
+		
+	}
+	
 		
 	/**
 	 * Given block_number, compute the offset of the beginning of the block
