@@ -1,8 +1,4 @@
 /**
- * 
- */
-
-/**
  * @author chrisb
  *
  */
@@ -15,20 +11,63 @@ public class Tuple {
 	 */ 
 	protected RelationInfo info; 
 	
+	/**
+	 * The Block object in which this tuple is contained
+	 */
 	protected Block block;
 	
 	/**
 	 * The location of this tuple in the block.
 	 */ 
-	protected int   offset;
+	protected int offset;
+	
+	/**
+	 * Class Constructor
+	 * @param offset the block offset
+	 * @param block the block it is contained in
+	 * @param info the RelationInfo for this record
+	 */
+	public Tuple(int offset, Block block, RelationInfo info) {
 		
+		this.block = block;
+		this.offset = offset;
+		this.info = info;
+		
+	}
+	
+	public Tuple() {
+		
+		
+	}
+	
+	/**
+	 * 
+	 * This method may be needed later.  Currently returns -1
+	 * @param i ith field in this tuple
+	 * @return -1
+	 */
+	public String getField(int i) {
+		return "";
+	}
+	
 	/**
 	 * Obtain the value of ith column. It is the responsibility of
 	 * the system/user to determine which data type should be returned.
 	 */ 
-	public int getInt(int i){
+	public int getInt(int i) {
 		
-		return -1;
+		// Find where the field is in relation to the other fields
+		int tupleOffset = this.info.getFieldOffset(i);
+		byte[] data = new byte[4];
+		int j;
+		
+		for (j = 0; j < 4; j++) {
+		
+			data[j] = this.block.content[tupleOffset + this.offset];
+			
+		}
+		
+		return Utility.makeIntFromByte4(data);
 		
 	}
 	
@@ -36,6 +75,11 @@ public class Tuple {
 	* Obtain the value of ith column
 	*/
 	public String getString(int i){
+
+		// Use the Block object to find the record
+		
+		// Once the Tuple data is found, use the
+		// RelationInfo object to find the bytes to return
 		
 		return "x";
 		
@@ -46,9 +90,30 @@ public class Tuple {
 	 * you have to let the buffer aware that the block containing this
 	 * tuple is updated.
 	 */ 
-	public void putInt(int column, int value){}
+	public void putInt(int i, int value) {
+		
+		// Find where the field is in relation to the other fields
+		int tupleOffset = this.info.getFieldOffset(i);
+		byte[] data = Utility.makeByte4FromInt(value);
+		int j;
+		
+		for (j = 0; j < 4; j++) {
+		
+			this.block.content[tupleOffset + this.offset] = data[j];
+			
+		}
+		
+		this.block.isUpdated = true;
+		
+	}
 	
-	public void putString(int column, int value){}
+	public void putString(int column, int value) {
+		
+		// update the bytes in the block
+		
+		// update the block's isUpdated flag
+		
+	}
 	
 	/**
 	 * @param args
