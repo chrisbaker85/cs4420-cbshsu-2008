@@ -31,6 +31,10 @@ public class Block {
 	public Block()
 	{}
 	
+	public void Block(byte[] content) {
+		this.content = content;
+	}
+	
 	public int getRecordNumber()
 	{
 		// how to map from array to int? 
@@ -49,5 +53,37 @@ public class Block {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public byte[] getContent() {
+		return content;
+	}
+
+	public void setContent(byte[] content) {
+		this.content = content;
+	}
+
+	public boolean isPinned() {
+		return isPinned;
+	}
+
+	public void setPinned(boolean isPinned) {
+		this.isPinned = isPinned;
+	}
+
+	public long getBlockID() {
+		return blockID;
+	}
+
+	public void setBlockID(long blockID) {
+		this.blockID = blockID;
+	}
+
+	public boolean isUpdated() {
+		return isUpdated;
+	}
+
+	public void setUpdated(boolean isUpdated) {
+		this.isUpdated = isUpdated;
 	}
 }
