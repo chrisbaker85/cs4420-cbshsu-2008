@@ -68,8 +68,8 @@ public class BufferManager {
 			temp = buffer[i];
 
 			// check if block has been updated and write block to disk
-			if (temp != null && temp.isUpdated) {
-				writeBlock(buffer[i].blockID);
+			if (temp != null && temp.isUpdated()) {
+				writeBlock(buffer[i].getBlockID());
 			}
 		}
 	}
@@ -142,20 +142,44 @@ public class BufferManager {
 
 		i = 0;
 
-		while (i < Parameters.NUM_BLOCK_BUFFER) { // iterate through the
-			// buffer and not pinned
+		// iterate through the buffer and not pinned
+		while (i < Parameters.NUM_BLOCK_BUFFER) 
+		{
 			temp = buffer[i];
 			if (temp != null) {
-				if (temp.isUpdated && !temp.isPinned) { // check if block has
-					// been updated
-					writeBlock(buffer[i].blockID); // write block to disk
-					lookupTable.remove(temp.blockID); // evict block
+				// check if block has been updated
+				if (temp.isUpdated() && !temp.isPinned())
+				{ 
+					// write block to disk
+					writeBlock(buffer[i].blockID);
+					// evict block
+					lookupTable.remove(temp.blockID);
 					buffer[i] = null;
 					return i;
 				}
 			}
 		}
 
+		i = 0;
+
+		// iterate through the buffer and not pinned
+		while (i < Parameters.NUM_BLOCK_BUFFER) 
+		{
+			temp = buffer[i];
+			if (temp != null) {
+				// check if block not pinned
+				if (!temp.isPinned())
+				{ 
+					// write block to disk
+					writeBlock(buffer[i].blockID);
+					// evict block
+					lookupTable.remove(temp.blockID);
+					buffer[i] = null;
+					return i;
+				}
+			}
+		}
+		
 		return -1;
 
 	}
@@ -165,13 +189,7 @@ public class BufferManager {
 	 */
 	private void readBlock(long blockID) {
 
-		int slot_num = -1;
-
-		if (lookupTable.contains(blockID)) {
-			slot_num = ((Integer) lookupTable.get(blockID)).intValue();
-		} else {
-			slot_num = nextSlot();
-		}
+		int slot_num = nextSlot();
 
 		// - Use the function Utility.split(blockID) to determine the the
 		// filename
@@ -239,7 +257,7 @@ public class BufferManager {
 			{
 				try 
 				{
-					int[] split = Utility.split(temp.blockID);
+					int[] split = Utility.split(temp.getBlockID());
 					String fileNameID = "" + split[0];
 					int offSet = split[1];
 					RandomAccessFile fileOut = new RandomAccessFile(fileNameID, "rw");
@@ -273,7 +291,6 @@ public class BufferManager {
 	{
 		if (lookupTable.contains(blockID))
 		{
-
 			int slot_num = ((Integer)lookupTable.get(blockID)).intValue();
 			buffer[slot_num].setUpdated(true);
 		}
