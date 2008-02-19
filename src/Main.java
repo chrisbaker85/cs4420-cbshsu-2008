@@ -16,6 +16,8 @@ import org.xml.sax.SAXParseException;
 
 public class Main {
 
+	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
+
 	/**
 	 * read relation info from xml file, for instance, student_relation.xml for student 
 	 * table. Then create a relation object and return it
@@ -112,30 +114,110 @@ public class Main {
         	t.printStackTrace ();
         }
 	}
-
 	
-	/**
-	 * when create table is executed, write xml file for relation, for instance, student_relation.xml
-	 */
-	public void writeRelationXML(String relationName)
+	public void createDB(String dbname)
 	{
+		try {	
+		File file = new File(dbname+"_relations.xml");
+	    BufferedWriter output = new BufferedWriter(new FileWriter(file));
+	    output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public void writeAttribute(String table_name, String [] attribute)
+	{
+		try {
+			File file = new File(table_name+"_attributes.xml");
+			BufferedWriter output = new BufferedWriter(new FileWriter(file));
+			output.write("<attributes>");
+			output.write("<attribute>");
+			output.write("<name>" + attribute[0] + "</name>");
+			output.write("<type></type>");
+			output.write("</attribute>");
+			output.write("</attributes>");
+			output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
+	}
+	/**
+	 * write to the file
+	 * @param tablename
+	 * @param attributes
+	 */
+	public void createTables(String dbname, String [] table_names, Object [] attributes)
+	{
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		String cur_date = (String)sdf.format(cal.getTime());
+		try {	
+			File file = new File(dbname+"_relations.xml");
+		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
+		    output.write("<relations>");
+		    
+		    output.write("<relation>");
+		    output.write("<name>" + table_names[0] + "</name>");
+		    output.write("<date_created>" + cur_date + "</date_created>\n");
+			output.write("<date_modified>" + cur_date + "</date_modified>\n");
+			output.write("<num_tuple>0</num_tuple>\n");
+			output.write("<id>0</id>\n");
+			output.write("<cols_indexed>-1</cols_indexed>\n");
+			output.write("<num_block>0</num_block>\n");
+			String [] attribute = (String [])attributes[0];
+			writeAttribute(table_names[0], attribute);
+			
+			output.write("<relation>");
+		    output.write("<name>" + table_names[1] + "</name>");
+		    output.write("<date_created>" + cur_date + "</date_created>\n");
+			output.write("<date_modified>" + cur_date + "</date_modified>\n");
+			output.write("<num_tuple>0</num_tuple>\n");
+			output.write("<id>1</id>\n");
+			output.write("<cols_indexed>-1</cols_indexed>\n");
+			output.write("<num_block>0</num_block>\n");
+			attribute = (String [])attributes[1];
+			writeAttribute(table_names[1], attribute);
+			
+			output.write("</relations");
+		    output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
 		
 	}
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) throws IOException
 	{
+		Main mydb = new Main();
 		String dbname = "db1";
 		System.out.println("just test");
-		System.out.println("craate database: doing nothing");
+		System.out.println("create database");
+		mydb.createDB(dbname);
 		System.out.println("Use database db1");
+		System.out.println("create table student");
+		String [][] student_table = {{"first_name", "string", "20", "no", "student", "0", "0"},
+                					 {"last_name", "string", "20", "no", "student", "1", "0"},
+                					 {"dob", "string", "10", "no", "student", "0", "2"}};
+		String [][] course_table = {{"course_name", "string", "20", "no", "student", "0", "0"},
+                					{"course_number", "string", "10", "no", "student", "1", "0"},
+                					{"location", "string", "10", "no", "student", "0", "2"}};
+		String [] table_names = {"student","course"}; 
+		Object [] attributes= new Object[2];
+		attributes[0] = student_table;
+		attributes[1] = course_table;
+		mydb.createTables("student", table_names, attributes);
 		
-		// CREATE TABLE: CREATE A FILE 
-		// USE DATABASE: CREATE OBJECT FOR SYSTEM CATALOG(FOR EACH RELATION AND ATTRIBUTE), AND LOAD THEM INTO BUFFER OR MAYBE NOT 
-		// INSERT INTO TABLE: look into the buffer to see if there is an empty block, update it and flush it to the file
-		// If it doesn't exist, go to file, get the last block, load to buffer, write to buffer, then flush it to the file (we can write to the file directly??
-		// SELECT: load 
 	}
 
 }
