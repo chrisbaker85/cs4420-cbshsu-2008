@@ -24,10 +24,12 @@
  */
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Hashtable;
@@ -45,27 +47,30 @@ public class BufferManager {
 	Hashtable<Long, Integer> lookupTable = null;
 
 	public void initialize() {
-		buffer = new Block[Parameters.NUM_BLOCK_BUFFER]; // initialize the
-															// buffer
-		lookupTable = new Hashtable<Long, Integer>(); // initialize the
-														// lookupTable
+		// initialize the buffer
+		buffer = new Block[Parameters.NUM_BLOCK_BUFFER];
+		// initialize the lookupTable
+		lookupTable = new Hashtable<Long, Integer>();
 	}
 
 	/**
 	 * Flush all the blocks which were modified to the discs.
 	 */
 	public void flush() {
-		int i = 0;
+
 		Block temp = null;
 		
-		while (i < Parameters.NUM_BLOCK_BUFFER) {	// iterate through the buffer
+		int i;
+
+		// iterate through the buffer
+		for (i = 0 ; i < Parameters.NUM_BLOCK_BUFFER; i++) {
+
 			temp = buffer[i];
-			if (temp != null) {
-				if (temp.isUpdated) {	//check if block has been updated
-					writeBlock(buffer[i].blockID);	//write block to disk
-				}
+
+			// check if block has been updated and write block to disk
+			if (temp != null && temp.isUpdated) {
+				writeBlock(buffer[i].blockID);
 			}
-			i++;
 		}
 	}
 
@@ -75,12 +80,13 @@ public class BufferManager {
 	 * special blocks such as: the root nodes of the index trees.
 	 */
 	public boolean pin(long blockID) {
+		
 		if (!lookupTable.contains(blockID))
 			return false;
 
 		int slot_num = lookupTable.get(blockID);
 
-		buffer[slot_num].isPinned = true;
+		buffer[slot_num].setPinned(true);
 		return true;
 	}
 
@@ -88,12 +94,13 @@ public class BufferManager {
 	 * Unpin the block.
 	 */
 	public boolean unpin(long blockID) {
+		
 		if (!lookupTable.contains(blockID))
 			return false;
 
 		int slot_num = lookupTable.get(blockID);
 
-		buffer[slot_num].isPinned = false;
+		buffer[slot_num].setPinned(false);
 		return true;
 	}
 
@@ -103,10 +110,11 @@ public class BufferManager {
 	 * block into the buffer and return this block
 	 */
 	public Block getBlock(long blockID) {
+		
 		if (!lookupTable.contains(blockID))
 			readBlock(blockID);
 
-		int slot_num = lookupTable.get(blockID);
+		int slot_num = ((Integer)lookupTable.get(blockID)).intValue();
 
 		return buffer[slot_num];
 	}
@@ -124,41 +132,44 @@ public class BufferManager {
 
 		int i = 0;
 		Block temp = null;
-		
-		while (i < Parameters.NUM_BLOCK_BUFFER)
-		{
-			if (buffer[i] == null)
-			{
+
+		while (i < Parameters.NUM_BLOCK_BUFFER) {
+			if (buffer[i] == null) {
 				return i;
 			}
 			i++;
 		}
-		
+
 		i = 0;
-		
-		while (i < Parameters.NUM_BLOCK_BUFFER) {	// iterate through the buffer and not pinned
+
+		while (i < Parameters.NUM_BLOCK_BUFFER) { // iterate through the
+			// buffer and not pinned
 			temp = buffer[i];
 			if (temp != null) {
-				if (temp.isUpdated && !temp.isPinned) {	//check if block has been updated
-					writeBlock(buffer[i].blockID);	//write block to disk
-					lookupTable.remove(temp.blockID);	//evict block
+				if (temp.isUpdated && !temp.isPinned) { // check if block has
+					// been updated
+					writeBlock(buffer[i].blockID); // write block to disk
+					lookupTable.remove(temp.blockID); // evict block
 					buffer[i] = null;
 					return i;
 				}
 			}
 		}
-		
+
 		return -1;
-		
+
 	}
 
 	/**
 	 * Read a block with the given block ID into the memory.
 	 */
 	private void readBlock(long blockID) {
-		int slot_num;
 
-		if (!lookupTable.contains(blockID)) {
+		int slot_num = -1;
+
+		if (lookupTable.contains(blockID)) {
+			slot_num = ((Integer) lookupTable.get(blockID)).intValue();
+		} else {
 			slot_num = nextSlot();
 		}
 
@@ -174,6 +185,39 @@ public class BufferManager {
 		// - Hint: to avoid the overhead of opening files so many times, create
 		// an array
 		// keep the pointers to the opened files.
+
+		if (slot_num != -1)
+		{
+			try 
+			{
+				int[] split = Utility.split(blockID);
+				String fileNameID = "" + split[0];
+				int offSet = split[1];
+
+				RandomAccessFile fileIn = new RandomAccessFile(fileNameID, "rw");
+				FileChannel fileChannel = fileIn.getChannel();
+				MappedByteBuffer tempBuffer = fileChannel.map(
+						FileChannel.MapMode.READ_WRITE, 0, fileIn.length());
+				fileChannel.read(tempBuffer);
+
+				byte[] temp = new byte[Parameters.BLOCK_SIZE];
+
+				for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
+					temp[i] = tempBuffer.get(i + offSet);
+				}
+
+				Block newBlock = new Block(blockID, temp);
+				lookupTable.put(blockID, new Integer(slot_num));
+				buffer[slot_num] = newBlock;
+
+				fileIn.close();
+				
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	/**
@@ -182,31 +226,40 @@ public class BufferManager {
 	 * block in the memory is the same as that in the disc. If the status is not
 	 * updated, it does nothing.
 	 */
-	private void writeBlock(long blockID)
-	{
-		Block temp = null;
+	private void writeBlock(long blockID) {
 		
-		if (lookupTable.contains(blockID)) {
-			
-			temp = buffer[((Integer) lookupTable.get(blockID)).intValue()];
-			
+		Block temp = null;
+
+		if (lookupTable.contains(blockID))
+		{
+			int slot_num = ((Integer) lookupTable.get(blockID)).intValue();
+			temp = buffer[slot_num];
+
 			if (temp != null)
 			{
-				try {
-					File file = new File("test.txt");
-					FileInputStream fin = new FileInputStream(file);
-					FileChannel fc = fin.getChannel();
-					MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, 0, 1024);
-					temp.isUpdated = false;
+				try 
+				{
+					int[] split = Utility.split(temp.blockID);
+					String fileNameID = "" + split[0];
+					int offSet = split[1];
+					RandomAccessFile fileOut = new RandomAccessFile(fileNameID, "rw");
+					FileChannel fileChannel = fileOut.getChannel();
+					MappedByteBuffer tempBuffer = fileChannel.map(
+							FileChannel.MapMode.READ_WRITE, offSet,
+							Parameters.BLOCK_SIZE);
+					
+					tempBuffer.put(temp.getContent());
+					temp.setUpdated(false);
+					
+					fileOut.close();
+					
 				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			
+
 		}
 	}
 
@@ -216,14 +269,21 @@ public class BufferManager {
 	 * add/update/remove a new tuple or add/update/remove key/pointer
 	 * 
 	 */
-	private void setStatus(long blockID) {
+	private void setStatus(long blockID)
+	{
+		if (lookupTable.contains(blockID))
+		{
+
+			int slot_num = ((Integer)lookupTable.get(blockID)).intValue();
+			buffer[slot_num].setUpdated(true);
+		}
 	}
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		System.out.println("just test");
-		System.out.println("craate database: doing nothing");
-		System.out.println("create table student");
-		FileWriter student = new FileWriter(new File("student.dat"), true);
+		// System.out.println("just test");
+		// System.out.println("craate database: doing nothing");
+		// System.out.println("create table student");
+		// FileWriter student = new FileWriter(new File("student.dat"), true);
 	}
 }
