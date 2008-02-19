@@ -23,13 +23,9 @@
  * - nextSlot  : indicates which block in the buffer is ready to be replaced by a new block.
  */
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Hashtable;
@@ -296,11 +292,32 @@ public class BufferManager {
 		}
 	}
 
-	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-		// System.out.println("just test");
-		// System.out.println("craate database: doing nothing");
-		// System.out.println("create table student");
-		// FileWriter student = new FileWriter(new File("student.dat"), true);
+	public static void main(String[] args) throws IOException 
+	{
+		String fileNameID = "" + 1;
+		int offSet = 32;
+		long id = Utility.combine(Integer.parseInt(fileNameID), offSet);
+		
+		Byte[] tempReg = new Byte[Parameters.BLOCK_SIZE];
+		for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
+			tempReg[i] = (byte) ((i % 26) + 97);
+		}
+		
+		RandomAccessFile fileOut = new RandomAccessFile(fileNameID, "rw");
+		FileChannel fileChannel = fileOut.getChannel();
+		MappedByteBuffer tempBuffer = fileChannel.map(
+				FileChannel.MapMode.READ_WRITE, offSet, Parameters.BLOCK_SIZE);
+
+		for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
+			tempBuffer.put(i, tempReg[i]);
+		}
+		
+		fileOut.close();
+		
+		BufferManager manager = new BufferManager ();
+		manager.initialize();
+		manager.readBlock(id);
+		Block tempBlock = manager.getBlock(id);
+		tempBlock.printBlock();
 	}
 }
