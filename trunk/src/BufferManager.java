@@ -298,7 +298,7 @@ public class BufferManager {
 		int offSet = 32;
 		long id = Utility.combine(Integer.parseInt(fileNameID), offSet);
 		
-		Byte[] tempReg = new Byte[Parameters.BLOCK_SIZE];
+		byte[] tempReg = new byte[Parameters.BLOCK_SIZE];
 		for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
 			tempReg[i] = (byte) ((i % 26) + 97);
 		}
@@ -307,16 +307,11 @@ public class BufferManager {
 		FileChannel fileChannel = fileOut.getChannel();
 		MappedByteBuffer tempBuffer = fileChannel.map(
 				FileChannel.MapMode.READ_WRITE, offSet, Parameters.BLOCK_SIZE);
-
-		for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
-			tempBuffer.put(i, tempReg[i]);
-		}
-		
+		tempBuffer.put(tempReg);
 		fileOut.close();
 		
 		BufferManager manager = new BufferManager ();
 		manager.initialize();
-		manager.readBlock(id);
 		Block tempBlock = manager.getBlock(id);
 		tempBlock.printBlock();
 	}
