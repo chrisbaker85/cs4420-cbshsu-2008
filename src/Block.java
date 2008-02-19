@@ -86,7 +86,7 @@ public class Block {
 		System.out.println ("Updated: " + this.isUpdated);
 		System.out.println ("pinned: " + this.isPinned);
 		for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
-			System.out.println (" Byte # " + i + ": " + content[i]);
+			System.out.print (" Byte # " + i + ": " + (char) content[i]);
 			if (i % 128 == 0)
 			{
 				System.out.println();
