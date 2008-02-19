@@ -3,7 +3,7 @@ public class Attribute {
 
 	private String name;
 	private String type;
-	private int length;
+	private String length;
 	private String isNullable;
 	private String relationName;
 	private String id;
@@ -27,12 +27,12 @@ public class Attribute {
 		
 	}
 	
-	void setLength(int num)
+	void setLength(String num)
 	{
 		this.length = num;
 	}
 	
-	public int getLength()
+	public String getLength()
 	{
 		return this.length;
 	}
