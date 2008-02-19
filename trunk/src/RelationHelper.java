@@ -30,6 +30,7 @@ public class RelationHelper {
 	 */ 
 	public static Tuple[] scanBlock(Block block)
 	{
+		// TODO: fix me!
 		Tuple[] temp = {new Tuple()};
 		return temp;
 	}
