@@ -31,7 +31,8 @@ public class Block {
 	public Block()
 	{}
 	
-	public void Block(byte[] content) {
+	public Block(long blockID, byte[] content) {
+		this.blockID = blockID;
 		this.content = content;
 	}
 	
@@ -47,14 +48,6 @@ public class Block {
 		return temp[1];
 	}
 	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public byte[] getContent() {
 		return content;
 	}
