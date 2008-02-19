@@ -19,6 +19,16 @@ public class Attribute {
 		this.id = id;
 		this.numValues = numValues;
 	}
+	
+	public Attribute(String name, String type, String length, String nullable, String relation)
+	{
+		this.name = name;
+		this.type = type;
+		this.length = length;
+		this.isNullable = nullable;
+		this.relationName = relation;
+	}
+	
 	void setName(String name) {
 		
 		this.name = name;
