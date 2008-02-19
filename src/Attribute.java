@@ -9,6 +9,16 @@ public class Attribute {
 	private String id;
 	private String numValues;
 	
+	public Attribute(String name, String type, String length, String nullable, String relation, String id, String numValues)
+	{
+		this.name = name;
+		this.type = type;
+		this.length = length;
+		this.isNullable = nullable;
+		this.relationName = relation;
+		this.id = id;
+		this.numValues = numValues;
+	}
 	void setName(String name) {
 		
 		this.name = name;
