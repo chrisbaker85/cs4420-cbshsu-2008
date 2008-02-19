@@ -142,9 +142,12 @@ public class RelationInfo {
 	 * @param length The Attribute length)
 	 * @param isN Nullable
 	 */
-	public void addAttribute(String name, String type, int length, boolean isN) {
-		
-		Attribute att = new Attribute(name, type, length, isN, this.getName());
+	public void addAttribute(String name, String type, String length, boolean isN) 
+	{
+		String nullable = new String();
+		if (isN) nullable = "yes";
+		else nullable = "no";
+		Attribute att = new Attribute(name, type, length, nullable, this.getName());
 		this.attributes.add(att);
 	}
 	
@@ -167,7 +170,7 @@ public class RelationInfo {
 			if (type.equals("str")) {
 				
 				// If the attribute is a string, add 4 * length
-				offset += 4*att.getLength();
+				offset += 4 * Integer.parseInt(att.getLength().trim());
 				
 			} else if (type.equals("int")) {
 
@@ -194,9 +197,9 @@ public class RelationInfo {
 	public static void main(String[] args) {
 		
 		RelationInfo ri = new RelationInfo();
-		ri.addAttribute("first_name", "str", 20, false);
-		ri.addAttribute("last_name", "str", 20, false);
-		ri.addAttribute("age", "int", 0, false);
+		ri.addAttribute("first_name", "str", "20", false);
+		ri.addAttribute("last_name", "str", "20", false);
+		ri.addAttribute("age", "int", "0", false);
 		
 		System.out.println(ri.getFieldOffset(2));
 
