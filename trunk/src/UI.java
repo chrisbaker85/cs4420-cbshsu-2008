@@ -9,7 +9,8 @@ import java.util.regex.Matcher;
 
 /**
  * @author chrisb
- *
+ * This class interacts with an end user via
+ * console-based input/output
  */
 public class UI {
 
@@ -22,7 +23,7 @@ public class UI {
 		System.out.println("/////////////////////////////////////////////\n          WELCOME TO OUR DATABASE");
 		System.out.println("      a project for Databases 4420 by");
 		System.out.println("  Chris Baker, Sovandy Hang and Sami Ubaissi\n/////////////////////////////////////////////");
-		System.out.println("\nStart with SELECT * FROM RELATION_CATALOG\ntype \"exit\" to exit.");
+		System.out.println("\nStart with SELECT * FROM CATALOG\ntype \"exit\" to exit.");
 		
 	}
 	
@@ -47,7 +48,7 @@ public class UI {
 			  if (input.equals("EXIT") || input.equals("exit")) {
 				  
 				  running = false;
-				  
+				  break;
 			  }
 			  
 			  process(input);
@@ -99,45 +100,45 @@ public class UI {
 		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((TABLE)|(table)) [a-zA-Z]+( ((WHERE)|(where)) [a-zA-Z]+( )?=( )?[a-zA-Z]+)?", input);
 		if (b) {
 			// TODO: do a Select
-			System.out.println("Process table SELECT");
+			System.out.println("TODO: Process table SELECT");
 			return true;
 		}
 		
 		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((INDEX)|(index)) [a-zA-Z]+ [a-zA-Z]+", input);
 		if (b) {
 			//TODO: do a Select
-			System.out.println("Process index SELECT");
+			System.out.println("TODO: Process index SELECT");
 			return true;
 		}
 		
 		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((CATALOG)|(catalog)) [a-zA-Z]+", input);
 		if (b) {
 			//TODO: do a Select
-			System.out.println("Process catalog SELECT");
+			System.out.println("TODO: Process catalog SELECT");
 			return true;
 		}
 		
 		//TODO: FIX ME
 		b = Pattern.matches("((INSERT)|(insert)) ((INTO)|(into)) [a-zA-Z]+(\\(([a-zA-Z]|([a-zA-Z], ([a-zA-Z], )* ([a-zA-Z])))*\\))? ((VALUES)|(values)) \\(([a-zA-Z])+\\)", input);
 		if (b) {
-			//TODO: do a Select
-			System.out.println("Process INSERT");
+			//TODO: do an Isert
+			System.out.println("TODO: Process INSERT");
 			return true;
 		}
 		
 		// TODO: FIX ME
 		b = Pattern.matches("CREATE INDEX index_name ON table_name (attr)", input);
 		if (b) {
-			//TODO: do a Select
-			System.out.println("Process CREATE INDEX");
+			//TODO: do a Create Index
+			System.out.println("TODO: Process CREATE INDEX");
 			return true;
 		}
 		
 		// TODO: FIX ME
 		b = Pattern.matches("CREATE TABLE table_name(attr1 dataType1[,attr2 dataType2, ... ,attrN dataTypeN])", input);
 		if (b) {
-			//TODO: do a Select
-			System.out.println("Process CREATE TABLE");
+			//TODO: do a Create Table
+			System.out.println("TODO: Process CREATE TABLE");
 			return true;
 		}
 		
