@@ -9,6 +9,17 @@ import javax.xml.parsers.DocumentBuilder;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 /**
  * @author Sovandy
  *
@@ -57,44 +68,44 @@ public class Main {
 					NodeList node = firstRelationElement.getElementsByTagName("name");
 					Element firstNameElement = (Element)node.item(0);
 					NodeList textFNList = firstNameElement.getChildNodes();
-					name = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("Relation name : " + name);
+					name = (String)((Node)textFNList.item(0)).getFirstChild().getNodeValue().trim();
+					//System.out.println("Relation name : " + name);
 
 					node = firstRelationElement.getElementsByTagName("date_created");
 					firstNameElement = (Element)node.item(0);
 					textFNList = firstNameElement.getChildNodes();
 					dateCreated = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("Date created : " + dateCreated);
+					//System.out.println("Date created : " + dateCreated);
 
 					node = firstRelationElement.getElementsByTagName("date_modified");
 					firstNameElement = (Element)node.item(0);
 					textFNList = firstNameElement.getChildNodes();
 					dateModified = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("Date modified : " + dateModified);
+					//System.out.println("Date modified : " + dateModified);
 
 					node = firstRelationElement.getElementsByTagName("num_tuple");
 					firstNameElement = (Element)node.item(0);
 					textFNList = firstNameElement.getChildNodes();
 					numTuple = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("Number of tuple : " + numTuple);
+					//System.out.println("Number of tuple : " + numTuple);
 
 					node = firstRelationElement.getElementsByTagName("id");
 					firstNameElement = (Element)node.item(0);
 					textFNList = firstNameElement.getChildNodes();
 					id = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("id : " + id);
+					//System.out.println("id : " + id);
 
 					node = firstRelationElement.getElementsByTagName("cols_indexed");
 					firstNameElement = (Element)node.item(0);
 					textFNList = firstNameElement.getChildNodes();
 					colsIndexed = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("Columns indexed : " + colsIndexed);
+					//System.out.println("Columns indexed : " + colsIndexed);
 
 					node = firstRelationElement.getElementsByTagName("num_block");
 					firstNameElement = (Element)node.item(0);
 					textFNList = firstNameElement.getChildNodes();
 					numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					System.out.println("Number of block : " + numBlock);
+					//System.out.println("Number of block : " + numBlock);
 				}
 			}
         }
