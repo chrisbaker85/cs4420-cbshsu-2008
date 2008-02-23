@@ -1,6 +1,5 @@
 import java.io.*;
 import org.w3c.dom.Document;
-import org.w3c.dom.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 
@@ -12,11 +11,7 @@ import org.xml.sax.SAXParseException;
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -68,7 +63,7 @@ public class Main {
 					NodeList node = firstRelationElement.getElementsByTagName("name");
 					Element firstNameElement = (Element)node.item(0);
 					NodeList textFNList = firstNameElement.getChildNodes();
-					name = (String)((Node)textFNList.item(0)).getFirstChild().getNodeValue().trim();
+					name = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					//System.out.println("Relation name : " + name);
 
 					node = firstRelationElement.getElementsByTagName("date_created");
@@ -201,8 +196,6 @@ public class Main {
 		{
 			System.out.println(e.getMessage());
 		}
-		
-		
 	}
 	
 	/**
