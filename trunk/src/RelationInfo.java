@@ -6,7 +6,7 @@ public class RelationInfo {
 	private String dateCreated;
 	private String dateModified;
 	private String numTuples;
-	private String id;
+	private int id;
 	private String colsIndexed;
 	private String indexFilename;
 	private String numDataBlocks;
@@ -23,7 +23,7 @@ public class RelationInfo {
 	 * @param filename
 	 * @param numDataBlocks
 	 */
-	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, String id, String colsIndexed, String filename, String numDataBlocks, ArrayList attributes)
+	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, int id, String colsIndexed, String filename, String numDataBlocks, ArrayList attributes)
 	{
 		this.name = name;
 		this.dateCreated = dateCreated;
@@ -88,13 +88,13 @@ public class RelationInfo {
 		
 	}
 	
-	void setId(String id) {
+	void setId(int id) {
 		
 		this.id = id;
 		
 	}
 	
-	String getId() {
+	int getId() {
 		
 		return this.id;
 		
