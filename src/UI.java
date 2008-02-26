@@ -5,7 +5,6 @@
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 /**
  * @author chrisb
@@ -17,6 +16,7 @@ public class UI {
 	InputStreamReader isr = new InputStreamReader( System.in );
 	BufferedReader stdin = new BufferedReader( isr );
 	boolean running = true;
+	SQLCommandProcessor proc = new SQLCommandProcessor();
 	
 	public UI() {
 		
@@ -25,11 +25,7 @@ public class UI {
 		System.out.println("  Chris Baker, Sovandy Hang and Sami Ubaissi\n/////////////////////////////////////////////");
 		System.out.println("\nStart with SELECT * FROM CATALOG\ntype \"exit\" to exit.");
 		
-	}
-	
-	private void init() {
-
-		
+		this.run();
 	}
 	
 	/**
@@ -96,49 +92,43 @@ public class UI {
 	private boolean checkSyntax(String input) {
 		
 		boolean b = false;
+		String result;
 		
 		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((TABLE)|(table)) [a-zA-Z]+( ((WHERE)|(where)) [a-zA-Z]+( )?=( )?[a-zA-Z]+)?", input);
 		if (b) {
-			// TODO: do a Select
-			System.out.println("TODO: Process table SELECT");
+			result = proc.parseSelect(input);
 			return true;
 		}
 		
 		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((INDEX)|(index)) [a-zA-Z]+ [a-zA-Z]+", input);
 		if (b) {
-			//TODO: do a Select
-			System.out.println("TODO: Process index SELECT");
+			result = proc.parseSelect(input);
 			return true;
 		}
 		
 		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((CATALOG)|(catalog)) [a-zA-Z]+", input);
 		if (b) {
-			//TODO: do a Select
-			System.out.println("TODO: Process catalog SELECT");
+			result = proc.parseSelect(input);
 			return true;
 		}
 		
 		//TODO: FIX ME
 		b = Pattern.matches("((INSERT)|(insert)) ((INTO)|(into)) [a-zA-Z]+(\\(([a-zA-Z]|([a-zA-Z], ([a-zA-Z], )* ([a-zA-Z])))*\\))? ((VALUES)|(values)) \\(([a-zA-Z])+\\)", input);
 		if (b) {
-			//TODO: do an Isert
-			System.out.println("TODO: Process INSERT");
+			result = proc.parseInsert(input);
 			return true;
 		}
 		
 		// TODO: FIX ME
 		b = Pattern.matches("CREATE INDEX index_name ON table_name (attr)", input);
 		if (b) {
-			//TODO: do a Create Index
-			System.out.println("TODO: Process CREATE INDEX");
+			result = proc.parseCreate(input);
 			return true;
 		}
 		
-		// TODO: FIX ME
-		b = Pattern.matches("CREATE TABLE table_name(attr1 dataType1[,attr2 dataType2, ... ,attrN dataTypeN])", input);
+		b = Pattern.matches("((CREATE)|(create)) ((TABLE)|table)) ([a-zA-Z_-]+) (([a-zA-Z_-]+) (string|int)( ,( )?[a-zA-Z_-]+)* (string|int))", input);
 		if (b) {
-			//TODO: do a Create Table
-			System.out.println("TODO: Process CREATE TABLE");
+			result = proc.parseCreate(input);
 			return true;
 		}
 		
@@ -162,7 +152,6 @@ public class UI {
 	public static void main(String[] args) {
 		
 		UI ui = new UI();
-		ui.run();
 		
 		
 	}
