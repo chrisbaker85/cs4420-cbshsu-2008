@@ -178,7 +178,7 @@ public class Main
 					String numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					
 					ArrayList attributes = readAttributes(db_name, table_name);
-					RelationInfo relation = new RelationInfo(table_name, dateCreated, dateModified, numTuple, id, colsIndexed, table_name + "_" + db_name + "index.dat", numBlock, attributes);
+					RelationInfo relation = new RelationInfo(table_name, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, table_name + "_" + db_name + "index.dat", numBlock, attributes);
 					this.syscat.getRelationCatalog().put(id, relation);
 				}
 			}
