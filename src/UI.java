@@ -94,7 +94,7 @@ public class UI {
 		boolean b = false;
 		String result;
 		
-		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((TABLE)|(table)) [a-zA-Z]+( ((WHERE)|(where)) [a-zA-Z]+( )?=( )?[a-zA-Z]+)?", input);
+		b = Pattern.matches("((SELECT)|(select)) ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) ((FROM)|(from)) [a-zA-Z]+( ((WHERE)|(where)) [a-zA-Z]+( )?=( )?[a-zA-Z]+)?", input);
 		if (b) {
 			result = proc.parseSelect(input);
 			return true;
@@ -126,7 +126,8 @@ public class UI {
 			return true;
 		}
 		
-		b = Pattern.matches("((CREATE)|(create)) ((TABLE)|table)) ([a-zA-Z_-]+) (([a-zA-Z_-]+) (string|int)( ,( )?[a-zA-Z_-]+)* (string|int))", input);
+		// 
+		b = Pattern.matches("((CREATE)|(create)) ((TABLE)|(table)) ([a-zA-Z_-]+) (([a-zA-Z_-]+) (string|int)( ,( )?[a-zA-Z_-]+)* (string|int))", input);
 		if (b) {
 			result = proc.parseCreate(input);
 			return true;
