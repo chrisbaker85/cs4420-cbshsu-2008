@@ -79,7 +79,7 @@ public class SQLCommandProcessor {
 		
 		System.out.println("[" + index_name + "][" + table_name + "][" + field_name + "]");
 		
-		//qe.createIndex("", table_name, attributes);
+		qe.createIndexQuery(index_name, table_name, field_name);
 		return "";
 		
 	}
