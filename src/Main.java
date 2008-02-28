@@ -20,7 +20,7 @@ import org.w3c.dom.NodeList;
  *
  */
 
-public class Main 
+public class Main implements QueryEngine
 {
 
 	private SystemCatalog syscat;
@@ -309,6 +309,19 @@ public class Main
 		
 		// TODO: scan block one by one
 		// Now that we have attribute object, and relationinfo object
+	}
+	
+	/**
+	 * Creates a new index (index_name) on a field (field_name) of a relation
+	 * (table_name)
+	 * @param index_name: name of the index to be created
+	 * @param table_name: name of table
+	 * @param field_name: the name of the field we're creating an index on
+	 */
+	public void createIndexQuery(String index_name, String table_name, String field_name) {
+		
+		// TODO: FIX ME
+		
 	}
 	
 	public void selectQuery(String table_name, String [] fields, String from, String where)
