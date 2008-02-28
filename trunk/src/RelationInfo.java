@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.*;
 
 public class RelationInfo {
 
@@ -10,7 +11,7 @@ public class RelationInfo {
 	private String colsIndexed;
 	private String indexFilename;
 	private String numDataBlocks;
-	private ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+	private Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
 	
 	/**
 	 * This is the constructor
@@ -23,7 +24,7 @@ public class RelationInfo {
 	 * @param filename
 	 * @param numDataBlocks
 	 */
-	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, int id, String colsIndexed, String filename, String numDataBlocks, ArrayList attributes)
+	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, int id, String colsIndexed, String filename, String numDataBlocks, Hashtable attributes)
 	{
 		this.name = name;
 		this.dateCreated = dateCreated;
@@ -148,7 +149,12 @@ public class RelationInfo {
 		if (isN) nullable = "yes";
 		else nullable = "no";
 		Attribute att = new Attribute(name, type, length, nullable, this.getName());
-		this.attributes.add(att);
+		this.attributes.put(name, att);
+	}
+	
+	public Hashtable getAttribute()
+	{
+		return this.attributes;
 	}
 	
 	/**
