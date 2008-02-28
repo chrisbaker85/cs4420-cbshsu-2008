@@ -306,7 +306,9 @@ public class Main
 				break;
 			}
 		}
+		
 		// TODO: scan block one by one
+		// Now that we have attribute object, and relationinfo object
 	}
 	
 	public void selectQuery(String table_name, String [] fields, String from, String where)
