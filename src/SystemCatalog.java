@@ -8,7 +8,7 @@ public class SystemCatalog {
 	
 	// private Hashtable attributeCatalog;
 	private String db_name;
-	private Hashtable relationCatalog;
+	private Hashtable<String, RelationInfo> relationCatalog;
 	
 	public SystemCatalog(String db_name)
 	{
