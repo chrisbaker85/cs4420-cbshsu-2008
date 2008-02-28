@@ -1,6 +1,4 @@
-/**
- * 
- */
+import java.util.*;
 
 /**
  * @author chrisb
@@ -95,6 +93,15 @@ public class Utility {
 		
 	}		
 	
+	public static int getTotalLength(ArrayList<Attribute> atts)
+	{
+		int len = 0;
+		for(int i = 0; i < atts.size(); i++)
+		{
+			len = len + Integer.parseInt(((Attribute)atts.get(i)).getLength());
+		}
+		return len;
+	}
 	/**
 	 * @param args
 	 */
