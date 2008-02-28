@@ -11,7 +11,6 @@ import org.xml.sax.SAXParseException;
 import java.io.File;
 import java.io.IOException;
 
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -37,9 +36,9 @@ public class Main
 		this.syscat = obj;
 	}
 	
-	public ArrayList readAttributes(String dbname, String table_name)
+	public Hashtable readAttributes(String dbname, String table_name)
 	{
-		ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+		Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
 		String filename = dbname + "_" + table_name + ".xml";
 		try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -47,11 +46,9 @@ public class Main
             Document doc = docBuilder.parse (new File(filename));
 
             doc.getDocumentElement ().normalize ();
-            // System.out.println ("Root element of the doc is " + doc.getDocumentElement().getNodeName());
 
 			NodeList listOfRelations = doc.getElementsByTagName("attribute");
 			int totalRelations = listOfRelations.getLength();
-            // System.out.println("Total no of people : " + totalRelations);
 
 			for(int s=0; s< listOfRelations.getLength(); s++)
 			{				
@@ -90,7 +87,7 @@ public class Main
 					textFNList = firstNameElement.getChildNodes();
 					String num_values = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					Attribute attObj = new Attribute(name, type, length, isnullable, table_name, id, num_values);
-					attributes.add(attObj);
+					attributes.put(name, attObj);
 				}
 			}
         }
@@ -116,7 +113,7 @@ public class Main
 	 * RelationInfo object, add to hashtable in SystemCatalog. For each relation, it will read 
 	 * attribute XML file. Then it will instantiate Attribute object, add it to hashtable in 
 	 * SystemCatalog
-	 * @param dbname
+	 * @param db_name: the name of the database
 	 */
 	public void readDBRelations(String db_name)
 	{
@@ -128,15 +125,12 @@ public class Main
             Document doc = docBuilder.parse (new File(filename));
 
             doc.getDocumentElement ().normalize ();
-            // System.out.println ("Root element of the doc is " + doc.getDocumentElement().getNodeName());
 
 			NodeList listOfRelations = doc.getElementsByTagName("relation");
 			int totalRelations = listOfRelations.getLength();
-            // System.out.println("Total no of people : " + totalRelations);
 
 			for(int s=0; s< listOfRelations.getLength(); s++)
 			{
-
                 Node firstRelationNode = listOfRelations.item(s);
                 if(firstRelationNode.getNodeType() == Node.ELEMENT_NODE)
                 {
@@ -177,9 +171,9 @@ public class Main
 					textFNList = firstNameElement.getChildNodes();
 					String numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					
-					ArrayList attributes = readAttributes(db_name, table_name);
+					Hashtable attributes = readAttributes(db_name, table_name);
 					RelationInfo relation = new RelationInfo(table_name, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, table_name + "_" + db_name + "index.dat", numBlock, attributes);
-					this.syscat.getRelationCatalog().put(id, relation);
+					this.syscat.addRelationCatalog(table_name, relation);
 				}
 			}
         }
@@ -202,12 +196,12 @@ public class Main
 	
 	/**
 	 * create a blank file for relation info
-	 * @param dbname
+	 * @param db_name
 	 */
-	public void createDB(String dbname)
+	public void createDB(String db_name)
 	{
 		try {	
-		File file = new File(dbname+"_relations.xml");
+		File file = new File(db_name+"_relations.xml");
 	    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 	    output.write("<relations>\n");
 	    output.write("</relations>\n");
@@ -223,25 +217,28 @@ public class Main
 	 * When CREATED TABLE command is entered, it will open file relations file for that database
 	 * Then, it append table info to the file. Then it create a file containing all the attribute
 	 * info for that table.  
-	 * @param tablename: name of table
+	 * @param table_name: name of table
 	 * @param attributes: list of attributes for that table
+	 * @param db_name: the name of the database
 	 */
-	public void createTable(String dbname, String table_name, String [][] attributes)
+	public void createTable(String db_name, String table_name, String [][] attributes)
 	{
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
 		String cur_date = (String)sdf.format(cal.getTime());
 		String line = "";
-        ArrayList<String> data = new ArrayList<String>();		
+        ArrayList<String> data = new ArrayList<String>();
+        Hashtable<String, Attribute> atts = new Hashtable<String, Attribute>();
+        int id = 0;
 		try {	
-			FileReader fr = new FileReader(dbname + "_relations.xml");
+			FileReader fr = new FileReader(db_name + "_relations.xml");
        		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
        		while((line = br.readLine()) != null)
        		{
        	 		data.add(line);
        		}
 
-       		int id = (data.size() - 2) / 7;
+       		id = (data.size() - 2) / 7;
        		int ind = data.size() - 1;
 			data.add(ind++, "<relation>");
 			data.add(ind++, "<name>" + table_name + "</name>\n");
@@ -254,7 +251,7 @@ public class Main
       		data.add(ind++, "</relation>\n");
       		data.add(ind++, "</relations>\n");
       		
-			File file = new File(dbname+"_relations.xml");
+			File file = new File(db_name+"_relations.xml");
 		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 		    
 		    for (int i = 0; i < data.size(); i++)
@@ -264,7 +261,7 @@ public class Main
 		    output.close();
 		    
 		    // write attributes for that relation into table
-		    file = new File(dbname + "_" + table_name + ".xml");
+		    file = new File(db_name + "_" + table_name + ".xml");
 			output = new BufferedWriter(new FileWriter(file));
 			output.write("<attributes>");
 			for (int i = 0; i < attributes.length; i++)
@@ -278,6 +275,9 @@ public class Main
 				output.write("<id>" + i + "</id>\n");
 				output.write("<num_values>0</num_values>\n");
 				output.write("</attribute>");
+				// how to ge attribute id for the relation
+				Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
+				atts.put(attributes[i][0], attObj);
 			}
 			output.write("</attributes>");
 			output.close();
@@ -286,16 +286,49 @@ public class Main
 		{
 			System.out.println(e.getMessage());
 		}
+		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "0", atts);
+		this.syscat.addRelationCatalog(table_name, relObj);
 	}
 	
 	public void insertQuery(String table_name, String [][] query)
 	{
 		// TODO: Scan through all the blocks in buffer to look for buffer that belongs to that relation and it has free space
+		// get RelationInfo object and Attribute object
+		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		Hashtable att = relObj.getAttribute();
+		ArrayList<Attribute> atts = new ArrayList<Attribute>();
+		for (int i = 0; i < query[1].length; i++)
+		{
+			if (att.containsKey(query[1][i])) atts.add((Attribute)att.get(query[1][i]));
+			else
+			{
+				System.out.println("Attribute " + query[1][i] + " doesn't exist");
+				break;
+			}
+		}
+		// TODO: scan block one by one
+	}
+	
+	public void selectQuery(String table_name, String [] fields, String from, String where)
+	{
+		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		Hashtable att = relObj.getAttribute();
+		ArrayList<Attribute> atts = new ArrayList<Attribute>();
+		for (int i = 0; i < fields.length; i++)
+		{
+			if (att.containsKey(fields[i])) atts.add((Attribute)att.get(fields[i]));
+			else
+			{
+				System.out.println("Attribute " + fields[i] + " doesn't exist");
+				break;
+			}
+		}
 	}
 	
 	public void useDatabase(String db_name)
 	{
 		syscat = new SystemCatalog(db_name); 
+		this.readDBRelations(db_name);
 	}
 	/**
 	 * @param args
