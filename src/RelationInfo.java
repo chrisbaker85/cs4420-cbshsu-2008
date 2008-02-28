@@ -194,8 +194,8 @@ public class RelationInfo {
 		}
 		
 		return offset;
-		
 	}
+	
 	
 	/**
 	 * @param args
