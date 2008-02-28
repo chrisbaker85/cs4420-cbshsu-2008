@@ -8,6 +8,8 @@
  * has been verified 
  */
 public class SQLCommandProcessor {
+	
+	QueryEngine qe = new Main();
 
 	public boolean parseCommand(String command) {
 		
@@ -35,8 +37,51 @@ public class SQLCommandProcessor {
 	
 	public String parseCreate(String command) {
 		
-		
 		return "";
+		
+	}
+	
+	/**
+	 * Parses a "create" query and 
+	 * @param command
+	 * @return
+	 */
+	public String parseCreateTable(String command) {
+		
+		String temp = command;
+		String table_name;
+		String[][] attributes;
+		
+		temp = command.substring(13);
+		table_name = temp.substring(0, temp.indexOf(" "));
+		
+		//System.out.println(table_name);
+		
+		//qe.createTable("", table_name, attributes);
+		return "";
+		
+	}
+	
+	public String parseCreateIndex(String command) {
+		
+		String temp = command;
+		String index_name;
+		String table_name;
+		String field_name;
+		
+		temp = command.substring(13);
+		index_name = temp.substring(0, temp.indexOf(" "));
+		
+		temp = temp.substring(index_name.length() + 4);
+		table_name = temp.substring(0, temp.indexOf(" "));
+		
+		field_name = temp.substring(temp.indexOf("(") + 1, temp.indexOf(")"));
+		
+		System.out.println("[" + index_name + "][" + table_name + "][" + field_name + "]");
+		
+		//qe.createIndex("", table_name, attributes);
+		return "";
+		
 	}
 	
 	public String parseInsert(String command) {
@@ -50,6 +95,7 @@ public class SQLCommandProcessor {
 		
 		return "";
 	}
+	
 	/**
 	 * @param args
 	 */
