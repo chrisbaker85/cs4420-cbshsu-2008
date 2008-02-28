@@ -41,7 +41,9 @@ public class UI {
 				
 			  String input = stdin.readLine();
 			  
-			  if (input.equals("EXIT") || input.equals("exit")) {
+			  input = input.toLowerCase();
+			  
+			  if (input.equals("exit")) {
 				  
 				  running = false;
 				  break;
@@ -89,47 +91,50 @@ public class UI {
 	 * @param input the user's input
 	 * @return boolean - syntax is valid or not
 	 */
+	/**
+	 * @param input
+	 * @return
+	 */
 	private boolean checkSyntax(String input) {
 		
 		boolean b = false;
 		String result;
 		
-		b = Pattern.matches("((SELECT)|(select)) ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) ((FROM)|(from)) [a-zA-Z]+( ((WHERE)|(where)) [a-zA-Z]+( )?=( )?[a-zA-Z]+)?", input);
+		b = Pattern.matches("select ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) from [a-zA-Z]+( where [a-zA-Z]+( )?=( )?[a-zA-Z]+)?", input);
 		if (b) {
 			result = proc.parseSelect(input);
 			return true;
 		}
 		
-		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((INDEX)|(index)) [a-zA-Z]+ [a-zA-Z]+", input);
+		b = Pattern.matches("select \\* from index [a-zA-Z]+ [a-zA-Z]+", input);
 		if (b) {
 			result = proc.parseSelect(input);
 			return true;
 		}
 		
-		b = Pattern.matches("((SELECT)|(select)) \\* ((FROM)|(from)) ((CATALOG)|(catalog)) [a-zA-Z]+", input);
+		b = Pattern.matches("select \\* from catalog [a-zA-Z]+", input);
 		if (b) {
 			result = proc.parseSelect(input);
 			return true;
 		}
 		
 		//TODO: FIX ME
-		b = Pattern.matches("((INSERT)|(insert)) ((INTO)|(into)) [a-zA-Z]+(\\(([a-zA-Z]|([a-zA-Z], ([a-zA-Z], )* ([a-zA-Z])))*\\))? ((VALUES)|(values)) \\(([a-zA-Z])+\\)", input);
+		b = Pattern.matches("insert into [a-zA-Z]+(\\(([a-zA-Z]|([a-zA-Z], ([a-zA-Z], )* ([a-zA-Z])))*\\))? values \\(([a-zA-Z])+\\)", input);
 		if (b) {
 			result = proc.parseInsert(input);
 			return true;
 		}
 		
 		// TODO: FIX ME
-		b = Pattern.matches("CREATE INDEX index_name ON table_name (attr)", input);
+		b = Pattern.matches("create index [a-zA-Z0-9]+ on [a-zA-Z0-9]+ \\([a-zA-Z0-9]+\\)", input);
 		if (b) {
-			result = proc.parseCreate(input);
+			result = proc.parseCreateIndex(input);
 			return true;
 		}
 		
-		// 
-		b = Pattern.matches("((CREATE)|(create)) ((TABLE)|(table)) ([a-zA-Z_-]+) (([a-zA-Z_-]+) (string|int)( ,( )?[a-zA-Z_-]+)* (string|int))", input);
+		b = Pattern.matches("create table ([a-zA-Z_-]+)( )?\\(([a-zA-Z_-]+) (string|int)(((,( )?[a-zA-Z_-]+) (string|int))*)\\)", input);
 		if (b) {
-			result = proc.parseCreate(input);
+			result = proc.parseCreateTable(input);
 			return true;
 		}
 		
