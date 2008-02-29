@@ -103,7 +103,7 @@ public class Tuple {
 			
 		}
 		
-		this.block.isUpdated = true;
+		this.block.isUpdated();
 		
 	}
 	
