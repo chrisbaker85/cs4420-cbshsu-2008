@@ -25,6 +25,15 @@ public class SystemCatalog {
 		this.attributeCatalog.put(key, attObj);
 	}
 	*/
+	public void setDBName(String db_name)
+	{
+		this.db_name = db_name;
+	}
+	
+	public String getDBName()
+	{
+		return this.db_name;
+	}
 	
 	public Hashtable getRelationCatalog()
 	{
