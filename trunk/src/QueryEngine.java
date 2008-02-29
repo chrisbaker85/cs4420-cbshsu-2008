@@ -16,5 +16,5 @@ public interface QueryEngine {
 	public boolean selectQuery(String table_name, String [] fields, String[][] where);
 	public boolean selectIndexQuery(String table_name, String index_name);
 	public boolean selectCatalogQuery();
-	
+	public void exit();
 }
