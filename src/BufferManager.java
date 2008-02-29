@@ -205,7 +205,7 @@ public class BufferManager {
 	/**
 	 * Read a block with the given block ID into the memory.
 	 */
-	private void readBlock(long blockID) {
+	public void readBlock(long blockID) {
 
 		int slot_num = nextSlot();
 
@@ -263,7 +263,7 @@ public class BufferManager {
 	 * block in the memory is the same as that in the disc. If the status is not
 	 * updated, it does nothing.
 	 */
-	private void writeBlock(long blockID) {
+	public void writeBlock(long blockID) {
 		
 		Block temp = null;
 
