@@ -106,7 +106,7 @@ public class UI {
 			return true;
 		}
 		
-		b = Pattern.matches("select \\* from index [a-zA-Z0-9_-]+ [a-zA-Z]+", input);
+		b = Pattern.matches("select \\* from index [a-zA-Z0-9_-]+ [a-zA-Z0-9_-]+", input);
 		if (b) {
 			result = proc.parseIndexSelect(input);
 			return true;
@@ -124,9 +124,7 @@ public class UI {
 			return true;
 		}
 		
-		// TODO: FIX ME
-		// FORGOT TO ADD [NO DUPLICATES]
-		b = Pattern.matches("create index [a-zA-Z0-9_-]+ on [a-zA-Z0-9_-]+ \\([a-zA-Z0-9_-]+\\)", input);
+		b = Pattern.matches("create index [a-zA-Z0-9_-]+ on [a-zA-Z0-9_-]+ \\([a-zA-Z0-9_-]+\\)(( )?\\[no duplicates\\])?", input);
 		if (b) {
 			result = proc.parseCreateIndex(input);
 			return true;
