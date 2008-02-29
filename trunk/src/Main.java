@@ -442,22 +442,20 @@ public class Main implements QueryEngine
 	public boolean selectQuery(String table_name, String [] fields, String [][] where)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
-		Hashtable att = relObj.getAttribute();
-		ArrayList<Attribute> atts = new ArrayList<Attribute>();
+		Hashtable atts = relObj.getAttribute();
+		int tupleLength = Utility.getTotalLength(atts); 
+		// testing if the field entered by user exists
 		for (int i = 0; i < fields.length; i++)
 		{
-			if (att.containsKey(fields[i])) atts.add((Attribute)att.get(fields[i]));
-			else
+			if (!atts.containsKey(fields[i]))
 			{
 				System.out.println("Attribute " + fields[i] + " doesn't exist");
 				return false;
 			}
 		}
 		/**
-		 * 1. Scan through block one by one
-		 * 2. Compare table name and id using Hashtable in BufferManager
-		 * 3. Use iterator to read tuple
-		 * 4. Compare condition 
+		 * 1. Iterate tuple by tuple
+		 * 2. parse it to 
 		 */
 		
 		/*
@@ -472,7 +470,15 @@ public class Main implements QueryEngine
 		}
 		*/
 		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
-		
+		Tuple tuple;
+		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
+		{
+			tuple = iterator.getNext();
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] data = block.getTupleContent(offset, tupleLength);
+			// String [] results = Utility.convertTupleToArray(atts, )
+		}
 		return true;
 	}
 	
@@ -520,7 +526,7 @@ public class Main implements QueryEngine
 		{
 			System.out.print(err.getMessage());
 		}
-		
+		System.exit(0);
 	}
 	
 	/**
