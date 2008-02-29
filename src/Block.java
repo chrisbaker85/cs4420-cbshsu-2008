@@ -17,8 +17,9 @@ public class Block {
 	public boolean isPinned = false;
 	
 	/**
-	 * The blockID to which this block reference. Check the class Block
-	 * to see how to obtain the blockID.
+	 * The blockID to which this block reference.  The first
+	 * 4 bytes of the variable is the file number.  the second
+	 * 4 bytes is the offset of the block in the file on disk.
 	 */ 
 	public long blockID = -1;
 	
@@ -26,7 +27,7 @@ public class Block {
 	 * This flag should be set to true when a transaction updates the block 
 	 * and writes it to the buffer.
 	 */
-	public boolean isUpdated = false;
+	private boolean isUpdated = false;
 	
 	public Block()
 	{}
