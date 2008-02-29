@@ -22,15 +22,25 @@ import org.w3c.dom.NodeList;
 
 public class Main implements QueryEngine
 {
-
-	private SystemCatalog syscat;
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
+	private SystemCatalog syscat;
+	private BufferManager bufman; 
 
+	public BufferManager getBm()
+	{
+		return this.bufman;
+	}
+	
+	public void setBm(BufferManager bm)
+	{
+		this.bufman = bm;
+	}
+	
 	public SystemCatalog getSysCat()
 	{
 		return this.syscat;
 	}
-	
+
 	public void setSysCat(SystemCatalog obj)
 	{
 		this.syscat = obj;
