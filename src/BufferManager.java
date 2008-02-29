@@ -291,6 +291,22 @@ public class BufferManager {
 			buffer[slot_num].setUpdated(true);
 		}
 	}
+	
+	public void addBlockToBuffer(Block b) {
+		
+		// Find a blank slot in the buffer
+		int blank = this.nextSlot();
+		
+		// Add the block to the buffer in that slot
+		this.buffer[blank] = b;
+		
+		// Add the block to the lookup table with block id
+		this.lookupTable.put(b.getBlockID(), blank);
+		
+		// Mark the block as 'updated' so that it will be written to disk
+		b.isUpdated();
+		
+	}
 
 	public static void main(String[] args) throws IOException 
 	{
