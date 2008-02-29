@@ -41,14 +41,14 @@ public class BufferManager {
 
 	String db_name;
 	Hashtable<Long, Integer> lookupTable = null;
-	Hashtable<Integer, String> filenames = null;
+	Hashtable<Integer, String> tableNames = null;
 
 	public void initialize() {
 		// initialize the buffer
 		buffer = new Block[Parameters.NUM_BLOCK_BUFFER];
 		// initialize the lookupTable
 		lookupTable = new Hashtable<Long, Integer>();
-		filenames = new Hashtable<Integer, String>();
+		tableNames = new Hashtable<Integer, String>();
 	}
 
 	public void setDbName(String db_name)
@@ -64,7 +64,7 @@ public class BufferManager {
 			RelationInfo rel = (RelationInfo)e.nextElement();
 			String filename = rel.getName().trim();
 			Integer id = new Integer(rel.getId());
-			this.filenames.put(id, filename);
+			this.tableNames.put(id, filename);
 		}
 	}
 	
@@ -228,7 +228,7 @@ public class BufferManager {
 			{
 				int[] split = Utility.split(blockID);
 				// String fileNameID = "" + split[0];
-				String filename = db_name + "_" + filenames.get(split[0]) + "_data.dat";
+				String filename = db_name + "_" + tableNames.get(split[0]) + "_data.dat";
 				int offSet = split[1];
 
 				RandomAccessFile fileIn = new RandomAccessFile(filename, "rw");
@@ -278,7 +278,7 @@ public class BufferManager {
 				{
 					int[] split = Utility.split(temp.getBlockID());
 					// String fileNameID = "" + split[0];
-					String filename = db_name + "_" + filenames.get(split[0]) + "_data.dat";
+					String filename = db_name + "_" + tableNames.get(split[0]) + "_data.dat";
 					int offSet = split[1];
 					RandomAccessFile fileOut = new RandomAccessFile(filename, "rw");
 					FileChannel fileChannel = fileOut.getChannel();
