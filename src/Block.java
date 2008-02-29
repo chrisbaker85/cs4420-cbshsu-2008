@@ -36,10 +36,37 @@ public class Block {
 		this.content = content;
 	}
 	
+	/**
+	 * it returns the number of record in the block. 
+	 * @return
+	 */
 	public int getRecordNumber()
 	{
-		// how to map from array to int? 
-		return 0;
+		byte [] byteArray = new byte[4];
+		byteArray[0] = this.content[0];
+		byteArray[1] = this.content[1];
+		byteArray[2] = this.content[2];
+		byteArray[3] = this.content[3];
+		return Utility.makeIntFromByte4(byteArray);
+	}
+	
+	/**
+	 * It updates the number of record in the block
+	 */
+	public void updateRecordNumber(int blockNum)
+	{
+		byte [] byteArray = new byte[4];
+		byteArray[0] = this.content[0];
+		byteArray[1] = this.content[1];
+		byteArray[2] = this.content[2];
+		byteArray[3] = this.content[3];
+		int recNum = Utility.makeIntFromByte4(byteArray);
+		recNum = recNum + blockNum;
+		byteArray = Utility.makeByte4FromInt(recNum);
+		content[0] = byteArray[0];
+		content[1] = byteArray[1];
+		content[2] = byteArray[2];
+		content[3] = byteArray[3];
 	}
 
 	public int getBlockNumber()
