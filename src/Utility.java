@@ -58,7 +58,6 @@ public class Utility {
 		
 	}
 	
-		
 	/**
 	 * Given block_number, compute the offset of the beginning of the block
 	 * relative to the beginning of a file. 
@@ -87,10 +86,8 @@ public class Utility {
 	 */ 
 	public IndexInfo getIndexInfo(int blockID)
 	{
-		
 		return new IndexInfo();
-		
-	}		
+	}
 	
 	/**
 	 * get the combined length of attrbute given array of attribute objects
@@ -194,6 +191,8 @@ public class Utility {
 		return -1;
 	}
 	
+	
+	
 	/**
 	 * return name of attributes give the hashtable of attribute
 	 * @param atts
@@ -214,6 +213,7 @@ public class Utility {
 		}
 		return strs;
 	}
+	
 	/**
 	 * @param args
 	 */
