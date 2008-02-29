@@ -40,6 +40,26 @@ public class Tuple {
 		
 	}
 	
+	public Block getBlock()
+	{
+		return this.block;
+	}
+	
+	public int getOffset()
+	{
+		return this.offset;
+	}
+	
+	public void setBlock(Block block)
+	{
+		this.block = block;
+	}
+	
+	public void setOffset(int offset)
+	{
+		this.offset = offset;
+	}
+	
 	/**
 	 * 
 	 * This method may be needed later.  Currently returns -1
