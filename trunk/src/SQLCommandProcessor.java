@@ -43,7 +43,7 @@ public class SQLCommandProcessor {
 	
 	/**
 	 * Parses a "create table" query
-	 * @param command the String query
+	 * @param command the String query, syntax-checked
 	 * @return some output
 	 */
 	public String parseCreateTable(String command) {
@@ -82,7 +82,7 @@ public class SQLCommandProcessor {
 	}
 	
 	/**
-	 * 
+	 * Parses a "create index" query
 	 * @param command the actual query as a String
 	 * @return some output
 	 */
@@ -92,7 +92,9 @@ public class SQLCommandProcessor {
 		String index_name;
 		String table_name;
 		String field_name;
+		boolean duplicates;
 		
+		duplicates = temp.endsWith(" [no duplicates]");
 		temp = command.substring(13);
 		index_name = temp.substring(0, temp.indexOf(" "));
 		
@@ -103,11 +105,16 @@ public class SQLCommandProcessor {
 		
 		System.out.println("[" + index_name + "][" + table_name + "][" + field_name + "]");
 		
-		qe.createIndexQuery(index_name, table_name, field_name);
+		qe.createIndexQuery(index_name, table_name, field_name, duplicates);
 		return "";
 		
 	}
 	
+	/**
+	 * Parses an insert query
+	 * @param command The raw query, already checked for syntax
+	 * @return
+	 */
 	public String parseInsert(String command) {
 		
 		String temp, temp_attr;
@@ -149,15 +156,18 @@ public class SQLCommandProcessor {
 		return "";
 	}
 	
+	/**
+	 * Parses a "select x from table" query
+	 * @param command the string input, checked for syntax
+	 * @return some output
+	 */
 	public String parseTableSelect(String command) {
 		
 		String table_name;
 		String[] fields;
 		String temp;
-		String[][] where;
+		String[][] where = null;
 		String[] where_pairs;
-		String[] where_field;
-		String[] where_value;
 		String[] where_temp;
 		
 		temp = command.substring(7);
@@ -186,8 +196,6 @@ public class SQLCommandProcessor {
 			
 			table_name = temp;
 			where_pairs = null;
-			where_field = null;
-			where_value = null;
 			
 		} else {
 		
@@ -196,41 +204,67 @@ public class SQLCommandProcessor {
 			
 			// Also, extract the where conditions
 			temp = temp.substring(temp.indexOf(" where ") + 7);
-			
+			where = new String[command.split("=").length - 1][2];
+			                     
 			where_pairs = temp.split(",( )?");
 		
-			where_field = new String[where_pairs.length];
-			where_value = new String[where_pairs.length];
 		}
 		
 		
-		System.out.println("[" + table_name + "]");
+		//System.out.println("[" + table_name + "]");
 		for (int i = 0; i < where_pairs.length; i++) {
 			
 			//System.out.println("[" + where_pairs[i] + "]");
 			where_temp = where_pairs[i].split("( )?=( )?");
-			where_field[i] = where_temp[0];
-			where_value[i] = where_temp[1];
-			//System.out.println("[" + where_field[i] + "/" + where_value[i] + "]");
+			where[i][0] = where_temp[0];
+			where[i][1] = where_temp[1];
+			//System.out.println("[" + where[i][0] + "/" + where[i][1] + "]");
 			
 		}
 		
-
-		
+		qe.selectQuery(table_name, fields, where);
 		
 		return "";
 	}
 	
+	/**
+	 * Parses a "select x from index" query
+	 * @param command input query, checked for syntax
+	 * @return some output
+	 */
 	public String parseIndexSelect(String command) {
 		
-		return "";
-	}
-	
-	public String parseCatalogSelect(String command) {
+		String temp = command;
+		String table_name;
+		String index_name;
+		
+		temp = command.substring(20);
+		table_name = temp.substring(0, temp.indexOf(" "));
+		index_name = temp.substring(temp.indexOf(" ") + 1, temp.length());
+		//System.out.println(table_name + "/" + index_name);
+		
+		qe.selectIndexQuery(table_name, index_name);
 		
 		return "";
 	}
 	
+	/**
+	 * Parses a "select * from catalog" query
+	 * @param command checked for syntax
+	 * @return
+	 */
+	public String parseCatalogSelect(String command) {
+		
+		qe.selectCatalogQuery();
+		
+		return "";
+	}
+	
+	/**
+	 * UNUSED
+	 * @param command
+	 * @return
+	 */
 	public String parseSelect(String command) {
 		
 		
