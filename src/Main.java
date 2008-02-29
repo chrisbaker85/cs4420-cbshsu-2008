@@ -24,8 +24,14 @@ public class Main implements QueryEngine
 {
 	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
 	private SystemCatalog syscat;
-	private BufferManager bufman; 
-
+	private BufferManager bufman;
+	private boolean dbUsed = false;
+	
+	public Main()
+	{
+		bufman = new BufferManager(); 
+	}
+	
 	public BufferManager getBm()
 	{
 		return this.bufman;
@@ -221,6 +227,7 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
+		this.useDatabase(db_name);
 	}
 	
 	/**
@@ -285,7 +292,7 @@ public class Main implements QueryEngine
 				output.write("<id>" + i + "</id>\n");
 				output.write("<num_values>0</num_values>\n");
 				output.write("</attribute>");
-				// how to ge attribute id for the relation
+				// how to get attribute id for the relation
 				Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
 				atts.put(attributes[i][0], attObj);
 			}
@@ -298,6 +305,15 @@ public class Main implements QueryEngine
 		}
 		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "0", atts);
 		this.syscat.addRelationCatalog(table_name, relObj);
+		// update filename Hashtable in BufferManager 
+		this.bufman.getFilenames(syscat.getRelationCatalog());
+		// insert blank block to file and buffer
+		// create a blank block and insert it into buffer and file
+		Block block = new Block();
+		bufman.addBlockToBuffer(block);
+		long blockID = Utility.combine(id, 0);
+		bufman.writeBlock(blockID);
+		block.setUpdated(false);
 	}
 	
 	public void insertQuery(String table_name, String [][] query)
@@ -330,12 +346,48 @@ public class Main implements QueryEngine
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
-		// TODO: scan block one by one
-		// Now that we have attribute object, and relationinfo object
-		//for (int i = 0; i < bufman.getTableSize(); i++)
-		//{
-			
-		//}
+		/**
+		 * 1. calculate offset of the last
+		 * 2. combine file_id & offset into long
+		 * 3. get that block (copy it to buffer)
+		 * 4. test if that block has enough room for a tuple
+		 * 5. if yes, writeToBlock()
+		 * 6. else, instantiate Block object
+		 * 7. insert that into BufferManager
+		 * 8. writeToBlock()
+		 * 9. write block to file
+		 */ 
+		int blockNum = Integer.parseInt(relObj.getNumDataBlocks().trim());
+		int lastOffset = Parameters.BLOCK_SIZE * (blockNum - 1);
+		int fileId = relObj.getId();
+		long blockID = Utility.combine(fileId, lastOffset);
+		Block block = bufman.getBlock(blockID);
+		int maxRecNum = Parameters.BLOCK_SIZE / Utility.getTotalLength(atts);
+		int recNum = block.getRecordNumber();
+		if (recNum < maxRecNum)
+		{
+			block.writeToBlock(dataToWrite);
+			bufman.writeBlock(blockID);
+			block.setUpdated(false);
+		}
+		else
+		{
+				/**
+			 	 * 1. create a new block
+				 * 2. add block to buffer
+				 * 3. calculate offset
+				 * 4. combine into blockID
+				 */ 
+			block = new Block();
+			block.writeToBlock(dataToWrite);
+			bufman.addBlockToBuffer(block);
+			lastOffset = Parameters.BLOCK_SIZE * blockNum;
+			blockID = Utility.combine(fileId, lastOffset);
+			block.writeToBlock(dataToWrite);
+			bufman.writeBlock(blockID);
+			block.setUpdated(false);
+		}
+		
 	}
 	
 	/**
@@ -345,7 +397,7 @@ public class Main implements QueryEngine
 	 * @param table_name: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public void createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
+	public void createIndexQuery(String index_name, String table_name, String field_name) {
 		
 		// TODO: FIX ME
 		
@@ -356,7 +408,8 @@ public class Main implements QueryEngine
 	 * @param table_name the table
 	 * @param index_name the index
 	 */
-	public void selectIndexQuery(String table_name, String index_name) {
+	public void selectIndexQuery(String table_name, String index_name) 
+	{
 		
 		
 	}
@@ -368,7 +421,7 @@ public class Main implements QueryEngine
 		
 	}
 	
-	public void selectQuery(String table_name, String [] fields, String[][] where)
+	public void selectQuery(String table_name, String [] fields, String [][] where)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable att = relObj.getAttribute();
@@ -382,13 +435,19 @@ public class Main implements QueryEngine
 				break;
 			}
 		}
+		/**
+		 * 1. Scan through 
+		 */
 	}
 	
 	public void useDatabase(String db_name)
 	{
 		syscat = new SystemCatalog(db_name); 
 		this.readDBRelations(db_name);
+		bufman.setDbName(db_name);
+		bufman.getFilenames(syscat.getRelationCatalog());
 	}
+	
 	/**
 	 * @param args
 	 */
