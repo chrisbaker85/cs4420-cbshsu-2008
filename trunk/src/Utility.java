@@ -77,7 +77,6 @@ public class Utility {
 	 */ 
 	public RelationInfo getRelationInfo(int blockID)
 	{
-		
 		return new RelationInfo();
 		
 	}
@@ -148,6 +147,7 @@ public class Utility {
 		}
 		return dataArray;
 	}
+	
 	/**
 	 * @param args
 	 */
