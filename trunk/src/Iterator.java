@@ -1,7 +1,7 @@
 /**
  * 
  */
-
+import java.util.*;
 /**
  * @author chrisb
  * This object iterates through the tuples in a given relation
@@ -79,6 +79,10 @@ public class Iterator {
 	public Tuple getNext() {
 		
 		this.current_tuple_num++;
+		
+		Hashtable<String, Attribute> atts = this.ri.getAttribute();
+		int len = Utility.getTotalLength(atts);
+		Tuple tuple;
 		
 		// The iterator is crossing a block boundary, so get the next block
 		if (this.current_tuple_num > this.num_tuples) {
