@@ -32,8 +32,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class BufferManager {
-	int num_buffer = 10;
-
 	/**
 	 * This is the buffer to store and load the data. You need to determine the
 	 * size of the buffer = num_block * block_size. Don't forget to initialize
