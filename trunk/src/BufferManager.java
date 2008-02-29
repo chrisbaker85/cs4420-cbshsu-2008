@@ -197,6 +197,7 @@ public class BufferManager {
 			}
 		}
 		
+		System.out.println("No empty buffer slot could be found");
 		return -1;
 
 	}
