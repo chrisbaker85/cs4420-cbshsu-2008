@@ -238,7 +238,7 @@ public class Main implements QueryEngine
 	 * @param attributes: list of attributes for that table
 	 * @param db_name: the name of the database
 	 */
-	public void createTable(String db_name, String table_name, String [][] attributes)
+	public boolean createTable(String db_name, String table_name, String [][] attributes)
 	{
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
@@ -254,21 +254,20 @@ public class Main implements QueryEngine
        		{
        	 		data.add(line);
        		}
-
        		id = (data.size() - 2) / 7;
        		int ind = data.size() - 1;
-			data.add(ind++, "<relation>");
+			data.add(ind++, "<relation>\n");
 			data.add(ind++, "<name>" + table_name + "</name>\n");
 			data.add(ind++, "<date_created>" + cur_date + "</date_created>\n");
 			data.add(ind++, "<date_modified>" + cur_date + "</date_modified>\n");
 			data.add(ind++, "<num_tuple>0</num_tuple>\n");
 			data.add(ind++, "<id>" + id + "</id>\n");
 			data.add(ind++, "<cols_indexed>-1</cols_indexed>\n");
-			data.add(ind++, "<num_block>0</num_block>\n");
+			data.add(ind++, "<num_block>1</num_block>\n");
       		data.add(ind++, "</relation>\n");
-      		data.add(ind++, "</relations>\n");
+      		data.add(ind++, "</relations>");
       		
-			File file = new File(db_name+"_relations.xml");
+			File file = new File(db_name + "_relations.xml");
 		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 		    
 		    for (int i = 0; i < data.size(); i++)
@@ -280,10 +279,10 @@ public class Main implements QueryEngine
 		    // write attributes for that relation into table
 		    file = new File(db_name + "_" + table_name + ".xml");
 			output = new BufferedWriter(new FileWriter(file));
-			output.write("<attributes>");
+			output.write("<attributes>\n");
 			for (int i = 0; i < attributes.length; i++)
 			{
-				output.write("<attribute>");
+				output.write("<attribute>\n");
 				output.write("<name>" + attributes[i][0] + "</name>\n");
 				output.write("<type>" + attributes[i][1] + "</type>\n");
 				output.write("<length>" + attributes[i][2] + "</length>\n");
@@ -291,7 +290,7 @@ public class Main implements QueryEngine
 				output.write("<relation_name>" + table_name + "</relation_name>\n");
 				output.write("<id>" + i + "</id>\n");
 				output.write("<num_values>0</num_values>\n");
-				output.write("</attribute>");
+				output.write("</attribute>\n");
 				// how to get attribute id for the relation
 				Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
 				atts.put(attributes[i][0], attObj);
@@ -306,17 +305,29 @@ public class Main implements QueryEngine
 		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "0", atts);
 		this.syscat.addRelationCatalog(table_name, relObj);
 		// update filename Hashtable in BufferManager 
-		this.bufman.getFilenames(syscat.getRelationCatalog());
-		// insert blank block to file and buffer
+		this.bufman.getTableNames(syscat.getRelationCatalog());
+		// create a blank data file
+		try {
+			File file = new File(db_name + "_" + table_name + "_data.dat");
+			BufferedWriter output = new BufferedWriter(new FileWriter(file));
+			output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
+	    
 		// create a blank block and insert it into buffer and file
 		Block block = new Block();
 		bufman.addBlockToBuffer(block);
 		long blockID = Utility.combine(id, 0);
 		bufman.writeBlock(blockID);
 		block.setUpdated(false);
+		
+		return true;
 	}
 	
-	public void insertQuery(String table_name, String [][] query)
+	public boolean insertQuery(String table_name, String [][] query)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
@@ -327,7 +338,7 @@ public class Main implements QueryEngine
 			if (!atts.containsKey(query[0][i])) 
 			{
 				System.out.println("Attribute " + query[1][i] + " doesn't exist");
-				break;
+				return false;
 			}
 			// verify the length of string
 			else 
@@ -338,11 +349,11 @@ public class Main implements QueryEngine
 					if (query[1][i].length() > Integer.parseInt(att.getLength()))
 					{
 						System.out.println(query[1][i] + " exceeds maximum length");
+						return false;
 					}
 				}
 			}
 		}
-		
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
@@ -368,6 +379,8 @@ public class Main implements QueryEngine
 		{
 			block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
+			relObj.updateDateModified();
+			relObj.updateTupleNumber(1);
 			block.setUpdated(false);
 		}
 		else
@@ -385,8 +398,12 @@ public class Main implements QueryEngine
 			blockID = Utility.combine(fileId, lastOffset);
 			block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
+			relObj.updateDateModified();
+			relObj.updateTupleNumber(1);
 			block.setUpdated(false);
+			relObj.updateBlockNumber(1);
 		}
+		return true;
 		
 	}
 	
@@ -397,9 +414,10 @@ public class Main implements QueryEngine
 	 * @param table_name: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public void createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
+	public boolean createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
 		
 		// TODO: FIX ME
+		return false;
 		
 	}
 	
@@ -408,20 +426,20 @@ public class Main implements QueryEngine
 	 * @param table_name the table
 	 * @param index_name the index
 	 */
-	public void selectIndexQuery(String table_name, String index_name) 
+	public boolean selectIndexQuery(String table_name, String index_name) 
 	{
-		
+		return false;
 		
 	}
 	
 	/**
 	 * Displays the catalog information
 	 */
-	public void selectCatalogQuery() {
-		
+	public boolean selectCatalogQuery() {
+		return false;
 	}
 	
-	public void selectQuery(String table_name, String [] fields, String [][] where)
+	public boolean selectQuery(String table_name, String [] fields, String [][] where)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable att = relObj.getAttribute();
@@ -432,20 +450,77 @@ public class Main implements QueryEngine
 			else
 			{
 				System.out.println("Attribute " + fields[i] + " doesn't exist");
-				break;
+				return false;
 			}
 		}
 		/**
-		 * 1. Scan through 
+		 * 1. Scan through block one by one
+		 * 2. Compare table name and id using Hashtable in BufferManager
+		 * 3. Use iterator to read tuple
+		 * 4. Compare condition 
 		 */
+		
+		/*
+		Block block;
+		int fileID = relObj.getId();
+		for (int i = 0; i < Integer.parseInt(relObj.getNumDataBlocks()); i++)
+		{
+			int offset = Parameters.BLOCK_SIZE * i;
+			long blockID = Utility.combine(fileID, offset);
+			block = bufman.getBlock(blockID);
+			
+		}
+		*/
+		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
+		
+		return true;
 	}
 	
+	/**
+	 * select database that user want to work on
+	 * @param db_name
+	 */
 	public void useDatabase(String db_name)
 	{
 		syscat = new SystemCatalog(db_name); 
 		this.readDBRelations(db_name);
 		bufman.setDbName(db_name);
-		bufman.getFilenames(syscat.getRelationCatalog());
+		bufman.getTableNames(syscat.getRelationCatalog());
+	}
+	
+	/**
+	 * write system catalog back to file because some of info may have chanaged: 
+	 *  - add more table
+	 *  - change number of block 
+	 */
+	public void exit()
+	{
+		Enumeration e = syscat.getRelationCatalog().elements();
+		try {
+			File file = new File(syscat.getDBName() + "_relations.xml");
+			BufferedWriter output = new BufferedWriter(new FileWriter(file));
+			output.write("<relations>\n");
+			while(e.hasMoreElements())
+			{
+				RelationInfo relObj = (RelationInfo) e.nextElement();
+				output.write("<relation>\n");
+				output.write("<name>" + relObj.getName() + "</name>\n");
+				output.write("<date_created>" + relObj.getDateCreated() + "</date_created>\n");
+				output.write("<date_modified>" + relObj.getDateModified() + "</date_modified>\n");
+				output.write("<num_tuple>" + relObj.getNumTuples() + " </num_tuple>\n");
+				output.write("<id>" + Integer.toString(relObj.getId()) + "</id>\n");
+				output.write("<cols_indexed>" + relObj.getColsIndexed() + "</cols_indexed>\n");
+				output.write("<num_block>" + relObj.getNumDataBlocks() + "</num_block>\n");
+	      		output.write("</relation>\n");
+			}
+			output.write("</relations>");
+			output.close();
+		}
+		catch(IOException err)
+		{
+			System.out.print(err.getMessage());
+		}
+		
 	}
 	
 	/**
