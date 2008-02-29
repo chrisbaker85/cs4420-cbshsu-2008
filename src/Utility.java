@@ -118,7 +118,7 @@ public class Utility {
 			Attribute att = (Attribute)e.nextElement();
 			len = len + Integer.parseInt(att.getLength());
 		}
-		return len;
+		return len + Parameters.TUPLE_HEADER_SIZE;
 	}
 	
 	/**
@@ -138,7 +138,12 @@ public class Utility {
 		byte [] dataArray = new byte[len];
 		// go through element by element and test nullable
 		String [] attNames = Utility.getAttributeNames(atts);
-		int pos = 0;
+		int pos = 4;
+		byte [] deleted = Utility.makeByte4FromInt(0);
+		dataArray[0] = deleted[0];
+		dataArray[1] = deleted[1];
+		dataArray[2] = deleted[2];
+		dataArray[3] = deleted[3];
 		for (int i = 0; i < atts.size(); i++)
 		{
 			Attribute att = atts.get(attNames[i]);
@@ -171,7 +176,6 @@ public class Utility {
 			}
 			pos = pos + attLen;
 		}
-		
 		
 		return dataArray;
 	}
