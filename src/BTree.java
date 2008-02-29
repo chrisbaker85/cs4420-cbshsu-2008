@@ -119,6 +119,12 @@ public class BTree
 		}
 	}
 	
+	public boolean isEmpty(int rank)
+	{
+		int ptrs = this.pointersCount (rank);
+		return (ptrs == 0);
+	}
+	
 	public boolean hasLimit(int rank)
 	{
 		int keys = this.keysCount (rank);
@@ -139,11 +145,17 @@ public class BTree
 			return (ptrs >= Math.floor(nodeCapacity/2));
 		}
 	}
+	
+	private long pointTo(int rank, int keyOrder)
+	{
+		return (long)((rank - 1) * sizeOfNode + 16 + (keyOrder - 1) * 8);
+	}
 			
 	public static void main (String[] args)
 	{
 		BTree tree = new BTree("Test");
-		System.out.println (tree.buffer.getLong(16));
+		tree.setPointersCount(1, 6);
+		System.out.println (tree.isFull(1));
 	}
 	
 }
