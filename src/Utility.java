@@ -139,15 +139,81 @@ public class Utility {
 	{
 		int len = Utility.getTotalLength(atts);
 		byte [] dataArray = new byte[len];
-		Enumeration e = atts.keys();
-		String newstr = "";
-		while(e.hasMoreElements())
+		// go through element by element and test nullable
+		String [] attNames = Utility.getAttributeNames(atts);
+		int pos = 0;
+		for (int i = 0; i < atts.size(); i++)
 		{
-			String key = (String)e.nextElement();
+			Attribute att = atts.get(attNames[i]);
+			String attName = att.getName();
+			String attType = att.getType();
+			int attLen = Integer.parseInt(att.getLength()); 
+			if (att.getIsNullable().equals("no"))
+			{
+				if(Utility.searchStringArray(attName, fields) == -1)
+				{
+					// maybe we should throw exception here
+					System.out.println(attName + " cannot be null");
+				}
+			}
+			int ind = searchStringArray(attName, fields);
+			if (ind != -1)	// if the field is specified
+			{
+				// in case of int, convert to integer, then convert to array of byte
+				byte [] tempData = new byte[attLen];
+				if (attType.equals("int"))
+				{
+					int temp = Integer.parseInt(data[ind]);
+					tempData = Utility.makeByte4FromInt(temp);
+				}
+				// copy byte by byte dataArray 
+				for (int j = 0; i < attLen; i++)
+				{
+					dataArray[j + pos] = tempData[j];
+				}
+			}
+			pos = pos + attLen;
 		}
+		
+		
 		return dataArray;
 	}
 	
+	/**
+	 * look for a string in an array
+	 * @param str
+	 * @param arr
+	 * @return
+	 */
+	public static int searchStringArray(String str, String [] arr)
+	{
+		for(int i = 0; i < arr.length; i++)
+		{
+			if (arr[i].equals(str)) return i;
+		}
+		return -1;
+	}
+	
+	/**
+	 * return name of attributes give the hashtable of attribute
+	 * @param atts
+	 * @return
+	 */
+	public static String [] getAttributeNames(Hashtable<String, Attribute> atts)
+	{
+		int len = atts.size();
+		String [] strs = new String[len];
+		Enumeration e = atts.elements();
+		Attribute att;
+		int ind;
+		while(e.hasMoreElements())
+		{
+			att = (Attribute)e.nextElement();
+			ind = Integer.parseInt(att.getId());
+			strs[ind] = att.getName();
+		}
+		return strs;
+	}
 	/**
 	 * @param args
 	 */
