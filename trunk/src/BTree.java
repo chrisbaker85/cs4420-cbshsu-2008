@@ -58,57 +58,57 @@ public class BTree
 		buffer.force();
 	}
 	
-	public void setKeysCount (int rank, int newCount)
+	public void setKeysCount (int blockNum, int newCount)
 	{
-		buffer.putInt ((rank - 1) * sizeOfBlock, newCount);
+		buffer.putInt ((blockNum - 1) * sizeOfBlock, newCount);
 	}
 	
-	public void setPointersCount (int rank, int newCount)
+	public void setPointersCount (int blockNum, int newCount)
 	{
-		buffer.putInt ((rank - 1) * sizeOfBlock + 8, newCount);
+		buffer.putInt ((blockNum - 1) * sizeOfBlock + 8, newCount);
 	}
 	
-	public void setKey (int rank, int keyOrder, long newValue)
+	public void setKey (int blockNum, int keyOrder, long newValue)
 	{
-		buffer.putLong ((rank - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8, newValue);
+		buffer.putLong ((blockNum - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8, newValue);
 	}
 	
-	public void setPointer (int rank, int pointerOrder, long newValue)
+	public void setPointer (int blockNum, int pointerOrder, long newValue)
 	{
-		buffer.putLong ((rank - 1) * sizeOfBlock + 16 + Parameters.BTREE_ORDER * 8 + (pointerOrder - 1) * 8, newValue);
+		buffer.putLong ((blockNum - 1) * sizeOfBlock + 16 + Parameters.BTREE_ORDER * 8 + (pointerOrder - 1) * 8, newValue);
 	}
 	
-	public int keysCount (int rank)
+	public int keysCount (int blockNum)
 	{
-		return buffer.getInt ((rank - 1) * sizeOfBlock);
+		return buffer.getInt ((blockNum - 1) * sizeOfBlock);
 	}
 	
-	public int pointersCount (int rank)
+	public int pointersCount (int blockNum)
 	{
-		return buffer.getInt ((rank - 1) * sizeOfBlock + 8);
+		return buffer.getInt ((blockNum - 1) * sizeOfBlock + 8);
 	}
 	
-	public long getKey (int rank, int keyOrder)
+	public long getKey (int blockNum, int keyOrder)
 	{
-		return buffer.getLong ((rank - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8);
+		return buffer.getLong ((blockNum - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8);
 	}
 	
-	public long getPointer (int rank, int pointerOrder)
+	public long getPointer (int blockNum, int pointerOrder)
 	{
-		return buffer.getLong ((rank - 1) * sizeOfBlock + 16 + Parameters.BTREE_ORDER * 8 + (pointerOrder - 1) * 8);
+		return buffer.getLong ((blockNum - 1) * sizeOfBlock + 16 + Parameters.BTREE_ORDER * 8 + (pointerOrder - 1) * 8);
 	}
 	
-	public boolean isFull(int rank)
+	public boolean isFull(int blockNum)
 	{
-		int keys = this.keysCount (rank);
-		int ptrs = this.pointersCount (rank);
+		int keys = this.keysCount (blockNum);
+		int ptrs = this.pointersCount (blockNum);
 		
-		if (rank == rootBlockRank)
+		if (blockNum == rootBlockRank)
 		{
 			return (ptrs == blockCapacity);
 		}
 		
-		else if (rank >= firstInterBlockRank && rank < firstLeafBlockRank)
+		else if (blockNum >= firstInterBlockRank && blockNum < firstLeafBlockRank)
 		{
 			return (ptrs  == blockCapacity);
 		}
@@ -119,23 +119,23 @@ public class BTree
 		}
 	}
 	
-	public boolean isEmpty(int rank)
+	public boolean isEmpty(int blockNum)
 	{
-		int ptrs = this.pointersCount (rank);
+		int ptrs = this.pointersCount (blockNum);
 		return (ptrs == 0);
 	}
 	
-	public boolean hasLimit(int rank)
+	public boolean hasLimit(int blockNum)
 	{
-		int keys = this.keysCount (rank);
-		int ptrs = this.pointersCount (rank);
+		int keys = this.keysCount (blockNum);
+		int ptrs = this.pointersCount (blockNum);
 		
-		if (rank == rootBlockRank)
+		if (blockNum == rootBlockRank)
 		{
 			return (ptrs >= 2);
 		}
 		
-		else if (rank >= firstInterBlockRank && rank < firstLeafBlockRank)
+		else if (blockNum >= firstInterBlockRank && blockNum < firstLeafBlockRank)
 		{
 			return (ptrs >= Math.ceil(blockCapacity/2));
 		}
@@ -146,9 +146,9 @@ public class BTree
 		}
 	}
 	
-	private long pointTo(int rank, int keyOrder)
+	private long pointTo(int blockNum, int keyOrder)
 	{
-		return (long)((rank - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8);
+		return (long)((blockNum - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8);
 	}
 			
 	public static void main (String[] args)
