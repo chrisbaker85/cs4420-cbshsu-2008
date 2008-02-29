@@ -1,253 +1,289 @@
-/**
- * 
- */
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
-/**
- * @author chrisb
- *
- */
-
-/**
- * In fact, the only following commands are visible to the storage manager:
- * - insert: a key/pointer into an index file.
- * - getPointer: obtain the pointer associated with the given key.
- * 
- * With the given command:
- * - get pointer: first, the header of the index file will be read to obtain
- * the pointer to the root node. Read the root node. The index helper 
- * will determine how to travel the index file to search for a key 
- * and its corresponding pointer.
- * - insert: first, it calls the getPointer method to reach the leaf
- * that the new key/pointer pair should be inserted into. Then performs
- * the insertion.
- * 	 
- * 
- * You should implement an index scan which is an iterator that return all 
- * the key/pointer pairs of the index by travelling the leaf nodes. It
- * can be done easily by invoking the method getBlock. What you need
- * to do is to travel the right node of the current leaf node.
- * 
- * REMBEMBER: YOU DON'T BUILD A B+-TREE. Instead, you use the B+tree mechanism 
- * to travel the index file, create the links between the blocks in the index file,
- * and insert a key/pointer into a block. 
- *  
- * INDEX FILE STRUCTURE:
- * Reserve the first block of the file to contain the pointers
- * to the root node and the left-most node. All other blocks are either 
- * leaf nodes or internal nodes. 
- * The first byte should tell us how many keys are in the block.
- * The next byte contains the information if it is the leaf node or internal node.
- * The rest should be used to contain the keys and pointers.
- * The orer of the tree structure should be kept in a global configuration 
- * , i.e. parameter.java
- * 
- * BLOCK: each block contains m keys and (m+1) pointers. Therefore,
- * the first m*4 bytes are reserved for m keys (1 int occupies 4 bytes). 
- * The next (m+1)*4 bytes are used for pointers (either node pointer or 
- * block_num (data file) pointer).
- * 
- * NOTE:
- * Don't forget, the internal nodes have maximum m keys and maximum (m+1) pointers
- * to the child nodes.
- * The leaf nodes have maximum m keys and maximum m pointers to the block_num
- * of the data file that contains the tuples associated with the key. 
- * However, the leaf nodes also have a pointer to its immediate right node.
- * Therefore, the leaf nodes also have maximum (m+1) pointers where
- * the last pointer is used for referencing to its right leaf.
- */
 public class IndexHelper {
+	public static int numberOfBlocks = 1 + (Parameters.BTREE_ORDER + 1)
+			+ (Parameters.BTREE_ORDER + 1) * (Parameters.BTREE_ORDER + 1);
+	public static int sizeOfBlock = 8 * 2 + 8 * Parameters.BTREE_ORDER + 8
+			* (Parameters.BTREE_ORDER + 1);
+	public static int sizeOfBuffer = numberOfBlocks * sizeOfBlock;
+	public static int blockCapacity = 1 + Parameters.BTREE_ORDER;
+	public static int rootBlockNum = 1;
+	public static long rootPointer = 0;
+	public static int firstInterBlockNum = 2;
+	public static long firstInterBlockPointer = 2 * sizeOfBlock;
+	public static int firstLeafBlockNum = 3 + Parameters.BTREE_ORDER;
+	public static int firstLeafPointer = (3 + Parameters.BTREE_ORDER)
+			* sizeOfBlock;
 
-	/**
-	 * The B+-tree mechanisms to insert key/pointer or get pointer should
-	 * be in insert/getPointer methods. Each block is considered as 
-	 * tree node. You need to use the method getBlock() from
-	 * the buffer manager to obtain the block information.
-	 * Pls refer to the given B+-tree code for
-	 * the detailed implementation.
-	 * 
-	 * YOU SHOULD implement the utility methods first before implementing
-	 * insert, getPointer and getBlock methods.
-	 */ 
-	
-	public boolean insert(int key, int pointer, IndexInfo info)
-	{
-		Block block = getBlock(key,info); //read the explanation for
-										  //getBlock to know its meaning
-		
-		//The index file is empty
-		if (block == null)
-		{
-			//- Create the root node. 
-			//- Fill in the key/pointer information. 
-			//- Root node is also a leaf node.
-			//- Update the header (references to leaf node and root node).
-			return false;
+	protected MappedByteBuffer buffer;
+	protected RandomAccessFile file;
+
+	public IndexHelper() {
+	}
+
+	public IndexHelper(String name) {
+		try {
+			file = new RandomAccessFile(name + ".index", "rw");
+			FileChannel fileChannel = file.getChannel();
+			buffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0,
+					sizeOfBuffer);
+			buffer.load();
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 		}
-		
-		//If the index is not empty,
-	
-		//1. check if the node (block) is full.
-		
-		//2a. if not, fill the key/pair information into the leaf node. 
-		//    (of course, don't forget to change the status of the block 
-		//    to "updated").
-		//   - Unpin the node
-		//   - Return.
-		
-		//2b. otherwise, create a new node (block). Reorganize the old and new leaf nodes
-		//with this new key/pointer information and existing keys/pointers in the leaf.
-		
-		//3. Read the parent node of the node we've just mentioned. Then,
-		//  a/ Update the existing pointers in this node for the pointers that
-		//  now point to the new node due to the reorganization of the keys
-		//  in the child nodes.
-		//  b/ Insert the new key/pointer into the parent node (since 
-		//  the child node is splitted into 2 nodes, we have to create a
-		//  new entry into the parent node).
-		//The method to implement this actually the same as step 1, 2 and 3.		
-		
-		//Hint: insert key/pointer into an unfull node is straightforward.
-		//The key thing is to create a new node. Sort the keys/pointers
-		//of the node and the new key/pointer ascendingly.
-		//Then divides them into two nodes. Select a key to represent
-		//the new node and replace the presenter of the old node in the parent 
-		//node by a new value.
-		//
-		//Of course, you now need to update the references in the parent node.
-		//First, for every pointer in the parent node references to the keys in 
-		//the old node which was moved to new node, UPDATE its reference.
-		//
-		//Now, insert the new presenter into the node. This may lead to
-		//the block overfull and the new key will be propagated to the 
-		//parent of the parent node until reaching the root node.
-		//
-		
-		return false;
 	}
-	
-	public int[] getPointer(int key, IndexInfo info)
-	{
-		Block block = getBlock(key,info);
-		
-		//1. Analyze the block to obtain the pointers associate with the key.
-		//2a. If the block does not contain the key, return null.
-		//2b. Otherwise, return the pointers.
-		
-		int[] temp = {0,1};
-		return temp;
-		
-	}
-	
-	/**
-	 * This method travel from the root node to the leaf that MAY contain
-	 * or should contain the key and return the leaf.
-	 * 
-	 * I said "may" since we can use this method to reach the leaf node
-	 * where we will insert a new key/pointer.
-	 */ 
-	private Block getBlock(int key, IndexInfo info)
-	{
-		//1. Read the index file header to obtain the root node pointer.
-		
-		//2a. if there is no root node, return null.		
-		//2b. if there is, load the root node.
-		
-		//3. Analyze the node to determine the next node to follow.
-		//Obtain the blockID of the next node.
-		
-		//4. Load the block with given blockID into buffer.
-		
-		//5. Goto step 3 until reach the leaf node.
-		//6. Return the leaf node that the key should/may belong to.	
-		
-		//Hint: the key thing here is to determine which child of the node,
-		//you should pick. It is simply the pointer between two keys A and B ,
-		//where A < Key < B. If there is an equality, use the pointer associated
-		//with equality.
-		
-		return new Block();
-	}
-	
-	//The utility methods below provide a mechanism to manipulate the blocks.
-	//It is straightforward. By the knowing the order of the tree,
-	//you should be able compute the offset of the desired key (or pointer).
-	//Next you can output the value of the key (or pointer) from this offset.
-	//Or you can update the new key (or pointer) value.
-	//
-	//It should have nothing to do with B+-tree. THEREFORE:
-	//
-	//IMPLEMENT THESE METHODS FIRST before implement the insert and getPointer
-	//method.
-	/**
-	 * Read the block and extract the keys. The blockID can be used
-	 * to determine IndexInfo of the block.
-	 */ 
-	private int[] getKeys(Block block)
-	{
-		
-		int[] temp = {0,1};
-		return temp;
-		
-	}
-		
-	/**
-	 * Read the block and extract all pointers.
-	 */ 
-	private int[] getPointers(Block block)
-	{
-		int[] temp = {0,1};
-		return temp;
-		
-	}		
-	
-	/**
-	 * Extract the ith key from the block.
-	 */ 
-	private int getKey(Block block, int i)
-	{
-		
-		return 0;
-	}
-		
-	/**
-	 * Extract the ith pointer from the block.
-	 */ 
-	private int[] getPointers(Block block, int i)
-	{
-		
-		int[] temp = {0,1};
-		return temp;
-		
-	}	
-	
-	/**
-	 * Put the value of the ith key into the block.
-	 */ 
-	private void putKey(Block block, int i, int key)
-	{}
-		
-	/**
-	 * Put the value of the ith pointer into the block.
-	 */
-	private void putPointer(Block block,int i, int pointer)
-	{}	
-		
-	/**
-	 * Get the pointer to the parent of the node.
-	 */
-	private int getParent(Block block)
-	{
-		
-		return 0;
-		
-	}
-	
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 
+	public static IndexHelper readTree(String name) {
+		IndexHelper retVal = new IndexHelper();
+		try {
+			retVal.file = new RandomAccessFile(name + ".index", "rw");
+			FileChannel fileChannel = retVal.file.getChannel();
+			retVal.buffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0,
+					sizeOfBuffer);
+			retVal.buffer.load();
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		}
+		return retVal;
+	}
+
+	public void update() {
+		buffer.force();
+	}
+
+	public long getBlock(int blockNum) {
+		return (long) ((blockNum - 1) * sizeOfBlock);
+	}
+
+	public void setKeysCount(int blockNum, int newCount) {
+		buffer.putInt((blockNum - 1) * sizeOfBlock, newCount);
+	}
+
+	public void setPointersCount(int blockNum, int newCount) {
+		buffer.putInt((blockNum - 1) * sizeOfBlock + 8, newCount);
+	}
+
+	public void setKey(int blockNum, int keyOrder, long newValue) {
+		buffer.putLong((blockNum - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8,
+				newValue);
+	}
+
+	public void placeKey(int blockNum, long newValue) {
+		int place = 1;
+
+		while (place <= Parameters.BTREE_ORDER) {
+			if (0 == getKey(blockNum, place)) {
+				setKey(blockNum, place, newValue);
+				break;
+			}
+			place++;
+		}
+	}
+
+	public void setPointer(int blockNum, int pointerOrder, long newValue) {
+		buffer
+				.putLong((blockNum - 1) * sizeOfBlock + 16
+						+ Parameters.BTREE_ORDER * 8 + (pointerOrder - 1) * 8,
+						newValue);
+	}
+
+	public int keysCount(int blockNum) {
+		return buffer.getInt((blockNum - 1) * sizeOfBlock);
+	}
+
+	public int pointersCount(int blockNum) {
+		return buffer.getInt((blockNum - 1) * sizeOfBlock + 8);
+	}
+
+	public long getKey(int blockNum, int keyOrder) {
+		return buffer.getLong((blockNum - 1) * sizeOfBlock + 16
+				+ (keyOrder - 1) * 8);
+	}
+
+	public long getKey(long pointer) {
+		return buffer.getLong((int) pointer);
+	}
+
+	public boolean hasKey(int blockNum, long keyValue) {
+		int i = 1;
+		boolean retVal = false;
+
+		while (i <= Parameters.BTREE_ORDER) {
+			if (keyValue == getKey(blockNum, i)) {
+				retVal = true;
+				break;
+			}
+			i++;
+		}
+
+		return retVal;
+	}
+
+	public int getKeyOrder(int blockNum, long keyValue) {
+		int i = 1;
+		int retVal = -1;
+
+		while (i <= Parameters.BTREE_ORDER) {
+			if (keyValue == getKey(blockNum, i)) {
+				retVal = i;
+				break;
+			}
+			i++;
+		}
+
+		return retVal;
+	}
+
+	public long getPointer(int blockNum, int pointerOrder) {
+		return buffer.getLong((blockNum - 1) * sizeOfBlock + 16
+				+ Parameters.BTREE_ORDER * 8 + (pointerOrder - 1) * 8);
+	}
+
+	public long getLeftPointer(int blockNum, int keyOrder) {
+		return (long) ((blockNum - 1) * sizeOfBlock + 16
+				+ Parameters.BTREE_ORDER * 8 + (keyOrder - 1) * 8);
+	}
+
+	public long getReightPointer(int blockNum, int keyOrder) {
+		return (long) ((blockNum - 1) * sizeOfBlock + 16
+				+ Parameters.BTREE_ORDER * 8 + (keyOrder - 1) * 8 + 8);
+	}
+
+	public long getLeftPointer(int blockNum, long keyValue) {
+		int keyOrder = getKeyOrder(blockNum, keyValue);
+		return (long) ((blockNum - 1) * sizeOfBlock + 16
+				+ Parameters.BTREE_ORDER * 8 + (keyOrder - 1) * 8);
+	}
+
+	public long getReightPointer(int blockNum, long keyValue) {
+		int keyOrder = getKeyOrder(blockNum, keyValue);
+		return (long) ((blockNum - 1) * sizeOfBlock + 16
+				+ Parameters.BTREE_ORDER * 8 + (keyOrder - 1) * 8 + 8);
+	}
+
+	public long pointToKey(int blockNum, int keyOrder) {
+		return (long) ((blockNum - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8);
+	}
+
+	public boolean isFull(int blockNum) {
+		int keys = this.keysCount(blockNum);
+		int ptrs = this.pointersCount(blockNum);
+
+		if (blockNum == rootBlockNum) {
+			return (ptrs == blockCapacity);
+		}
+
+		else if (blockNum >= firstInterBlockNum && blockNum < firstLeafBlockNum) {
+			return (ptrs == blockCapacity);
+		}
+
+		else {
+			return (ptrs == blockCapacity);
+		}
+	}
+
+	public boolean isEmpty(int blockNum) {
+		int ptrs = this.pointersCount(blockNum);
+		return (ptrs == 0);
+	}
+
+	public boolean hasLimit(int blockNum) {
+		int keys = this.keysCount(blockNum);
+		int ptrs = this.pointersCount(blockNum);
+
+		if (blockNum == rootBlockNum) {
+			return (ptrs >= 2);
+		}
+
+		else if (blockNum >= firstInterBlockNum && blockNum < firstLeafBlockNum) {
+			return (ptrs >= Math.ceil(blockCapacity / 2));
+		}
+
+		else {
+			return (ptrs >= Math.floor(blockCapacity / 2));
+		}
+	}
+
+	public void printPointer(long pointerValue) {
+
+		int blockNum = (int) (pointerValue / sizeOfBlock) + 1;
+
+		System.out.print("(" + blockNum + ", " + this.getKey(pointerValue)
+				+ ")");
+
+	}
+
+	public void printBlock(int blockNum) {
+		System.out.println("Block Munmber: " + blockNum);
+
+		if (blockNum == rootBlockNum) {
+			System.out.println("Block Type: Root");
+		}
+
+		else if (blockNum >= firstInterBlockNum && blockNum < firstLeafBlockNum) {
+			System.out.println("Block Type: Inter");
+		}
+
+		else {
+			System.out.println("Block Type: Leaf");
+		}
+
+		System.out.println("Keys Count " + keysCount(blockNum));
+		System.out.println("Pointers Count " + pointersCount(blockNum));
+
+		for (int i = 1; i <= Parameters.BTREE_ORDER; i++) {
+			System.out.print("Key " + i + ": " + this.getKey(blockNum, i)
+					+ "\t");
+		}
+
+		System.out.println();
+
+		for (int i = 1; i <= Parameters.BTREE_ORDER + 1; i++) {
+			System.out.print("Pointer " + i + ": ");
+
+			if (blockNum < firstLeafBlockNum) {
+				printPointer(getPointer(blockNum, i));
+			} else {
+				if (i == Parameters.BTREE_ORDER + 1) {
+					printPointer(getPointer(blockNum, i));
+				}
+
+				else {
+					System.out.print("(" + getPointer(blockNum, i) + ")");
+				}
+			}
+
+			System.out.print("\t");
+		}
+		System.out.println();
+		System.out.println();
+
+	}
+
+	public void printIndexFile(boolean includeEmpty) {
+
+		for (int i = 1; i <= numberOfBlocks; i++) {
+
+			if (includeEmpty) {
+				printBlock(i);
+			}
+
+			else if (i == 1) {
+				printBlock(i);
+			} else if (!isEmpty(i)) {
+				printBlock(i);
+			}
+
+		}
+	}
+
+	public static void main(String[] args) {
+		IndexHelper test = new IndexHelper("Test");
+		test.printIndexFile(true);
 	}
 
 }
