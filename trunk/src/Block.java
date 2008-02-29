@@ -130,6 +130,23 @@ public class Block {
 		this.isPinned = false;
 	}
 	
+	/**
+	 * return array of byte inside the block
+	 * @param offset
+	 * @param len
+	 * @return
+	 */
+	public byte [] getBlock(int offset, int len)
+	{
+		byte [] data = new byte[len];
+		
+		for (int i = 0; i < len; i++)
+		{
+			data[i] = content[offset + i];
+		}
+		return data;
+	}
+	
 	public void printBlock ()
 	{
 		System.out.println ("ID: " + this.blockID);
