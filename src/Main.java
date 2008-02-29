@@ -296,18 +296,28 @@ public class Main implements QueryEngine
 		// get RelationInfo object and Attribute object
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
-		/*
-		ArrayList<Attribute> atts = new ArrayList<Attribute>();
+		
 		for (int i = 0; i < query[1].length; i++)
 		{
-			if (atts.containsKey(query[1][i])) atts.add((Attribute)att.get(query[1][i]));
-			else
+			// verify fields name against attribute list
+			if (!atts.containsKey(query[0][i])) 
 			{
 				System.out.println("Attribute " + query[1][i] + " doesn't exist");
 				break;
 			}
+			else // verify the length of string
+			{
+				Attribute att = (Attribute)atts.get(query[0][i]);
+				if(att.getType().equals("string"))
+				{
+					if (query[1][i].length() > Integer.parseInt(att.getLength()))
+					{
+						System.out.println(query[1][i] + " exceeds maximum length");
+					}
+				}
+			}
 		}
-		*/
+		
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
