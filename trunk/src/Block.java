@@ -1,8 +1,4 @@
 /**
- * 
- */
-
-/**
  * @author chrisb
  *
  */
@@ -17,9 +13,8 @@ public class Block {
 	public boolean isPinned = false;
 	
 	/**
-	 * The blockID to which this block reference.  The first
-	 * 4 bytes of the variable is the file number.  the second
-	 * 4 bytes is the offset of the block in the file on disk.
+	 * The blockID to which this block reference. Check the class Block
+	 * to see how to obtain the blockID.
 	 */ 
 	public long blockID = -1;
 	
@@ -27,10 +22,17 @@ public class Block {
 	 * This flag should be set to true when a transaction updates the block 
 	 * and writes it to the buffer.
 	 */
-	private boolean isUpdated = false;
+	public boolean isUpdated = false;
 	
+	// set record number to 0
 	public Block()
-	{}
+	{
+		byte [] header = Utility.makeByte4FromInt(0);
+		content[0] = header[0];
+		content[1] = header[1];
+		content[2] = header[2];
+		content[3] = header[3];
+	}
 	
 	public Block(long blockID, byte[] content) {
 		this.blockID = blockID;
@@ -111,11 +113,12 @@ public class Block {
 	/**
 	 * append data to the block that has free space for it to be write it back to file
 	 * It will be used by insert query
-	 * @param blockID
 	 * @param data
 	 */
-	public void writeToBlock(long blockID, byte [] data)
+	public void writeToBlock(byte [] data)
 	{
+		this.isUpdated = true;
+		this.isPinned = true;
 		int recNum = this.getRecordNumber();
 		int pos = data.length * recNum;
 		for (int i = 0; i < data.length; i++)
@@ -123,6 +126,7 @@ public class Block {
 			this.content[pos+i] = data[i];
 		}
 		this.updateRecordNumber(1);
+		this.isPinned = false;
 	}
 	
 	public void printBlock ()
