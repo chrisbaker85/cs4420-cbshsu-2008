@@ -154,7 +154,7 @@ public class BTree
 		}
 	}
 	
-	private long pointTo(int blockNum, int keyOrder)
+	private long pointToKey(int blockNum, int keyOrder)
 	{
 		return (long)((blockNum - 1) * sizeOfBlock + 16 + (keyOrder - 1) * 8);
 	}
