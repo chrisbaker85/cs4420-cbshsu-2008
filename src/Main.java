@@ -397,7 +397,7 @@ public class Main implements QueryEngine
 	 * @param table_name: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public void createIndexQuery(String index_name, String table_name, String field_name) {
+	public void createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
 		
 		// TODO: FIX ME
 		
