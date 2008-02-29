@@ -56,7 +56,7 @@ public class BufferManager {
 		this.db_name = db_name;
 	}
 	
-	public void getFilenames(Hashtable<String, RelationInfo> rels)
+	public void getTableNames(Hashtable<String, RelationInfo> rels)
 	{
 		Enumeration e = rels.elements();
 		while(e.hasMoreElements())
@@ -228,7 +228,7 @@ public class BufferManager {
 			{
 				int[] split = Utility.split(blockID);
 				// String fileNameID = "" + split[0];
-				String filename = db_name + "_" + filenames.get(split[0]) + ".dat";
+				String filename = db_name + "_" + filenames.get(split[0]) + "_data.dat";
 				int offSet = split[1];
 
 				RandomAccessFile fileIn = new RandomAccessFile(filename, "rw");
@@ -278,7 +278,7 @@ public class BufferManager {
 				{
 					int[] split = Utility.split(temp.getBlockID());
 					// String fileNameID = "" + split[0];
-					String filename = db_name + "_" + filenames.get(split[0]) + ".dat";
+					String filename = db_name + "_" + filenames.get(split[0]) + "_data.dat";
 					int offSet = split[1];
 					RandomAccessFile fileOut = new RandomAccessFile(filename, "rw");
 					FileChannel fileChannel = fileOut.getChannel();
