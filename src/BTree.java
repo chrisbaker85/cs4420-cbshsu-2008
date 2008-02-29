@@ -11,9 +11,12 @@ public class BTree
 	public static int sizeOfBlock = 8 * 2 + 8 * Parameters.BTREE_ORDER + 8 * (Parameters.BTREE_ORDER + 1);
 	public static int sizeOfBuffer  = numberOfBlocks * sizeOfBlock;
 	public static int blockCapacity  = 1 + Parameters.BTREE_ORDER;
-	public static int rootBlockRank = 1;
-	public static int firstInterBlockRank = 2;
-	public static int firstLeafBlockRank = 3 + Parameters.BTREE_ORDER;
+	public static int rootBlockNum = 1;
+	public static long rootPointer = 0;
+	public static int firstInterBlockNum = 2;
+	public static long firstInterBlockPointer = 2 * sizeOfBlock;
+	public static int firstLeafBlockNum = 3 + Parameters.BTREE_ORDER;
+	public static int firstLeafPointer = (3 + Parameters.BTREE_ORDER) * sizeOfBlock;
 	
 	protected MappedByteBuffer buffer;
 	protected RandomAccessFile file;
@@ -56,6 +59,11 @@ public class BTree
 	public void update ()
 	{
 		buffer.force();
+	}
+	
+	public long getBlock (int blockNum)
+	{
+		return (long)((blockNum - 1) * sizeOfBlock);
 	}
 	
 	public void setKeysCount (int blockNum, int newCount)
@@ -103,12 +111,12 @@ public class BTree
 		int keys = this.keysCount (blockNum);
 		int ptrs = this.pointersCount (blockNum);
 		
-		if (blockNum == rootBlockRank)
+		if (blockNum == rootBlockNum)
 		{
 			return (ptrs == blockCapacity);
 		}
 		
-		else if (blockNum >= firstInterBlockRank && blockNum < firstLeafBlockRank)
+		else if (blockNum >= firstInterBlockNum && blockNum < firstLeafBlockNum)
 		{
 			return (ptrs  == blockCapacity);
 		}
@@ -130,12 +138,12 @@ public class BTree
 		int keys = this.keysCount (blockNum);
 		int ptrs = this.pointersCount (blockNum);
 		
-		if (blockNum == rootBlockRank)
+		if (blockNum == rootBlockNum)
 		{
 			return (ptrs >= 2);
 		}
 		
-		else if (blockNum >= firstInterBlockRank && blockNum < firstLeafBlockRank)
+		else if (blockNum >= firstInterBlockNum && blockNum < firstLeafBlockNum)
 		{
 			return (ptrs >= Math.ceil(blockCapacity/2));
 		}
