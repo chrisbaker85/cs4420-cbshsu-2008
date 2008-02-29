@@ -329,6 +329,23 @@ public class Main implements QueryEngine
 		
 	}
 	
+	/**
+	 * Performs a selection on an index
+	 * @param table_name the table
+	 * @param index_name the index
+	 */
+	public void selectIndexQuery(String table_name, String index_name) {
+		
+		
+	}
+	
+	/**
+	 * Displays the catalog information
+	 */
+	public void selectCatalogQuery() {
+		
+	}
+	
 	public void selectQuery(String table_name, String [] fields, String from, String where)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
