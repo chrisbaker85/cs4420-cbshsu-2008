@@ -148,6 +148,7 @@ public class BufferManager {
 		int i = 0;
 		Block temp = null;
 
+		// Find a block that is empty
 		while (i < Parameters.NUM_BLOCK_BUFFER) {
 			if (buffer[i] == null) {
 				return i;
@@ -157,7 +158,8 @@ public class BufferManager {
 
 		i = 0;
 
-		// iterate through the buffer and not pinned
+		// Look for a block that is not pinned and needs
+		// to be written to disk (is updated)
 		while (i < Parameters.NUM_BLOCK_BUFFER) 
 		{
 			temp = buffer[i];
@@ -177,7 +179,7 @@ public class BufferManager {
 
 		i = 0;
 
-		// iterate through the buffer and not pinned
+		// Find any block that is not pinned
 		while (i < Parameters.NUM_BLOCK_BUFFER) 
 		{
 			temp = buffer[i];
