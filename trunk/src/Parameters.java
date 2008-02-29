@@ -26,12 +26,12 @@ public class Parameters {
 	/**
 	 * The size of the tuple header in bytes
 	 */
-	public static int TUPLE_HEADER_SIZE = 1;
+	public static int TUPLE_HEADER_SIZE = 4;
 	
 	/**
 	 * The size of the block header in bytes 
 	 */
-	public static int BLOCK_HEADER_SIZE = 1;
+	public static int BLOCK_HEADER_SIZE = 4;
 	
 	/**
 	 * @param args
