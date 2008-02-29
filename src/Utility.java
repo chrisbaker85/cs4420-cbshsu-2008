@@ -93,6 +93,11 @@ public class Utility {
 		
 	}		
 	
+	/**
+	 * get the combined length of attrbute given array of attribute objects
+	 * @param atts
+	 * @return
+	 */
 	public static int getTotalLength(ArrayList<Attribute> atts)
 	{
 		int len = 0;
@@ -101,6 +106,47 @@ public class Utility {
 			len = len + Integer.parseInt(((Attribute)atts.get(i)).getLength());
 		}
 		return len;
+	}
+	
+	/**
+	 * get length of the tuple given the Hashtable of attributes
+	 * @param atts
+	 * @return
+	 */
+	public static int getTotalLength(Hashtable<String, Attribute> atts)
+	{
+		Enumeration e = atts.elements();
+		int len = 0;
+		while(e.hasMoreElements())
+		{
+			Attribute att = (Attribute)e.nextElement();
+			len = len + Integer.parseInt(att.getLength());
+		}
+		return len;
+	}
+	
+	/**
+	 * It will convert data from insert query into array of byte of the tuple to be written to
+	 * file and block. If the field is not found in the query, it will leave blank using the
+	 * length from attribute object.
+	 * 
+	 * First, it create blank array using total length. Then it go through each 
+	 * @param fields
+	 * @param data
+	 * @param atts
+	 * @return
+	 */
+	public static byte [] dataToByte(String [] fields, String [] data, Hashtable<String, Attribute> atts)
+	{
+		int len = Utility.getTotalLength(atts);
+		byte [] dataArray = new byte[len];
+		Enumeration e = atts.keys();
+		String newstr = "";
+		while(e.hasMoreElements())
+		{
+			String key = (String)e.nextElement();
+		}
+		return dataArray;
 	}
 	/**
 	 * @param args
