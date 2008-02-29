@@ -295,20 +295,25 @@ public class Main implements QueryEngine
 		// TODO: Scan through all the blocks in buffer to look for buffer that belongs to that relation and it has free space
 		// get RelationInfo object and Attribute object
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
-		Hashtable att = relObj.getAttribute();
+		Hashtable atts = relObj.getAttribute();
+		/*
 		ArrayList<Attribute> atts = new ArrayList<Attribute>();
 		for (int i = 0; i < query[1].length; i++)
 		{
-			if (att.containsKey(query[1][i])) atts.add((Attribute)att.get(query[1][i]));
+			if (atts.containsKey(query[1][i])) atts.add((Attribute)att.get(query[1][i]));
 			else
 			{
 				System.out.println("Attribute " + query[1][i] + " doesn't exist");
 				break;
 			}
 		}
+		*/
+		// convert data to array of byte to write to the block and file
+		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
 		// TODO: scan block one by one
 		// Now that we have attribute object, and relationinfo object
+		
 	}
 	
 	/**
