@@ -100,39 +100,39 @@ public class UI {
 		boolean b = false;
 		String result;
 		
-		b = Pattern.matches("select ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) from [a-zA-Z0-9_-]+( where [a-zA-Z0-9_-]+( )?=( )?[a-zA-Z0-9_-]+)?", input);
+		b = Pattern.matches("select ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) from [a-zA-Z0-9_-]+( where ([a-zA-Z0-9_-]+( )?=( )?[a-zA-Z0-9_-]+)((,( )?[a-zA-Z0-9_-]+( )?=( )?[a-zA-Z0-9_-]+)*)?)?", input);
 		if (b) {
-			result = proc.parseSelect(input);
+			result = proc.parseTableSelect(input);
 			return true;
 		}
 		
 		b = Pattern.matches("select \\* from index [a-zA-Z0-9_-]+ [a-zA-Z]+", input);
 		if (b) {
-			result = proc.parseSelect(input);
+			result = proc.parseIndexSelect(input);
 			return true;
 		}
 		
 		b = Pattern.matches("select \\* from catalog", input);
 		if (b) {
-			result = proc.parseSelect(input);
+			result = proc.parseCatalogSelect(input);
 			return true;
 		}
 		
-		//TODO: FIX ME
-		b = Pattern.matches("insert into [a-zA-Z0-9_-]+(\\(([a-zA-Z]|([a-zA-Z], ([a-zA-Z], )* ([a-zA-Z])))*\\))? values \\(([a-zA-Z])+\\)", input);
+		b = Pattern.matches("insert into [a-zA-Z0-9_-]+ (\\(([a-zA-Z0-9_-]+(, [a-zA-Z0-9_-]+)*)\\)) values \\(([a-zA-Z0-9_-])+(, [a-zA-Z0-9_-]+)*\\)", input);
 		if (b) {
 			result = proc.parseInsert(input);
 			return true;
 		}
 		
 		// TODO: FIX ME
+		// FORGOT TO ADD [NO DUPLICATES]
 		b = Pattern.matches("create index [a-zA-Z0-9_-]+ on [a-zA-Z0-9_-]+ \\([a-zA-Z0-9_-]+\\)", input);
 		if (b) {
 			result = proc.parseCreateIndex(input);
 			return true;
 		}
 		
-		b = Pattern.matches("create table ([a-zA-Z0-9_-]+)( )?\\(([a-zA-Z0-9_-]+) (string|int)(((,( )?[a-zA-Z0-9_-]+) (string|int))*)\\)", input);
+		b = Pattern.matches("create table ([a-zA-Z0-9_-]+)( )?\\(([a-zA-Z0-9_-]+) (string|int)(((, [a-zA-Z0-9_-]+) (string|int))*)\\)", input);
 		if (b) {
 			result = proc.parseCreateTable(input);
 			return true;
