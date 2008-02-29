@@ -107,6 +107,23 @@ public class Block {
 		this.isUpdated = isUpdated;
 	}
 	
+	/**
+	 * append data to the block that has free space for it to be write it back to file
+	 * It will be used by insert query
+	 * @param blockID
+	 * @param data
+	 */
+	public void writeToBlock(long blockID, byte [] data)
+	{
+		int recNum = this.getRecordNumber();
+		int pos = data.length * recNum;
+		for (int i = 0; i < data.length; i++)
+		{
+			this.content[pos+i] = data[i];
+		}
+		this.updateRecordNumber(1);
+	}
+	
 	public void printBlock ()
 	{
 		System.out.println ("ID: " + this.blockID);
