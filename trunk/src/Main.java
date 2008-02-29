@@ -302,8 +302,6 @@ public class Main implements QueryEngine
 	
 	public void insertQuery(String table_name, String [][] query)
 	{
-		// TODO: Scan through all the blocks in buffer to look for buffer that belongs to that relation and it has free space
-		// get RelationInfo object and Attribute object
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
 		
@@ -315,7 +313,8 @@ public class Main implements QueryEngine
 				System.out.println("Attribute " + query[1][i] + " doesn't exist");
 				break;
 			}
-			else // verify the length of string
+			// verify the length of string
+			else 
 			{
 				Attribute att = (Attribute)atts.get(query[0][i]);
 				if(att.getType().equals("string"))
@@ -333,7 +332,10 @@ public class Main implements QueryEngine
 		
 		// TODO: scan block one by one
 		// Now that we have attribute object, and relationinfo object
-		
+		for (int i = 0; i < bufman.getTableSize(); i++)
+		{
+			
+		}
 	}
 	
 	/**
