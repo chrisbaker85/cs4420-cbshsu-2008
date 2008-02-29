@@ -1,7 +1,9 @@
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class RelationInfo {
+
+	public static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
 
 	private String name;
 	private String dateCreated;
@@ -188,14 +190,31 @@ public class RelationInfo {
 				System.out.println("invalid data type");
 				
 			}
-
-			
-			
+	
 		}
 		
 		return offset;
 	}
 	
+	public void updateBlockNumber(int num)
+	{
+		int curNum = Integer.parseInt(numDataBlocks);
+		numDataBlocks = Integer.toString(curNum + num);
+	}
+	
+	public void updateTupleNumber(int num)
+	{
+		int curNum = Integer.parseInt(numTuples);
+		numDataBlocks = Integer.toString(curNum + num);
+	}
+	
+	public void updateDateModified()
+	{
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		String cur_date = (String)sdf.format(cal.getTime());
+		this.dateModified = cur_date;
+	}
 	
 	/**
 	 * @param args
