@@ -332,10 +332,10 @@ public class Main implements QueryEngine
 		
 		// TODO: scan block one by one
 		// Now that we have attribute object, and relationinfo object
-		for (int i = 0; i < bufman.getTableSize(); i++)
-		{
+		//for (int i = 0; i < bufman.getTableSize(); i++)
+		//{
 			
-		}
+		//}
 	}
 	
 	/**
@@ -345,7 +345,7 @@ public class Main implements QueryEngine
 	 * @param table_name: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public void createIndexQuery(String index_name, String table_name, String field_name) {
+	public void createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
 		
 		// TODO: FIX ME
 		
@@ -368,7 +368,7 @@ public class Main implements QueryEngine
 		
 	}
 	
-	public void selectQuery(String table_name, String [] fields, String from, String where)
+	public void selectQuery(String table_name, String [] fields, String[][] where)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable att = relObj.getAttribute();
