@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class BufferManager {
@@ -40,15 +41,35 @@ public class BufferManager {
 	 */
 	Block[] buffer = null;
 
+	String db_name;
 	Hashtable<Long, Integer> lookupTable = null;
+	Hashtable<Integer, String> filenames = null;
 
 	public void initialize() {
 		// initialize the buffer
 		buffer = new Block[Parameters.NUM_BLOCK_BUFFER];
 		// initialize the lookupTable
 		lookupTable = new Hashtable<Long, Integer>();
+		filenames = new Hashtable<Integer, String>();
 	}
 
+	public void setDbName(String db_name)
+	{
+		this.db_name = db_name;
+	}
+	
+	public void getFilenames(Hashtable<String, RelationInfo> rels)
+	{
+		Enumeration e = rels.elements();
+		while(e.hasMoreElements())
+		{
+			RelationInfo rel = (RelationInfo)e.nextElement();
+			String filename = rel.getName().trim();
+			Integer id = new Integer(rel.getId());
+			this.filenames.put(id, filename);
+		}
+	}
+	
 	/**
 	 * Flush all the blocks which were modified to the discs.
 	 */
@@ -205,10 +226,11 @@ public class BufferManager {
 			try 
 			{
 				int[] split = Utility.split(blockID);
-				String fileNameID = "" + split[0];
+				// String fileNameID = "" + split[0];
+				String filename = db_name + "_" + filenames.get(split[0]) + ".dat";
 				int offSet = split[1];
 
-				RandomAccessFile fileIn = new RandomAccessFile(fileNameID, "rw");
+				RandomAccessFile fileIn = new RandomAccessFile(filename, "rw");
 				FileChannel fileChannel = fileIn.getChannel();
 				MappedByteBuffer tempBuffer = fileChannel.map(
 						FileChannel.MapMode.READ_WRITE, 0, fileIn.length());
@@ -254,9 +276,10 @@ public class BufferManager {
 				try 
 				{
 					int[] split = Utility.split(temp.getBlockID());
-					String fileNameID = "" + split[0];
+					// String fileNameID = "" + split[0];
+					String filename = db_name + "_" + filenames.get(split[0]) + ".dat";
 					int offSet = split[1];
-					RandomAccessFile fileOut = new RandomAccessFile(fileNameID, "rw");
+					RandomAccessFile fileOut = new RandomAccessFile(filename, "rw");
 					FileChannel fileChannel = fileOut.getChannel();
 					MappedByteBuffer tempBuffer = fileChannel.map(
 							FileChannel.MapMode.READ_WRITE, offSet,
@@ -291,7 +314,7 @@ public class BufferManager {
 			buffer[slot_num].setUpdated(true);
 		}
 	}
-	
+
 	public void addBlockToBuffer(Block b) {
 		
 		// Find a blank slot in the buffer
@@ -308,6 +331,11 @@ public class BufferManager {
 		
 	}
 
+	public int getTableSize()
+	{
+		return this.lookupTable.size();
+	}
+	
 	public static void main(String[] args) throws IOException 
 	{
 		String fileNameID = "" + 1;
