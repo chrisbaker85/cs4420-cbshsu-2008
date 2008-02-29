@@ -136,7 +136,7 @@ public class Block {
 	 * @param len
 	 * @return
 	 */
-	public byte [] getBlock(int offset, int len)
+	public byte [] getTupleContent(int offset, int len)
 	{
 		byte [] data = new byte[len];
 		
