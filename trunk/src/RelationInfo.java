@@ -26,7 +26,7 @@ public class RelationInfo {
 	 * @param filename
 	 * @param numDataBlocks
 	 */
-	public RelationInfo(String name, String dateCreated, String dateModified, String numTuple, int id, String colsIndexed, String filename, String numDataBlocks, Hashtable attributes)
+	public RelationInfo(String name, String dateCreated, String dateModified, String numTuples, int id, String colsIndexed, String filename, String numDataBlocks, Hashtable attributes)
 	{
 		this.name = name;
 		this.dateCreated = dateCreated;
