@@ -303,7 +303,7 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "0", atts);
+		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "1", atts);
 		this.syscat.addRelationCatalog(table_name, relObj);
 		// update filename Hashtable in BufferManager 
 		this.bufman.getTableNames(syscat.getRelationCatalog());
