@@ -193,11 +193,13 @@ public class SQLCommandProcessor {
 		
 		// If the user wants to select *, send in fields variable
 		// that is null
-		if (fields.length == 1 && fields[0] == "*") {
+		if (fields.length == 1 && fields[0].equals("*")) {
 			
 			fields = null;
 			
 		}
+		
+		System.out.println("[fields: " + fields + "]");
 		
 		/*
 		for (int i = 0; i < fields.length; i++) {
@@ -229,15 +231,18 @@ public class SQLCommandProcessor {
 		}
 		
 		
-		//System.out.println("[" + table_name + "]");
-		for (int i = 0; i < where_pairs.length; i++) {
+		System.out.println("[" + table_name + "]");
+		if (where_pairs != null) {
 			
-			//System.out.println("[" + where_pairs[i] + "]");
-			where_temp = where_pairs[i].split("( )?=( )?");
-			where[i][0] = where_temp[0];
-			where[i][1] = where_temp[1];
-			//System.out.println("[" + where[i][0] + "/" + where[i][1] + "]");
-			
+			for (int i = 0; i < where_pairs.length; i++) {
+				
+				System.out.println("[" + where_pairs[i] + "]");
+				where_temp = where_pairs[i].split("( )?=( )?");
+				where[i][0] = where_temp[0];
+				where[i][1] = where_temp[1];
+				System.out.println("[" + where[i][0] + "/" + where[i][1] + "]");
+				
+			}
 		}
 		
 		qe.selectQuery(table_name, fields, where);
@@ -284,7 +289,14 @@ public class SQLCommandProcessor {
 	 * @return
 	 */
 	public String parseSelect(String command) {
+		/*
+		String table_name;
+		String temp;
 		
+		temp = command.substring(7);
+		
+		qe.selectQuery(table_name, fields, where);
+		*/
 		
 		return "";
 	}
@@ -305,6 +317,7 @@ public class SQLCommandProcessor {
 		cp.parseInsert("insert into students (name, age) values (sovandy, 24)");
 		cp.parseInsert("insert into students (name, age) values (chris, 22)");
 		cp.parseInsert("insert into students (name, age) values (sami, 25)");
+		cp.parseTableSelect("select * from students where name = chris");
 	}
 
 }
