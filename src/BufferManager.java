@@ -55,6 +55,10 @@ public class BufferManager {
 	{
 		this.db_name = db_name;
 	}
+	public String getDBName()
+	{
+		return db_name;
+	}
 	
 	public void getTableNames(Hashtable<String, RelationInfo> rels)
 	{
