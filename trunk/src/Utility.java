@@ -152,7 +152,7 @@ public class Utility {
 			int ind = searchStringArray(attNames[i].trim(), fields);
 			if (ind != -1) 
 			{
-				System.out.println("field " + att.getName().trim() + " is found");
+				//System.out.println("field " + att.getName().trim() + " is found");
 				if (att.getType().equals("int"))
 				{
 					System.out.println("field type is int");
@@ -166,7 +166,7 @@ public class Utility {
 				}
 				else
 				{
-					System.out.println("field type is string with length " + Integer.parseInt(att.getLength()));
+					//System.out.println("field type is string with length " + Integer.parseInt(att.getLength()));
 					int attLen = Integer.parseInt(att.getLength());
 					byte [] tempData = data[ind].getBytes();
 					for (int j = 0; j < tempData.length; j++)
@@ -178,7 +178,7 @@ public class Utility {
 			}
 			else
 			{
-				System.out.println("field " + att.getName().trim() + " is not found");
+				//System.out.println("field " + att.getName().trim() + " is not found");
 			}
 		}
 	
