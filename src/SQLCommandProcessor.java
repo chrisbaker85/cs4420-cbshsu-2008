@@ -161,13 +161,14 @@ public class SQLCommandProcessor {
 			
 		}
 		
+		/*
 		System.out.println(table_name);
 		for (int i = 0; i < attributes.length; i++) {
 			
 			System.out.print("[" + attributes[i][0] + "|" + attributes[i][1] + "]");
 			
 		}
-		
+		*/
 		
 		qe.insertQuery(table_name, attributes);
 		
