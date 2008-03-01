@@ -267,7 +267,7 @@ public class BufferManager {
 		
 		Block temp = null;
 
-		if (lookupTable.contains(blockID))
+		if (this.lookupTable.containsKey(blockID))
 		{
 			int slot_num = ((Integer) lookupTable.get(blockID)).intValue();
 			temp = buffer[slot_num];
@@ -279,12 +279,11 @@ public class BufferManager {
 					int[] split = Utility.split(temp.getBlockID());
 					// String fileNameID = "" + split[0];
 					String filename = db_name + "_" + tableNames.get(split[0]) + "_data.dat";
+					//String filename = "data.txt";
 					int offSet = split[1];
 					RandomAccessFile fileOut = new RandomAccessFile(filename, "rw");
 					FileChannel fileChannel = fileOut.getChannel();
-					MappedByteBuffer tempBuffer = fileChannel.map(
-							FileChannel.MapMode.READ_WRITE, offSet,
-							Parameters.BLOCK_SIZE);
+					MappedByteBuffer tempBuffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, offSet, Parameters.BLOCK_SIZE);
 					
 					tempBuffer.put(temp.getContent());
 					temp.setUpdated(false);
@@ -339,6 +338,8 @@ public class BufferManager {
 	
 	public static void main(String[] args) throws IOException 
 	{
+		
+		/*
 		String fileNameID = "" + 1;
 		int offSet = 32;
 		long id = Utility.combine(Integer.parseInt(fileNameID), offSet);
@@ -359,5 +360,33 @@ public class BufferManager {
 		manager.initialize();
 		Block tempBlock = manager.getBlock(id);
 		tempBlock.printBlock();
+*/
+		BufferManager bm = new BufferManager();
+		bm.initialize();
+		
+		
+		
+		System.out.println(bm.nextSlot());
+		
+		byte[] c1 = new String("foo").getBytes();
+		Block b1 = new Block();
+		b1.blockID = Utility.combine(0, 0);
+		b1.content = c1;
+		
+		byte[] c2 = new String("bar").getBytes();
+		Block b2 = new Block();
+		b2.blockID = Utility.combine(0, 1);
+		b2.content = c2;
+		
+		bm.addBlockToBuffer(b1);
+		bm.addBlockToBuffer(b2);
+		
+		System.out.println("\n" + bm.nextSlot());
+		
+		bm.writeBlock(b1.blockID);
+		bm.writeBlock(b2.blockID);
+		
+		
+		
 	}
 }
