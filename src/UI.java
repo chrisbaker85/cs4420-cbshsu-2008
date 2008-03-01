@@ -146,6 +146,8 @@ public class UI {
 	 */
 	private void finish() {
 		
+		this.proc.exit();
+		
 		System.out.println("/////////////////////////////////////////////\nThe database has been closed.\n/////////////////////////////////////////////\n");
 		
 	}
