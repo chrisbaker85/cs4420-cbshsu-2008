@@ -219,6 +219,54 @@ public class Utility {
 	}
 	
 	/**
+	 * it convert array of byte into array of string of the tuple
+	 * 1. get the array of attribute name
+	 * 2. how do we map it into the order of 
+	 * @param atts
+	 * @param data
+	 * @return
+	 */
+	public static String [] convertTupleToArray(Hashtable atts, byte [] data)
+	{
+		String [] results = new String[atts.size()];
+		Attribute [] attArray = new Attribute[atts.size()];
+		Enumeration e = atts.elements();
+		String type;
+		while (e.hasMoreElements())
+		{
+			Attribute att = ((Attribute)e.nextElement());
+			int i = Integer.parseInt(att.getId().trim());
+			attArray[i] = att;
+		}
+		int pos = 4;
+		for (int i = 0; i < attArray.length; i++)
+		{
+			type = attArray[i].getType();
+			// if it's integer, convert 4 bytes to integer
+			if (type.equals("int"))
+			{
+				byte [] tempData = {data[pos+0], data[pos+1], data[pos+2], data[pos+3]};
+				pos = pos + 4;
+				String tempField = Integer.toString(Utility.makeIntFromByte4(tempData));
+				results[i] = tempField;
+			}
+			else
+			{
+				int len = Integer.parseInt(attArray[i].getLength().trim());
+				byte [] tempData = new byte[len];
+				for (int j = 0; j < len; j++)
+				{
+					tempData[j] = data[pos+j];
+				}
+				pos = pos + len;
+				results[i] = new String(tempData);
+			}
+		}
+		
+		return results;
+ 	}
+	
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
