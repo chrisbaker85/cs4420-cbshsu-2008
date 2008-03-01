@@ -445,7 +445,8 @@ public class Main implements QueryEngine
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
-		int tupleLength = Utility.getTotalLength(atts); 
+		int tupleLength = Utility.getTotalLength(atts);
+		
 		// testing if the field entered by user exists
 		for (int i = 0; i < fields.length; i++)
 		{
@@ -479,6 +480,8 @@ public class Main implements QueryEngine
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
 			byte [] data = block.getTupleContent(offset, tupleLength);
+			String [] results = Utility.convertTupleToArray(atts, data);
+			
 			// String [] results = Utility.convertTupleToArray(data, atts);
 			
 		}
