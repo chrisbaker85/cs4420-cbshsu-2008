@@ -555,6 +555,9 @@ public class Main implements QueryEngine
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
 				                       {"bill", "joe"}};
+		
+		mydb.insertQuery("student", insert_student);
+		mydb.insertQuery("student", insert_student1);
 
 	}
 }
