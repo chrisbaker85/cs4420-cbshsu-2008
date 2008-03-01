@@ -492,7 +492,7 @@ public class Main implements QueryEngine
 	{
 		syscat = new SystemCatalog(db_name); 
 		this.readDBRelations(db_name);
-		bufman.setDbName(db_name);
+		bufman.setDBName(db_name);
 		bufman.getTableNames(syscat.getRelationCatalog());
 	}
 	
