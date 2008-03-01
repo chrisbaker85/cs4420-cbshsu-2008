@@ -475,16 +475,20 @@ public class Main implements QueryEngine
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
 		int tupleLength = Utility.getTotalLength(atts);
-		
+		boolean selectAll = false;
 		// testing if the field entered by user exists
-		for (int i = 0; i < fields.length; i++)
+		if (fields != null)
 		{
-			if (!atts.containsKey(fields[i]))
+			for (int i = 0; i < fields.length; i++)
 			{
-				System.out.println("Attribute " + fields[i] + " doesn't exist");
-				return false;
+				if (!atts.containsKey(fields[i]))
+				{
+					System.out.println("Attribute " + fields[i] + " doesn't exist");
+					return false;
+				}
 			}
 		}
+		else selectAll = true;
 		/**
 		 * 1. Iterate tuple by tuple
 		 * 2. parse it to 
@@ -499,8 +503,12 @@ public class Main implements QueryEngine
 			int offset = tuple.getOffset();
 			byte [] data = block.getTupleContent(offset, tupleLength);
 			String [] results = Utility.convertTupleToArray(atts, data);
-			
 			// String [] results = Utility.convertTupleToArray(data, atts);
+			for(int j = 0; j < results.length; j++)
+			{
+				System.out.print(results[j] + "\t");
+			}
+			System.out.println("");
 			
 		}
 		return true;
@@ -574,16 +582,15 @@ public class Main implements QueryEngine
                 					{"course_number", "string", "10", "no", "1", "0"},
                 					{"location",      "string", "10", "no", "2", "2"}};
 		mydb.createTable(db_name, "course", course_attributes);
-		/*
 		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
 				                       {"bill", "joe"}};
 		System.out.println("**********************************************");
 		mydb.insertQuery("student", insert_student);
-		// mydb.insertQuery("student", insert_student1);
-		 */
+		mydb.insertQuery("student", insert_student1);
 		mydb.selectCatalogQuery();
+		
 
 	}
 }
