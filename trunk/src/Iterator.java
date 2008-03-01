@@ -12,6 +12,9 @@ public class Iterator {
 	BufferManager bm = null;
 	RelationInfo ri = null;
 	
+	Hashtable<String, Attribute> atts;
+	int len;
+	
 	/**
 	 * the id of the relation
 	 */
@@ -36,7 +39,7 @@ public class Iterator {
 	/**
 	 * The number of tuples in the current block 
 	 */
-	int num_tuples;
+	int num_tuples_in_block;
 	
 	/**
 	 * The number of the current tuple in the block
@@ -69,6 +72,11 @@ public class Iterator {
 		this.current_block_num = 0;
 		this.current_tuple_num = 0;
 		
+		atts = this.ri.getAttribute();
+		
+		// Calculate the total length of a tuple
+		len = Utility.getTotalLength(atts);
+		
 	}
 	
 	/**
@@ -80,17 +88,14 @@ public class Iterator {
 		
 		this.current_tuple_num++;
 		
-		Hashtable<String, Attribute> atts = this.ri.getAttribute();
-		int len = Utility.getTotalLength(atts);
-		Tuple tuple;
-		
 		// The iterator is crossing a block boundary, so get the next block
-		if (this.current_tuple_num > this.num_tuples) {
+		if (this.current_tuple_num > this.num_tuples_in_block) {
 		
 			this.current_tuple_num = 0;
 			
 			// Increment to get the next block
 			this.current_block_num++;
+			
 			// Get next block from the BufferManager
 			this.current_block = bm.getBlock(Utility.combine(this.relation_id, this.current_block_num));
 
@@ -102,8 +107,7 @@ public class Iterator {
 			} else {
 				
 				// Set num_tuples from the Block we've just gotten
-				// TODO: fix me
-				this.num_tuples = 0;
+				this.num_tuples_in_block = this.current_block.getRecordNumber();
 				
 			}
 			
@@ -111,13 +115,12 @@ public class Iterator {
 		
 		// No new blocks were needed, so just return
 		// the next tuple in the current block
+		//int header_size = Parameters.TUPLE_HEADER_SIZE;
 		
-		// TODO: fix me
-		int header_size = 0;
-		// TODO: fix me
-		int tuple_size = 0;
+		// Includes the tuple header
+		int tuple_size = len;
 		
-		int offset = header_size + (tuple_size * this.current_tuple_num);
+		int offset = tuple_size * this.current_tuple_num;
 		
 		return new Tuple(offset, this.current_block, this.ri);
 		
