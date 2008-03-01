@@ -130,7 +130,7 @@ public class UI {
 			return true;
 		}
 		
-		b = Pattern.matches("create table ([a-zA-Z0-9_-]+)( )?\\(([a-zA-Z0-9_-]+) (string|int)(((, [a-zA-Z0-9_-]+) (string|int))*)\\)", input);
+		b = Pattern.matches("create table ([a-zA-Z0-9_-]+)( )?\\(([a-zA-Z0-9_-]+ (string|int) [0-9]+ (yes|no))(((, [a-zA-Z0-9_-]+) (string|int) [0-9]+ (yes|no))*)\\)", input);
 		if (b) {
 			result = proc.parseCreateTable(input);
 			return true;
