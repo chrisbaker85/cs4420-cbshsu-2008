@@ -100,7 +100,7 @@ public class BufferManager {
 	 */
 	public boolean pin(long blockID) {
 		
-		if (!lookupTable.contains(blockID))
+		if (!lookupTable.containsKey(blockID))
 			return false;
 
 		int slot_num = lookupTable.get(blockID);
@@ -114,7 +114,7 @@ public class BufferManager {
 	 */
 	public boolean unpin(long blockID) {
 		
-		if (!lookupTable.contains(blockID))
+		if (!lookupTable.containsKey(blockID))
 			return false;
 
 		int slot_num = lookupTable.get(blockID);
@@ -130,7 +130,7 @@ public class BufferManager {
 	 */
 	public Block getBlock(long blockID) {
 		
-		if (!lookupTable.contains(blockID))
+		if (!this.lookupTable.containsKey(blockID))
 			readBlock(blockID);
 
 		int slot_num = ((Integer)lookupTable.get(blockID)).intValue();
@@ -243,7 +243,7 @@ public class BufferManager {
 
 				byte[] temp = new byte[Parameters.BLOCK_SIZE];
 
-				for (int i = 0; i < Parameters.BLOCK_SIZE; i++) {
+				for (int i = 0; i < Parameters.BLOCK_SIZE - 1; i++) {
 					temp[i] = tempBuffer.get(i + offSet);
 				}
 
