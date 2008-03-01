@@ -62,9 +62,9 @@ public class BufferManager {
 		while(e.hasMoreElements())
 		{
 			RelationInfo rel = (RelationInfo)e.nextElement();
-			String filename = rel.getName().trim();
+			String tablename = rel.getName().trim();
 			Integer id = new Integer(rel.getId());
-			this.tableNames.put(id, filename);
+			this.tableNames.put(id, tablename);
 		}
 	}
 	
