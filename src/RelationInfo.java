@@ -208,6 +208,11 @@ public class RelationInfo {
 		numTuples = Integer.toString(curNum + num);
 	}
 	
+	public Hashtable getAttributes()
+	{
+		return this.attributes;
+	}
+	
 	public void updateDateModified()
 	{
 		Calendar cal = Calendar.getInstance();
