@@ -271,6 +271,12 @@ public class SQLCommandProcessor {
 		return "";
 	}
 	
+	public void exit() {
+		
+		this.qe.exit();
+		
+	}
+	
 	/**
 	 * @param args
 	 */
