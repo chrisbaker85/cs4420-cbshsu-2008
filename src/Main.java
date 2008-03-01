@@ -442,8 +442,32 @@ public class Main implements QueryEngine
 	/**
 	 * Displays the catalog information
 	 */
-	public boolean selectCatalogQuery() {
-		return false;
+	public boolean selectCatalogQuery() 
+	{	
+		System.out.println("Database name:" + syscat.getDBName());
+		Enumeration e = syscat.getRelationCatalog().elements();
+		while(e.hasMoreElements())
+		{
+			RelationInfo relObj = (RelationInfo)e.nextElement();
+			System.out.println("===============================================");
+			System.out.println("Relation name:\t\t" + relObj.getName());
+			System.out.println("Date created:\t\t" + relObj.getDateCreated());
+			System.out.println("Date modified:\t\t" + relObj.getDateModified());
+			System.out.println("Tuple numbers:\t\t" + relObj.getNumTuples());
+			System.out.println("Block numbers:\t\t" + relObj.getNumDataBlocks());
+			System.out.println("===============================================");
+			Enumeration e1 = relObj.getAttribute().elements();
+			while (e1.hasMoreElements())
+			{
+				System.out.println("");
+				Attribute att = (Attribute)e1.nextElement();
+				System.out.println("Name:\t\t" + att.getName());
+				System.out.println("Type:\t\t" + att.getType());
+				System.out.println("Length:\t\t" + att.getLength());
+				System.out.println("Nullable:\t" + att.getIsNullable());
+			}
+		}
+		return true;
 	}
 	
 	public boolean selectQuery(String table_name, String [] fields, String [][] where)
@@ -550,6 +574,7 @@ public class Main implements QueryEngine
                 					{"course_number", "string", "10", "no", "1", "0"},
                 					{"location",      "string", "10", "no", "2", "2"}};
 		mydb.createTable(db_name, "course", course_attributes);
+		/*
 		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
@@ -557,6 +582,8 @@ public class Main implements QueryEngine
 		System.out.println("**********************************************");
 		mydb.insertQuery("student", insert_student);
 		// mydb.insertQuery("student", insert_student1);
+		 */
+		mydb.selectCatalogQuery();
 
 	}
 }
