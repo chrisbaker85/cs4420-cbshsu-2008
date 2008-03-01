@@ -5,39 +5,44 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
 public class IndexHelper {
-	public static int numberOfBlocks = 1 + (Parameters.BTREE_ORDER + 1)
-			+ (Parameters.BTREE_ORDER + 1) * (Parameters.BTREE_ORDER + 1);
-	public static int sizeOfBlock = 8 * 2 + 8 * Parameters.BTREE_ORDER + 8
-			* (Parameters.BTREE_ORDER + 1);
-	public static int sizeOfBuffer = numberOfBlocks * sizeOfBlock;
+	
+	public static int numberOfBlocks = 1 + (Parameters.BTREE_ORDER + 1)	+ (Parameters.BTREE_ORDER + 1) * (Parameters.BTREE_ORDER + 1);
+	public static int sizeOfBlockHeader = 8 * 4;
+	public static int sizeOfBlockKeys = 8 * Parameters.BTREE_ORDER;
+	public static int sizeOfBlockPointers = 8 * (Parameters.BTREE_ORDER + 1);
+	public static int sizeOfBlock = sizeOfBlockHeader +  sizeOfBlockKeys + sizeOfBlockPointers;
+	public static int sizeOfIndexFile = numberOfBlocks * sizeOfBlock;
 	public static int blockCapacity = 1 + Parameters.BTREE_ORDER;
-	public static int rootBlockNum = 1;
-	public static long rootPointer = 0;
-	public static int firstInterBlockNum = 2;
-	public static long firstInterBlockPointer = 2 * sizeOfBlock;
-	public static int firstLeafBlockNum = 3 + Parameters.BTREE_ORDER;
-	public static int firstLeafPointer = (3 + Parameters.BTREE_ORDER)
-			* sizeOfBlock;
+	
+	
+	public int rootBlockNum;
+	public int firstLeafBlockNum;
 
 	protected MappedByteBuffer buffer;
 	protected RandomAccessFile file;
 
 	public IndexHelper() {
+		rootBlockNum = -1;
+		firstLeafBlockNum = -1;
 	}
 
 	public IndexHelper(String name) {
+		rootBlockNum = -1;
+		firstLeafBlockNum = -1;
 		try {
 			file = new RandomAccessFile(name + ".index", "rw");
 			FileChannel fileChannel = file.getChannel();
 			buffer = fileChannel.map(FileChannel.MapMode.READ_WRITE, 0,
 					sizeOfBuffer);
+			buffer.putInt (rootBlockNum);
+			buffer.putInt (firstLeafBlockNum);
 			buffer.load();
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}
 	}
 
-	public static IndexHelper readTree(String name) {
+	public static IndexHelper readIndexFile(String name) {
 		IndexHelper retVal = new IndexHelper();
 		try {
 			retVal.file = new RandomAccessFile(name + ".index", "rw");
@@ -50,13 +55,36 @@ public class IndexHelper {
 		}
 		return retVal;
 	}
+	
+	public int getRootNum ()
+	{
+		return buffer.getInt (0);
+	}
+	
+	public int getLeafNum ()
+	{
+		return buffer.getInt (16);
+	}
 
 	public void update() {
 		buffer.force();
 	}
 
 	public long getBlock(int blockNum) {
-		return (long) ((blockNum - 1) * sizeOfBlock);
+		return (long) (2 * 8 + (blockNum - 1) * sizeOfBlock);
+	}
+
+	public long[] getPointers(int blockNum, long keyValue) {
+		long[] retVal = null;
+
+		int keyOrder = getKeyOrder(blockNum, keyValue);
+
+		if (keyOrder != -1) {
+			retVal = new long[2];
+			retVal[0] = getLeftPointer(blockNum, keyOrder);
+			retVal[1] = getLeftPointer(blockNum, keyOrder);
+		}
+		return retVal;
 	}
 
 	public void setKeysCount(int blockNum, int newCount) {
