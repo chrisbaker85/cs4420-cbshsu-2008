@@ -377,8 +377,11 @@ public class Main implements QueryEngine
 		Block block = bufman.getBlock(blockID);
 		int maxRecNum = Parameters.BLOCK_SIZE / Utility.getTotalLength(atts);
 		int recNum = block.getRecordNumber();
+		System.out.println("max record size " + maxRecNum);
+		System.out.println("record number in block " + recNum);
 		if (recNum < maxRecNum)
 		{
+			System.out.println("in recNum < maxRecNum");
 			block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
@@ -387,12 +390,13 @@ public class Main implements QueryEngine
 		}
 		else
 		{
-				/**
-			 	 * 1. create a new block
-				 * 2. add block to buffer
-				 * 3. calculate offset
-				 * 4. combine into blockID
-				 */ 
+			/**
+			 * 1. create a new block
+			 * 2. add block to buffer
+			 * 3. calculate offset
+			 * 4. combine into blockID
+			 */ 
+			System.out.println("in recNum > maxRecNum");
 			block = new Block();
 			block.writeToBlock(dataToWrite);
 			bufman.addBlockToBuffer(block);
@@ -461,17 +465,6 @@ public class Main implements QueryEngine
 		 * 2. parse it to 
 		 */
 		
-		/*
-		Block block;
-		int fileID = relObj.getId();
-		for (int i = 0; i < Integer.parseInt(relObj.getNumDataBlocks()); i++)
-		{
-			int offset = Parameters.BLOCK_SIZE * i;
-			long blockID = Utility.combine(fileID, offset);
-			block = bufman.getBlock(blockID);
-			
-		}
-		*/
 		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
 		Tuple tuple;
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
