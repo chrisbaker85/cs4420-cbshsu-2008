@@ -30,6 +30,7 @@ public class Main implements QueryEngine
 	public Main()
 	{
 		bufman = new BufferManager(); 
+		bufman.initialize();
 	}
 	
 	public BufferManager getBm()
