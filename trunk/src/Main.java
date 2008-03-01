@@ -320,8 +320,9 @@ public class Main implements QueryEngine
 	    
 		// create a blank block and insert it into buffer and file
 		Block block = new Block();
-		bufman.addBlockToBuffer(block);
 		long blockID = Utility.combine(id, 0);
+		block.setBlockID(blockID);
+		bufman.addBlockToBuffer(block);
 		bufman.writeBlock(blockID);
 		block.setUpdated(false);
 		
