@@ -220,7 +220,7 @@ public class Main implements QueryEngine
 		File file = new File(db_name+"_relations.xml");
 	    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 	    output.write("<relations>\n");
-	    output.write("</relations>\n");
+	    output.write("</relations>");
 	    output.close();
 		}
 		catch(IOException e)
@@ -477,7 +477,8 @@ public class Main implements QueryEngine
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
 			byte [] data = block.getTupleContent(offset, tupleLength);
-			// String [] results = Utility.convertTupleToArray(atts, )
+			// String [] results = Utility.convertTupleToArray(data, atts);
+			
 		}
 		return true;
 	}
