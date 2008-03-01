@@ -136,13 +136,7 @@ public class Utility {
 	{
 		int len = Utility.getTotalLength(atts);
 		byte [] dataArray = new byte[len];
-		/*
-		for (int i = 0; i < fields.length; i++)
-		{
-			System.out.println(fields[i] + " is " + data[i]);
-		}
-		*/
-		// go through element by element and test nullable
+		
 		String [] attNames = Utility.getAttributeNames(atts);
 		
 		byte [] deleted = Utility.makeByte4FromInt(0);
