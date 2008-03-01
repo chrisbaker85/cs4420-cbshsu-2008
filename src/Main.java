@@ -329,6 +329,22 @@ public class Main implements QueryEngine
 		return true;
 	}
 	
+	/**
+	 * 1. calculate offset of the last
+		 * 2. combine file_id & offset into long
+		 * 3. get that block (copy it to buffer)
+		 * 4. test if that block has enough room for a tuple
+		 * 5. if yes, writeToBlock()
+		 * 6. else, instantiate Block object
+		 * 7. insert that into BufferManager
+		 * 8. writeToBlock()
+		 * 9. write block to file
+			 * 1. create a new block
+			 * 2. add block to buffer
+			 * 3. calculate offset
+			 * 4. combine into blockID
+			 */ 
+
 	public boolean insertQuery(String table_name, String [][] query)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
@@ -359,29 +375,21 @@ public class Main implements QueryEngine
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
-		/**
-		 * 1. calculate offset of the last
-		 * 2. combine file_id & offset into long
-		 * 3. get that block (copy it to buffer)
-		 * 4. test if that block has enough room for a tuple
-		 * 5. if yes, writeToBlock()
-		 * 6. else, instantiate Block object
-		 * 7. insert that into BufferManager
-		 * 8. writeToBlock()
-		 * 9. write block to file
-		 */ 
+		
 		int blockNum = Integer.parseInt(relObj.getNumDataBlocks().trim());
 		int lastOffset = Parameters.BLOCK_SIZE * (blockNum - 1);
 		int fileId = relObj.getId();
 		long blockID = Utility.combine(fileId, lastOffset);
 		Block block = bufman.getBlock(blockID);
+		
 		int maxRecNum = Parameters.BLOCK_SIZE / Utility.getTotalLength(atts);
 		int recNum = block.getRecordNumber();
-		System.out.println("max record size " + maxRecNum);
-		System.out.println("record number in block " + recNum);
+		
+		// System.out.println("max record size " + maxRecNum);
+		// System.out.println("record number in block " + recNum);
+		
 		if (recNum < maxRecNum)
 		{
-			System.out.println("in recNum < maxRecNum");
 			block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
@@ -390,13 +398,6 @@ public class Main implements QueryEngine
 		}
 		else
 		{
-			/**
-			 * 1. create a new block
-			 * 2. add block to buffer
-			 * 3. calculate offset
-			 * 4. combine into blockID
-			 */ 
-			System.out.println("in recNum > maxRecNum");
 			block = new Block();
 			block.writeToBlock(dataToWrite);
 			bufman.addBlockToBuffer(block);
@@ -535,11 +536,11 @@ public class Main implements QueryEngine
 	{
 		Main mydb = new Main();
 		String db_name = "db1";
-		System.out.println("just test");
-		System.out.println("create database");
+		System.out.println("create database db1");
 		mydb.createDB(db_name);
 		System.out.println("Use db1");
 		mydb.useDatabase(db_name);
+		System.out.println("***********************************************");
 		System.out.println("create table student");
 		String [][] student_attributes = {{"first_name", "string", "20", "no", "0", "0"},
                 					     {"last_name",   "string", "20", "no", "1", "0"},
@@ -553,9 +554,9 @@ public class Main implements QueryEngine
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
 				                       {"bill", "joe"}};
-		
+		System.out.println("**********************************************");
 		mydb.insertQuery("student", insert_student);
-		mydb.insertQuery("student", insert_student1);
+		// mydb.insertQuery("student", insert_student1);
 
 	}
 }
