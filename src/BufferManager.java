@@ -51,7 +51,7 @@ public class BufferManager {
 		tableNames = new Hashtable<Integer, String>();
 	}
 
-	public void setDbName(String db_name)
+	public void setDBName(String db_name)
 	{
 		this.db_name = db_name;
 	}
