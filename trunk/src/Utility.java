@@ -181,16 +181,7 @@ public class Utility {
 				System.out.println("field " + att.getName().trim() + " is not found");
 			}
 		}
-		
-		byte [] test = {dataArray[4], dataArray[5], dataArray[6], dataArray[7]}; 
-		String temp = new String(test);
-		System.out.println("first name should be " + temp);
-		
-		for (int i = 0; i < dataArray.length; i++)
-		{
-			System.out.print(dataArray[i]);
-		}
-		System.out.println("");
+	
 		/*
 		for (int i = 0; i < atts.size(); i++)
 		{
