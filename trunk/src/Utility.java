@@ -155,7 +155,7 @@ public class Utility {
 				//System.out.println("field " + att.getName().trim() + " is found");
 				if (att.getType().equals("int"))
 				{
-					System.out.println("field type is int");
+					//System.out.println("field type is int");
 					int temp = Integer.parseInt(data[ind]);
 					byte [] tempData = Utility.makeByte4FromInt(temp);
 					dataArray[pos+0] = tempData[0];
