@@ -119,6 +119,12 @@ public class Block {
 	 */
 	public void writeToBlock(byte [] data)
 	{
+		/*
+		byte [] test = {data[4], data[5], data[6], data[7]}; 
+		String temp = new String(test);
+		System.out.println("first name in writeToBlock should be " + temp);
+		*/
+		
 		this.isUpdated = true;
 		this.isPinned = true;
 		int recNum = this.getRecordNumber();
