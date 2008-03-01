@@ -28,6 +28,7 @@ public class Block {
 	// set record number to 0
 	public Block()
 	{
+		content = new byte[Parameters.BLOCK_SIZE];
 		byte [] header = Utility.makeByte4FromInt(0);
 		content[0] = header[0];
 		content[1] = header[1];
