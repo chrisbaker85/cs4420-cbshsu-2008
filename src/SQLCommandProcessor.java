@@ -10,6 +10,16 @@
 public class SQLCommandProcessor {
 	
 	QueryEngine qe = new Main();
+	
+	String db_name = "db1";
+	
+	public SQLCommandProcessor() {
+		
+		//  For testing
+		qe.createDB(db_name);
+		qe.useDatabase(db_name);
+		
+	}
 
 	public boolean parseCommand(String command) {
 		
@@ -52,6 +62,7 @@ public class SQLCommandProcessor {
 		String table_name;
 		String[][] attributes = new String[command.split(",").length][2];
 		String[] attrs;
+		String[] meta;
 		
 		// 1) Extract the table's name that we're creating
 		temp = command.substring(13);
@@ -59,24 +70,30 @@ public class SQLCommandProcessor {
 
 		// 2) Extract the attribute/type pairs
 		temp = temp.substring(temp.indexOf("(") + 1, temp.indexOf(")"));
-		attrs = temp.split(", ");
+		attrs = temp.split(",( )?");
 		for (int i = 0; i < attrs.length; i++) {
 			
-			attributes[i][0] = attrs[i].substring(0, attrs[i].indexOf(" "));
-			attributes[i][1] = attrs[i].substring(attrs[i].indexOf(" ") + 1, attrs[i].length());
+			meta = attrs[i].split(" ");
+			
+			attributes[i] = meta;
+			//attributes[i][0] = attrs[i].substring(0, attrs[i].indexOf(" "));
+			//attributes[i][1] = attrs[i].substring(attrs[i].indexOf(" ") + 1, attrs[i].length());
 			
 		}
 		
 		/*
 		System.out.println("[" + table_name + "]");
 		for (int i = 0; i < attributes.length; i++) {
-			
-			System.out.print("[" + attributes[i][0] + "|" + attributes[i][1] + "]");
+			for (int j = 0; j < attributes[0].length; j++) {
+				System.out.print(attributes[i][j] + "|");
+			}
+			//System.out.print("[" + attributes[i][0] + "|" + attributes[i][1] + "]");
 			
 		}
 		*/
 		
-		qe.createTable("", table_name, attributes);
+		
+		qe.createTable(db_name, table_name, attributes);
 		return "";
 		
 	}
