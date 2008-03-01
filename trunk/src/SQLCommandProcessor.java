@@ -318,6 +318,30 @@ public class SQLCommandProcessor {
 		cp.parseInsert("insert into students (name, age) values (sovandy, 24)");
 		cp.parseInsert("insert into students (name, age) values (chris, 22)");
 		cp.parseInsert("insert into students (name, age) values (sami, 25)");
+		cp.parseInsert("insert into students (name, age) values (aaron, 1)");
+		cp.parseInsert("insert into students (name, age) values (alice, 2)");
+		cp.parseInsert("insert into students (name, age) values (benjamin, 3)");
+		cp.parseInsert("insert into students (name, age) values (bethany, 4)");
+		cp.parseInsert("insert into students (name, age) values (cory, 5)");
+		cp.parseInsert("insert into students (name, age) values (callie, 6)");
+		cp.parseInsert("insert into students (name, age) values (derrick, 7)");
+		cp.parseInsert("insert into students (name, age) values (deborah, 8)");
+		cp.parseInsert("insert into students (name, age) values (Ernest, 8)");
+		cp.parseInsert("insert into students (name, age) values (Erika, 9)");
+		cp.parseInsert("insert into students (name, age) values (Freddie, 10)");
+		cp.parseInsert("insert into students (name, age) values (Fran, 11)");
+		cp.parseInsert("insert into students (name, age) values (Geraldo, 12)");
+		cp.parseInsert("insert into students (name, age) values (Ginny, 13)");
+		cp.parseInsert("insert into students (name, age) values (Herbert, 14)");
+		cp.parseInsert("insert into students (name, age) values (hannah, 15)");
+		cp.parseInsert("insert into students (name, age) values (Ian, 16)");
+		cp.parseInsert("insert into students (name, age) values (Ida, 17)");
+		cp.parseInsert("insert into students (name, age) values (Jeremy, 18)");
+		cp.parseInsert("insert into students (name, age) values (Jenn, 19)");
+		cp.parseInsert("insert into students (name, age) values (Kyle, 20)");
+		cp.parseInsert("insert into students (name, age) values (Kiera, 21)");
+		cp.parseInsert("insert into students (name, age) values (Luther, 22)");
+		cp.parseInsert("insert into students (name, age) values (Lauren, 23)");
 		cp.parseTableSelect("select * from students where name = chris");
 	}
 
