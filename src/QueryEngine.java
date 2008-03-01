@@ -17,4 +17,6 @@ public interface QueryEngine {
 	public boolean selectIndexQuery(String table_name, String index_name);
 	public boolean selectCatalogQuery();
 	public void exit();
+	public void useDatabase(String db_name);
+	public void createDB(String db_name);
 }
