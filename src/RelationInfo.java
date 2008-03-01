@@ -205,7 +205,7 @@ public class RelationInfo {
 	public void updateTupleNumber(int num)
 	{
 		int curNum = Integer.parseInt(numTuples);
-		numDataBlocks = Integer.toString(curNum + num);
+		numTuples = Integer.toString(curNum + num);
 	}
 	
 	public void updateDateModified()
