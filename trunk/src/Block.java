@@ -122,7 +122,7 @@ public class Block {
 		this.isUpdated = true;
 		this.isPinned = true;
 		int recNum = this.getRecordNumber();
-		int pos = data.length * recNum;
+		int pos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
 		for (int i = 0; i < data.length; i++)
 		{
 			this.content[pos+i] = data[i];
