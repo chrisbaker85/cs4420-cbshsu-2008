@@ -76,6 +76,7 @@ public class SQLCommandProcessor {
 			meta = attrs[i].split(" ");
 			
 			attributes[i] = meta;
+
 			//attributes[i][0] = attrs[i].substring(0, attrs[i].indexOf(" "));
 			//attributes[i][1] = attrs[i].substring(attrs[i].indexOf(" ") + 1, attrs[i].length());
 			
@@ -136,12 +137,12 @@ public class SQLCommandProcessor {
 		
 		String temp, temp_attr;
 		String table_name;
-		String[][] attributes = new String[(command.split(",").length + 1) / 2][2];
+		String[][] attributes = new String[2][(command.split(",").length + 1) / 2];
 		String[] attrs;
 		String[] vals;
 		
 		// 1) Extract table name
-		temp = command.substring(14);
+		temp = command.substring(12);
 		table_name = temp.substring(0, temp.indexOf(" "));
 		
 		// 2) Extract attributes and types
@@ -155,18 +156,18 @@ public class SQLCommandProcessor {
 		
 		for (int i = 0; i < attrs.length; i++) {
 			
-			attributes[i][0] = attrs[i];
-			attributes[i][1] = vals[i];
+			attributes[0][i] = attrs[i];
+			attributes[1][i] = vals[i];
 			
 		}
 		
-		/*
+		System.out.println(table_name);
 		for (int i = 0; i < attributes.length; i++) {
 			
 			System.out.print("[" + attributes[i][0] + "|" + attributes[i][1] + "]");
 			
 		}
-		*/
+		
 		
 		qe.insertQuery(table_name, attributes);
 		
@@ -298,8 +299,12 @@ public class SQLCommandProcessor {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+		
+		SQLCommandProcessor cp = new SQLCommandProcessor();
+		cp.parseCreateTable("create table students (name string 10 no, age int 4 no)");
+		cp.parseInsert("insert into students (name, age) values (sovandy, 24)");
+		cp.parseInsert("insert into students (name, age) values (chris, 22)");
+		cp.parseInsert("insert into students (name, age) values (sami, 25)");
 	}
 
 }
