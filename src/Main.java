@@ -133,7 +133,7 @@ public class Main implements QueryEngine
 	 */
 	public void readDBRelations(String db_name)
 	{
-		String filename = db_name + "_relation.xml";
+		String filename = db_name + "_relations.xml";
 		
     	try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
