@@ -590,7 +590,6 @@ public class Main implements QueryEngine
 		mydb.insertQuery("student", insert_student);
 		mydb.insertQuery("student", insert_student1);
 		mydb.selectCatalogQuery();
-		
 
 	}
 }
