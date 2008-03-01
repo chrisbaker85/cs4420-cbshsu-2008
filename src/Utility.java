@@ -136,14 +136,68 @@ public class Utility {
 	{
 		int len = Utility.getTotalLength(atts);
 		byte [] dataArray = new byte[len];
+		/*
+		for (int i = 0; i < fields.length; i++)
+		{
+			System.out.println(fields[i] + " is " + data[i]);
+		}
+		*/
 		// go through element by element and test nullable
 		String [] attNames = Utility.getAttributeNames(atts);
-		int pos = 4;
+		
 		byte [] deleted = Utility.makeByte4FromInt(0);
 		dataArray[0] = deleted[0];
 		dataArray[1] = deleted[1];
 		dataArray[2] = deleted[2];
 		dataArray[3] = deleted[3];
+		Attribute [] attArray = hashtableToArray(atts);
+		int pos = 4;
+		for (int i = 0; i < attNames.length; i++)
+		{
+			Attribute att = atts.get(attNames[i]);
+			int ind = searchStringArray(attNames[i].trim(), fields);
+			if (ind != -1) 
+			{
+				System.out.println("field " + att.getName().trim() + " is found");
+				if (att.getType().equals("int"))
+				{
+					System.out.println("field type is int");
+					int temp = Integer.parseInt(data[ind]);
+					byte [] tempData = Utility.makeByte4FromInt(temp);
+					dataArray[pos+0] = tempData[0];
+					dataArray[pos+1] = tempData[1];
+					dataArray[pos+2] = tempData[2];
+					dataArray[pos+3] = tempData[3];
+					pos = pos + 4;
+				}
+				else
+				{
+					System.out.println("field type is string with length " + Integer.parseInt(att.getLength()));
+					int attLen = Integer.parseInt(att.getLength());
+					byte [] tempData = data[ind].getBytes();
+					for (int j = 0; j < tempData.length; j++)
+					{
+						dataArray[pos+j] = tempData[j];
+					}
+					pos = pos + attLen;
+				}
+			}
+			else
+			{
+				System.out.println("field " + att.getName().trim() + " is not found");
+			}
+		}
+		
+		byte [] test = {dataArray[4], dataArray[5], dataArray[6], dataArray[7]}; 
+		String temp = new String(test);
+		System.out.println("first name should be " + temp);
+		
+		for (int i = 0; i < dataArray.length; i++)
+		{
+			System.out.print(dataArray[i]);
+		}
+		System.out.println("");
+		/*
 		for (int i = 0; i < atts.size(); i++)
 		{
 			Attribute att = atts.get(attNames[i]);
@@ -161,6 +215,7 @@ public class Utility {
 			int ind = searchStringArray(attName, fields);
 			if (ind != -1)	// if the field is specified
 			{
+				System.out.println("found fields " + fields[i]);
 				// in case of int, convert to integer, then convert to array of byte
 				byte [] tempData = new byte[attLen];
 				if (attType.equals("int"))
@@ -176,10 +231,22 @@ public class Utility {
 			}
 			pos = pos + attLen;
 		}
-		
+		*/
 		return dataArray;
 	}
 	
+	public static Attribute [] hashtableToArray(Hashtable<String, Attribute> atts)
+	{
+		Attribute [] attArray = new Attribute[atts.size()];
+		Enumeration e = atts.elements();
+		while (e.hasMoreElements())
+		{
+			Attribute att = (Attribute)e.nextElement();
+			int ind = Integer.parseInt(att.getId());
+			attArray[ind] = att;
+		}
+		return attArray;
+	}
 	/**
 	 * look for a string in an array
 	 * @param str
@@ -194,7 +261,6 @@ public class Utility {
 		}
 		return -1;
 	}
-	
 	
 	
 	/**
