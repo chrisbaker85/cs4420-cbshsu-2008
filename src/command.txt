@@ -33,4 +33,4 @@ insert into students (id, name, department) values (30, Nate, d15)
 insert into students (id, name, department) values (31, Nina, d16)
 insert into students (id, name, department) values (32, Oliver, d16)
 insert into students (id, name, department) values (33, Orlando, d17)
-select * from students where name = chris
+select * from students
