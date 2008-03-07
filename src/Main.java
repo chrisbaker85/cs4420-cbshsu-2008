@@ -498,7 +498,7 @@ public class Main implements QueryEngine
 		String [] attNames = Utility.getAttributeNames(atts);
 		for (int j = 0; j < attNames.length; j++)
 		{
-			System.out.println(attNames[j] + "\t\t");
+			System.out.print(attNames[j] + "\t\t");
 		}
 		System.out.println("==============================================");
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
