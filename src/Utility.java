@@ -107,6 +107,60 @@ public class Utility {
 	}
 	
 	/**
+	 * convert Hashtable to sorted array. 
+	 * @param atts Hashtable of attributes  
+	 * @return
+	 */
+	public static Attribute [] hashtableToArray(Hashtable<String, Attribute> atts)
+	{
+		Attribute [] attArray = new Attribute[atts.size()];
+		Enumeration e = atts.elements();
+		while (e.hasMoreElements())
+		{
+			Attribute att = (Attribute)e.nextElement();
+			int ind = Integer.parseInt(att.getId());
+			attArray[ind] = att;
+		}
+		return attArray;
+	}
+	
+	/**
+	 * look for a string in an array
+	 * @param str
+	 * @param arr
+	 * @return
+	 */
+	public static int searchStringArray(String str, String [] arr)
+	{
+		for(int i = 0; i < arr.length; i++)
+		{
+			if (arr[i].equals(str)) return i;
+		}
+		return -1;
+	}
+	
+	/**
+	 * return name of attributes give the hashtable of attribute
+	 * @param atts
+	 * @return
+	 */
+	public static String [] getAttributeNames(Hashtable<String, Attribute> atts)
+	{
+		int len = atts.size();
+		String [] strs = new String[len];
+		Enumeration e = atts.elements();
+		Attribute att;
+		int ind;
+		while(e.hasMoreElements())
+		{
+			att = (Attribute)e.nextElement();
+			ind = Integer.parseInt(att.getId());
+			strs[ind] = att.getName();
+		}
+		return strs;
+	}
+	
+	/**
 	 * It will convert data from insert query into array of byte of the tuple to be written to
 	 * file and block. If the field is not found in the query, it will leave blank using the
 	 * length from attribute object.
@@ -154,9 +208,14 @@ public class Utility {
 					//System.out.println("field type is string with length " + Integer.parseInt(att.getLength()));
 					int attLen = Integer.parseInt(att.getLength());
 					byte [] tempData = data[ind].getBytes();
-					for (int j = 0; j < tempData.length; j++)
+					int j;
+					for (j = 0; j < tempData.length; j++)
 					{
 						dataArray[pos+j] = tempData[j];
+					}
+					if (tempData.length < attLen)
+					{
+						dataArray[j+1+3] = new Byte("0").byteValue();
 					}
 					pos = pos + attLen;
 				}
@@ -165,66 +224,10 @@ public class Utility {
 			{
 				//System.out.println("field " + att.getName().trim() + " is not found");
 			}
-		}
-	
+		}	
 		return dataArray;
 	}
-	
-	/**
-	 * convert Hashtable to sorted array. 
-	 * @param atts Hashtable of attributes  
-	 * @return
-	 */
-	public static Attribute [] hashtableToArray(Hashtable<String, Attribute> atts)
-	{
-		Attribute [] attArray = new Attribute[atts.size()];
-		Enumeration e = atts.elements();
-		while (e.hasMoreElements())
-		{
-			Attribute att = (Attribute)e.nextElement();
-			int ind = Integer.parseInt(att.getId());
-			attArray[ind] = att;
-		}
-		return attArray;
-	}
-	
-	/**
-	 * look for a string in an array
-	 * @param str
-	 * @param arr
-	 * @return
-	 */
-	public static int searchStringArray(String str, String [] arr)
-	{
-		for(int i = 0; i < arr.length; i++)
-		{
-			if (arr[i].equals(str)) return i;
-		}
-		return -1;
-	}
-	
-	
-	/**
-	 * return name of attributes give the hashtable of attribute
-	 * @param atts
-	 * @return
-	 */
-	public static String [] getAttributeNames(Hashtable<String, Attribute> atts)
-	{
-		int len = atts.size();
-		String [] strs = new String[len];
-		Enumeration e = atts.elements();
-		Attribute att;
-		int ind;
-		while(e.hasMoreElements())
-		{
-			att = (Attribute)e.nextElement();
-			ind = Integer.parseInt(att.getId());
-			strs[ind] = att.getName();
-		}
-		return strs;
-	}
-	
+
 	/**
 	 * it convert array of byte into array of string of the tuple
 	 * 1. get the array of attribute name
@@ -239,20 +242,23 @@ public class Utility {
 		Attribute [] attArray = new Attribute[atts.size()];
 		Enumeration e = atts.elements();
 		String type;
+		// convert Hashtable of attributes to the sorted array of attributes
 		while (e.hasMoreElements())
 		{
 			Attribute att = ((Attribute)e.nextElement());
 			int i = Integer.parseInt(att.getId().trim());
 			attArray[i] = att;
 		}
-		int pos = 4;
+		
+		int pos = 4; // skip header
 		for (int i = 0; i < attArray.length; i++)
 		{
 			type = attArray[i].getType();
 			// if it's integer, convert 4 bytes to integer
 			if (type.equals("int"))
 			{
-				byte [] tempData = {data[pos+0], data[pos+1], data[pos+2], data[pos+3]};
+				// byte [] tempData = {data[pos+0], data[pos+1], data[pos+2], data[pos+3]};
+				byte [] tempData = {data[pos], data[pos+1], data[pos+2], data[pos+3]};
 				pos = pos + 4;
 				String tempField = Integer.toString(Utility.makeIntFromByte4(tempData));
 				results[i] = tempField;
@@ -260,16 +266,23 @@ public class Utility {
 			else
 			{
 				int len = Integer.parseInt(attArray[i].getLength().trim());
-				byte [] tempData = new byte[len];
-				for (int j = 0; j < len; j++)
+				// System.out.println("Length of string field is " + len);
+				// search for end character
+				int j;
+				for (j = 0; j < len; j++)
 				{
-					tempData[j] = data[pos+j];
+					Byte ch = new Byte(data[pos+j]);
+					if (ch.toString().equals("0")) break;
+				}
+				byte [] tempStr = new byte[j];
+				for (int k = 0; k < j; k++)
+				{
+					tempStr[k] = data[pos+k];
 				}
 				pos = pos + len;
-				results[i] = new String(tempData);
+				results[i] = new String(tempStr);
 			}
 		}
-		
 		return results;
  	}
 	
