@@ -90,21 +90,6 @@ public class Utility {
 	}
 	
 	/**
-	 * get the combined length of attrbute given array of attribute objects
-	 * @param atts
-	 * @return
-	 */
-	public static int getTotalLength(ArrayList<Attribute> atts)
-	{
-		int len = 0;
-		for(int i = 0; i < atts.size(); i++)
-		{
-			len = len + Integer.parseInt(((Attribute)atts.get(i)).getLength());
-		}
-		return len;
-	}
-	
-	/**
 	 * get length of the tuple given the Hashtable of attributes
 	 * @param atts
 	 * @return
@@ -182,44 +167,14 @@ public class Utility {
 			}
 		}
 	
-		/*
-		for (int i = 0; i < atts.size(); i++)
-		{
-			Attribute att = atts.get(attNames[i]);
-			String attName = att.getName();
-			String attType = att.getType();
-			int attLen = Integer.parseInt(att.getLength()); 
-			if (att.getIsNullable().equals("no"))
-			{
-				if(Utility.searchStringArray(attName, fields) == -1)
-				{
-					// maybe we should throw exception here
-					System.out.println(attName + " cannot be null");
-				}
-			}
-			int ind = searchStringArray(attName, fields);
-			if (ind != -1)	// if the field is specified
-			{
-				System.out.println("found fields " + fields[i]);
-				// in case of int, convert to integer, then convert to array of byte
-				byte [] tempData = new byte[attLen];
-				if (attType.equals("int"))
-				{
-					int temp = Integer.parseInt(data[ind]);
-					tempData = Utility.makeByte4FromInt(temp);
-				}
-				// copy byte by byte dataArray 
-				for (int j = 0; i < attLen; i++)
-				{
-					dataArray[j + pos] = tempData[j];
-				}
-			}
-			pos = pos + attLen;
-		}
-		*/
 		return dataArray;
 	}
 	
+	/**
+	 * convert Hashtable to sorted array. 
+	 * @param atts Hashtable of attributes  
+	 * @return
+	 */
 	public static Attribute [] hashtableToArray(Hashtable<String, Attribute> atts)
 	{
 		Attribute [] attArray = new Attribute[atts.size()];
@@ -232,6 +187,7 @@ public class Utility {
 		}
 		return attArray;
 	}
+	
 	/**
 	 * look for a string in an array
 	 * @param str
