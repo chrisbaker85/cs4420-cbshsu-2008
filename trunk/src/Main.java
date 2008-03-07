@@ -507,9 +507,15 @@ public class Main implements QueryEngine
 			 * 1. get the array of attribute names
 			 * 2. 
 			 */
+			String [] attNames = Utility.getAttributeNames(atts);
+			for (int j = 0; j < attNames.length; j++)
+			{
+				System.out.println(attNames[j] + "\t\t");
+			}
+			System.out.println("==============================================");
 			if (where != null)
 			{
-				String [] attNames = Utility.getAttributeNames(atts);
+				
 				boolean condition = true;
 				for (int j=0; j < where.length; j++)
 				{
