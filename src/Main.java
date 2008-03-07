@@ -543,7 +543,7 @@ public class Main implements QueryEngine
 					System.out.print(results[j] + "\t\t");
 				}
 			}
-			System.out.println("");
+			// System.out.println("");
 		}
 		return true;
 	}
