@@ -228,7 +228,7 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		// this.useDatabase(db_name);
+		this.useDatabase(db_name);
 	}
 	
 	/**
