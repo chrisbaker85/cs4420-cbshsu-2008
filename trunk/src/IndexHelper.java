@@ -14,8 +14,8 @@ public class IndexHelper {
 		bTree = null;
 	}
 
-	public IndexHelper(String db_name, String table_name) {
-		name = db_name + "_" + table_name + "_index";
+	public IndexHelper(String indexname) {
+		name = indexname;
 		bTree = new Hashtable<Integer, Long>();
 		try {
 			FileOutputStream os = new FileOutputStream(name + ".dat");
