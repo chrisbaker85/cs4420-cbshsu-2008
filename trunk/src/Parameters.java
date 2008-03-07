@@ -16,7 +16,7 @@ public class Parameters {
 	/**
 	 * The buffer pool is 16MB with 1KB blocks
 	 */
-	public static int NUM_BLOCK_BUFFER = 4096;
+	public static int NUM_BLOCK_BUFFER = 5;
 	
 	/**
 	 * The order of the B+Tree
