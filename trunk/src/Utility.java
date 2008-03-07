@@ -213,10 +213,12 @@ public class Utility {
 					{
 						dataArray[pos+j] = tempData[j];
 					}
+					/*
 					if (tempData.length < attLen)
 					{
 						dataArray[j+1+7] = new Byte("0").byteValue();
 					}
+					*/
 					pos = pos + attLen;
 				}
 			}
@@ -272,7 +274,7 @@ public class Utility {
 				for (j = 0; j < len; j++)
 				{
 					Byte ch = new Byte(data[pos+j]);
-					if (ch.toString().equals("0")) break;
+					//if (ch.toString().equals("0")) break;
 				}
 				byte [] tempStr = new byte[j];
 				for (int k = 0; k < j; k++)
