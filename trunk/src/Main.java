@@ -500,7 +500,8 @@ public class Main implements QueryEngine
 		{
 			System.out.print(attNames[j] + "\t\t");
 		}
-		System.out.print("==============================================");
+		System.out.println("");
+		System.out.println("==============================================");
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
 		{
 			tuple = iterator.getNext();
