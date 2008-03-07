@@ -1,7 +1,7 @@
 /**
  * 
  */
-
+import java.io.File;
 /**
  * @author chrisb
  * This class parses SQL commands.  It assumes that basic syntax
@@ -15,8 +15,11 @@ public class SQLCommandProcessor {
 	
 	public SQLCommandProcessor() {
 		
-		//  For testing
-		qe.createDB(db_name);
+		// If a database with default name exists on file
+		// use it, else create it
+		if (!(new File(db_name + "_relations.xml")).exists()) {
+			qe.createDB(db_name);
+		}
 		qe.useDatabase(db_name);
 		
 	}
