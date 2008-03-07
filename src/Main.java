@@ -526,7 +526,7 @@ public class Main implements QueryEngine
 				for (int j=0; j < where.length; j++)
 				{
 					int ind = Utility.searchStringArray(where[j][0], attNames);
-					condition = condition && (results[ind].equals(where[j][1]));
+					condition = condition && (results[ind].startsWith(where[j][1]));
 					if (condition)
 					{
 						for(int k = 0; k < results.length; k++)
