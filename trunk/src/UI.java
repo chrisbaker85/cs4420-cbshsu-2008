@@ -31,7 +31,6 @@ public class UI {
 		System.out.println("      a project for Databases 4420 by");
 		System.out.println("  Chris Baker, Sovandy Hang and Sami Ubaissi\n/////////////////////////////////////////////");
 		System.out.println("\nStart with SELECT * FROM CATALOG\ntype \"exit\" to exit.");
-		
 	}
 	
 	public UI(String filename) {
@@ -102,11 +101,8 @@ public class UI {
 						
 					}
 			}
-			
 		}
-		
 		finish();
-		
 	}
 	
 	/**
@@ -215,8 +211,6 @@ public class UI {
 		UI ui = new UI(filename);
 		System.out.println("Reading from file..." + filename);
 		ui.run();
-		
-		
 	}
 
 }
