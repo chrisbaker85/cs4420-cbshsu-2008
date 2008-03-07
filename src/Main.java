@@ -420,7 +420,10 @@ public class Main implements QueryEngine
 	 */
 	public boolean createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
 		
-		// TODO: FIX ME
+		IndexHelper indexhelper = new IndexHelper(index_name);
+		// update the xml file in the relation
+		RelationInfo rel = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		// rel.setColsIndexed(colsIndexed)
 		return false;
 		
 	}
