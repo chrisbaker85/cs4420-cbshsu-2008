@@ -540,6 +540,7 @@ public class Main implements QueryEngine
 			}
 			else
 			{
+				toPrint = true;
 				for(int j = 0; j < results.length; j++)
 				{
 					System.out.print(results[j] + "\t\t");
