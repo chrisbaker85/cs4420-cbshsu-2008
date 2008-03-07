@@ -182,6 +182,8 @@ public class SQLCommandProcessor {
 	 */
 	public String parseTableSelect(String command) {
 		
+		System.out.println("inside parseTableSelect");
+		
 		String table_name;
 		String[] fields;
 		String temp;
@@ -200,7 +202,7 @@ public class SQLCommandProcessor {
 			
 		}
 		
-		System.out.println("[fields: " + fields + "]");
+		//System.out.println("[fields: " + fields + "]");
 		
 		/*
 		for (int i = 0; i < fields.length; i++) {
@@ -232,20 +234,21 @@ public class SQLCommandProcessor {
 		}
 		
 		
-		System.out.println("[" + table_name + "]");
+		//System.out.println("[" + table_name + "]");
 		if (where_pairs != null) {
 			
 			for (int i = 0; i < where_pairs.length; i++) {
 				
-				System.out.println("[" + where_pairs[i] + "]");
+				//System.out.println("[" + where_pairs[i] + "]");
 				where_temp = where_pairs[i].split("( )?=( )?");
 				where[i][0] = where_temp[0];
 				where[i][1] = where_temp[1];
-				System.out.println("[" + where[i][0] + "/" + where[i][1] + "]");
+				//System.out.println("[" + where[i][0] + "/" + where[i][1] + "]");
 				
 			}
 		}
 		
+		System.out.println("calling selectQuery");
 		qe.selectQuery(table_name, fields, where);
 		
 		return "";
@@ -342,7 +345,14 @@ public class SQLCommandProcessor {
 		cp.parseInsert("insert into students (name, age) values (Kiera, 21)");
 		cp.parseInsert("insert into students (name, age) values (Luther, 22)");
 		cp.parseInsert("insert into students (name, age) values (Lauren, 23)");
-		cp.parseTableSelect("select * from students where name = chris");
+		//cp.parseTableSelect("select * from students where name = chris");
+		cp.parseTableSelect("select * from students");
+		
+		
+		
+		
+		
+		
 	}
 
 }
