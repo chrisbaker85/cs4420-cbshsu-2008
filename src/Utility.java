@@ -215,7 +215,7 @@ public class Utility {
 					}
 					if (tempData.length < attLen)
 					{
-						dataArray[j+1+3] = new Byte("0").byteValue();
+						dataArray[j+1+7] = new Byte("0").byteValue();
 					}
 					pos = pos + attLen;
 				}
