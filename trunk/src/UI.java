@@ -5,6 +5,10 @@
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.util.regex.Pattern;
+import java.io.FileReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @author chrisb
@@ -16,6 +20,9 @@ public class UI {
 	InputStreamReader isr = new InputStreamReader( System.in );
 	BufferedReader stdin = new BufferedReader( isr );
 	boolean running = true;
+	BufferedReader br;
+	FileReader fr;
+	String filename;
 	SQLCommandProcessor proc = new SQLCommandProcessor();
 	
 	public UI() {
@@ -25,7 +32,13 @@ public class UI {
 		System.out.println("  Chris Baker, Sovandy Hang and Sami Ubaissi\n/////////////////////////////////////////////");
 		System.out.println("\nStart with SELECT * FROM CATALOG\ntype \"exit\" to exit.");
 		
-		this.run();
+	}
+	
+	public UI(String filename) {
+		
+		this();
+		this.filename = filename;
+		
 	}
 	
 	/**
@@ -35,26 +48,59 @@ public class UI {
 		
 		while (running) {
 			
-			showPrompt();
-			
-			try {
+			if (filename != null) {
 				
-			  String input = stdin.readLine();
-			  
-			  input = input.toLowerCase();
-			  
-			  if (input.equals("exit")) {
-				  
-				  running = false;
-				  break;
-			  }
-			  
-			  process(input);
-			  
-			} catch (Exception e) {
+				String command;
+			    File file = new File(filename);
 				
-				System.out.println(e.getMessage());
+			    try {
+			    	
+			        fr = new FileReader(file);
+			        br = new BufferedReader(fr);
+
+			        while ((command = br.readLine()) != null) {
+
+			        // this statement reads the line from the file and print it to
+			          // the console.
+			          System.out.println("Running...\n" + command);
+			          this.process(command);
+			        }
+
+			        // dispose all the resources after using them.
+			        br.close();
+			        fr.close();
+
+			      } catch (FileNotFoundException e) {
+			        e.printStackTrace();
+			      } catch (IOException e) {
+			        e.printStackTrace();
+			      }
+			      
+			      running = false;
 				
+			} else {
+				
+				showPrompt();
+				
+				try {
+					
+					  String input = stdin.readLine();
+					  
+					  input = input.toLowerCase();
+					  
+					  if (input.equals("exit")) {
+						  
+						  running = false;
+						  break;
+					  }
+					  
+					  process(input);
+					  
+					} catch (Exception e) {
+						
+						System.out.println(e.getMessage());
+						
+					}
 			}
 			
 		}
@@ -99,6 +145,12 @@ public class UI {
 		
 		boolean b = false;
 		String result;
+
+		b = Pattern.matches("select \\* from catalog", input);
+		if (b) {
+			result = proc.parseCatalogSelect(input);
+			return true;
+		}
 		
 		b = Pattern.matches("select ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) from [a-zA-Z0-9_-]+( where ([a-zA-Z0-9_-]+( )?=( )?[a-zA-Z0-9_-]+)((,( )?[a-zA-Z0-9_-]+( )?=( )?[a-zA-Z0-9_-]+)*)?)?", input);
 		if (b) {
@@ -109,12 +161,6 @@ public class UI {
 		b = Pattern.matches("select \\* from index [a-zA-Z0-9_-]+ [a-zA-Z0-9_-]+", input);
 		if (b) {
 			result = proc.parseIndexSelect(input);
-			return true;
-		}
-		
-		b = Pattern.matches("select \\* from catalog", input);
-		if (b) {
-			result = proc.parseCatalogSelect(input);
 			return true;
 		}
 		
@@ -157,7 +203,18 @@ public class UI {
 	 */
 	public static void main(String[] args) {
 		
-		UI ui = new UI();
+		// File that holds queries, one per line
+		String filename = null;
+		
+		if (args.length == 1) {
+			
+			filename = args[0];
+			
+		}
+		
+		UI ui = new UI(filename);
+		System.out.println("Reading from file..." + filename);
+		ui.run();
 		
 		
 	}
