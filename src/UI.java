@@ -58,7 +58,7 @@ public class UI {
 			        fr = new FileReader(file);
 			        br = new BufferedReader(fr);
 
-			        while ((command = br.readLine()) != null) {
+			        while ((command = br.readLine()) != null && !command.startsWith("//")) {
 
 			        // this statement reads the line from the file and print it to
 			          // the console.
