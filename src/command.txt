@@ -1,6 +1,6 @@
-select * from catalog
 create table students (id int 4 no, name string 15 no, department string 3 yes)
-insert into students (id, name, department) values (1, sovandy, d1 )
+select * from catalog
+insert into students (id, name, department) values (1, sovandy, d1)
 insert into students (id, name, department) values (2, chris, d1)
 insert into students (id, name, department) values (3, sami, d2)
 insert into students (id, name, department) values (4, aaron, d2)
@@ -25,6 +25,7 @@ insert into students (id, name, department) values (22, Jeremy, d11)
 insert into students (id, name, department) values (23, Jenn, d12)
 insert into students (id, name, department) values (24, Kyle, d12)
 insert into students (id, name, department) values (25, Kiera, d13)
+insert into students (id, name, department) values (21, Kiera2, d1)
 insert into students (id, name, department) values (26, Luther, d13)
 insert into students (id, name, department) values (27, Lauren, d14)
 insert into students (id, name, department) values (28, Michelle, d14)
@@ -33,4 +34,7 @@ insert into students (id, name, department) values (30, Nate, d15)
 insert into students (id, name, department) values (31, Nina, d16)
 insert into students (id, name, department) values (32, Oliver, d16)
 insert into students (id, name, department) values (33, Orlando, d17)
+select * from catalog
+select * from students where name = Oliver
+select * from students where department = d10
 select * from students
