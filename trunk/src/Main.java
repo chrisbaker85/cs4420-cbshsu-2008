@@ -507,6 +507,7 @@ public class Main implements QueryEngine
 		System.out.println("==============================================");
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
 		{
+			boolean toPrint = false;
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
@@ -529,6 +530,7 @@ public class Main implements QueryEngine
 					condition = condition && (results[ind].startsWith(where[j][1]));
 					if (condition)
 					{
+						toPrint = true;
 						for(int k = 0; k < results.length; k++)
 						{
 							System.out.print(results[k] + "\t\t");
@@ -543,7 +545,7 @@ public class Main implements QueryEngine
 					System.out.print(results[j] + "\t\t");
 				}
 			}
-			// System.out.println("");
+			if (toPrint) System.out.println("");
 		}
 		return true;
 	}
