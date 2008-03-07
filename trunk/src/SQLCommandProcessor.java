@@ -182,8 +182,6 @@ public class SQLCommandProcessor {
 	 */
 	public String parseTableSelect(String command) {
 		
-		System.out.println("inside parseTableSelect");
-		
 		String table_name;
 		String[] fields;
 		String temp;
@@ -248,7 +246,6 @@ public class SQLCommandProcessor {
 			}
 		}
 		
-		System.out.println("calling selectQuery");
 		qe.selectQuery(table_name, fields, where);
 		
 		return "";
