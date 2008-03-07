@@ -16,7 +16,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * @author Sovandy
+ * @author Sovandy Hang
  *
  */
 
@@ -228,7 +228,7 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		this.useDatabase(db_name);
+		// this.useDatabase(db_name);
 	}
 	
 	/**
@@ -494,7 +494,7 @@ public class Main implements QueryEngine
 		 * 2. parse it to 
 		 */
 		
-		System.out.println("creating Iterator");
+		// System.out.println("creating Iterator");
 		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
 		Tuple tuple;
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
@@ -502,18 +502,40 @@ public class Main implements QueryEngine
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
-			// System.out.println(tuple.getOffset() + " " + tuple.getBlock().getBlockID());
 			byte [] data = block.getTupleContent(offset, tupleLength);
 			String [] results = Utility.convertTupleToArray(atts, data);
-			// String [] results = Utility.convertTupleToArray(data, atts);
-			for(int j = 0; j < results.length; j++)
+			// test condition before printing the results
+			/**
+			 * 1. get the array of attribute names
+			 * 2. 
+			 */
+			if (where != null)
 			{
-				System.out.print(results[j] + "\t");
+				String [] attNames = Utility.getAttributeNames(atts);
+				boolean condition = true;
+				for (int j=0; j < where.length; j++)
+				{
+					int ind = Utility.searchStringArray(where[j][0], attNames);
+					condition = condition && (results[ind].equals(where[j][1]));
+					if (condition)
+					{
+						for(int k = 0; k < results.length; k++)
+						{
+							System.out.print(results[k] + "\t\t");
+						}
+					}
+				}
+			}
+			else
+			{
+				for(int j = 0; j < results.length; j++)
+				{
+					System.out.print(results[j] + "\t\t");
+				}
 			}
 			System.out.println("");
-			
 		}
-		System.out.println("done");
+		// System.out.println("done");
 		return true;
 	}
 	
