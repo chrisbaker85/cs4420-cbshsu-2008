@@ -73,9 +73,6 @@ public class RelationHelper {
 	}
 	
 	/**
-	 * You should implement a table scan (iterator) that returns tuple by tuple
-	 */ 
-	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
