@@ -495,6 +495,12 @@ public class Main implements QueryEngine
 		// System.out.println("creating Iterator");
 		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
 		Tuple tuple;
+		String [] attNames = Utility.getAttributeNames(atts);
+		for (int j = 0; j < attNames.length; j++)
+		{
+			System.out.println(attNames[j] + "\t\t");
+		}
+		System.out.println("==============================================");
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
 		{
 			tuple = iterator.getNext();
@@ -507,12 +513,8 @@ public class Main implements QueryEngine
 			 * 1. get the array of attribute names
 			 * 2. 
 			 */
-			String [] attNames = Utility.getAttributeNames(atts);
-			for (int j = 0; j < attNames.length; j++)
-			{
-				System.out.println(attNames[j] + "\t\t");
-			}
-			System.out.println("==============================================");
+			if (results.length == 0) System.out.println("No record found");
+			else
 			if (where != null)
 			{
 				
