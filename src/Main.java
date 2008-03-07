@@ -472,6 +472,9 @@ public class Main implements QueryEngine
 	
 	public boolean selectQuery(String table_name, String [] fields, String [][] where)
 	{
+		
+		System.out.println("inside selectQuery");
+		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
 		int tupleLength = Utility.getTotalLength(atts);
@@ -494,6 +497,7 @@ public class Main implements QueryEngine
 		 * 2. parse it to 
 		 */
 		
+		System.out.println("creating Iterator");
 		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
 		Tuple tuple;
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
@@ -501,6 +505,7 @@ public class Main implements QueryEngine
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
+			System.out.println(tuple.getOffset() + " " + tuple.getBlock().getBlockID());
 			byte [] data = block.getTupleContent(offset, tupleLength);
 			String [] results = Utility.convertTupleToArray(atts, data);
 			// String [] results = Utility.convertTupleToArray(data, atts);
@@ -511,6 +516,7 @@ public class Main implements QueryEngine
 			System.out.println("");
 			
 		}
+		System.out.println("done");
 		return true;
 	}
 	
