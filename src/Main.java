@@ -470,8 +470,6 @@ public class Main implements QueryEngine
 	public boolean selectQuery(String table_name, String [] fields, String [][] where)
 	{
 		
-		System.out.println("inside selectQuery");
-		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		Hashtable atts = relObj.getAttribute();
 		int tupleLength = Utility.getTotalLength(atts);
@@ -535,7 +533,6 @@ public class Main implements QueryEngine
 			}
 			System.out.println("");
 		}
-		// System.out.println("done");
 		return true;
 	}
 	
