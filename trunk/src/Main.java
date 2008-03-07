@@ -385,9 +385,6 @@ public class Main implements QueryEngine
 		int maxRecNum = Parameters.BLOCK_SIZE / Utility.getTotalLength(atts);
 		int recNum = block.getRecordNumber();
 		
-		// System.out.println("max record size " + maxRecNum);
-		// System.out.println("record number in block " + recNum);
-		
 		if (recNum < maxRecNum)
 		{
 			block.writeToBlock(dataToWrite);
@@ -410,8 +407,8 @@ public class Main implements QueryEngine
 			block.setUpdated(false);
 			relObj.updateBlockNumber(1);
 		}
+		this.writeSystemCataglog();
 		return true;
-		
 	}
 	
 	/**
@@ -505,7 +502,7 @@ public class Main implements QueryEngine
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
-			System.out.println(tuple.getOffset() + " " + tuple.getBlock().getBlockID());
+			// System.out.println(tuple.getOffset() + " " + tuple.getBlock().getBlockID());
 			byte [] data = block.getTupleContent(offset, tupleLength);
 			String [] results = Utility.convertTupleToArray(atts, data);
 			// String [] results = Utility.convertTupleToArray(data, atts);
@@ -539,6 +536,12 @@ public class Main implements QueryEngine
 	 */
 	public void exit()
 	{
+		this.writeSystemCataglog();
+		System.exit(0);
+	}
+	
+	public void writeSystemCataglog()
+	{
 		Enumeration e = syscat.getRelationCatalog().elements();
 		try {
 			File file = new File(syscat.getDBName() + "_relations.xml");
@@ -564,9 +567,7 @@ public class Main implements QueryEngine
 		{
 			System.out.print(err.getMessage());
 		}
-		System.exit(0);
 	}
-	
 	/**
 	 * @param args
 	 */
