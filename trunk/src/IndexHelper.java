@@ -14,11 +14,11 @@ public class IndexHelper {
 		bTree = null;
 	}
 
-	public IndexHelper(String aName) {
-		name = aName;
+	public IndexHelper(String db_name, String table_name) {
+		name = db_name + "_" + table_name + "_index";
 		bTree = new Hashtable<Integer, Long>();
 		try {
-			FileOutputStream os = new FileOutputStream(name + ".Index");
+			FileOutputStream os = new FileOutputStream(name + ".dat");
 			XMLEncoder encoder = new XMLEncoder(os);
 			encoder.writeObject(bTree);
 			encoder.close();
@@ -90,11 +90,13 @@ public class IndexHelper {
 	}
 
 	public static void main(String[] args) {
+		/* 
 		IndexHelper helper = new IndexHelper("test");
 		helper.insert(12, 15);
 		helper.update();
 		
 		IndexHelper test = IndexHelper.read("test");
 		System.out.println(test.get(12));
+		*/
 	}
 }
