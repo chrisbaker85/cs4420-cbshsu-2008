@@ -120,7 +120,7 @@ public class Iterator {
 		// Includes the tuple header
 		int tuple_size = len;
 		
-		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE;
+		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE - 1;
 		
 		return new Tuple(offset, this.current_block, this.ri);
 		
