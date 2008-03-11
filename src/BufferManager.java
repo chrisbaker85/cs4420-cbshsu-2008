@@ -226,6 +226,8 @@ public class BufferManager {
 		// an array
 		// keep the pointers to the opened files.
 
+		System.out.println("Reading Block " + Utility.split(blockID)[1]);
+		
 		if (slot_num != -1)
 		{
 			try 
