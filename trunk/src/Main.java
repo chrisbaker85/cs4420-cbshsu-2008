@@ -319,8 +319,8 @@ public class Main implements QueryEngine
 		}
 	    
 		// create a blank block and insert it into buffer and file
-		Block block = new Block();
 		long blockID = Utility.combine(id, 0);
+		Block block = new Block(blockID, "".getBytes());
 		block.setBlockID(blockID);
 		bufman.addBlockToBuffer(block);
 		bufman.writeBlock(blockID);
@@ -375,11 +375,15 @@ public class Main implements QueryEngine
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
-		
+		// The block to write the data to (the last block)
 		int blockNum = Integer.parseInt(relObj.getNumDataBlocks().trim());
+		
 		int lastOffset = Parameters.BLOCK_SIZE * (blockNum - 1);
+		
+		// Using relation ID for file ID
 		int fileId = relObj.getId();
 		long blockID = Utility.combine(fileId, lastOffset);
+		
 		Block block = bufman.getBlock(blockID);
 		
 		int maxRecNum = Parameters.BLOCK_SIZE / Utility.getTotalLength(atts);
@@ -387,6 +391,8 @@ public class Main implements QueryEngine
 		
 		if (recNum < maxRecNum)
 		{
+			
+			//System.out.println("using old block");
 			block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
@@ -395,16 +401,29 @@ public class Main implements QueryEngine
 		}
 		else
 		{
-			block = new Block();
-			block.writeToBlock(dataToWrite);
-			bufman.addBlockToBuffer(block);
+			//System.out.println("making new block");
+
 			lastOffset = Parameters.BLOCK_SIZE * blockNum;
 			blockID = Utility.combine(fileId, lastOffset);
-			block.writeToBlock(dataToWrite);
+			
+			// Make the block, give it ID and data
+			block = new Block(blockID, dataToWrite);
+			
+			// Write the tuple to the block
+			//block.writeToBlock(dataToWrite);
+			
+			bufman.addBlockToBuffer(block);
+			//block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
+			
+			// Increment the number of tuples in this relation
 			relObj.updateTupleNumber(1);
+			
+			// Mark as not "dirty"
 			block.setUpdated(false);
+			
+			// Increment the number of blocks holding this relation
 			relObj.updateBlockNumber(1);
 		}
 		this.writeSystemCataglog();

@@ -25,8 +25,12 @@ public class Block {
 	 */
 	private boolean isUpdated = false;
 	
-	// set record number to 0
-	public Block()
+	/**
+	 * Generic constructor
+	 * Cannot be called
+	 * the Block MUST be setup correctly!
+	 */
+	private Block()
 	{
 		content = new byte[Parameters.BLOCK_SIZE];
 		byte [] header = Utility.makeByte4FromInt(0);
@@ -36,9 +40,16 @@ public class Block {
 		content[3] = header[3];
 	}
 	
+	/**
+	 * Use this under normal circumstances
+	 * Calls the generic constructor
+	 * @param blockID
+	 * @param content
+	 */
 	public Block(long blockID, byte[] content) {
+		this();
 		this.blockID = blockID;
-		this.content = content;
+		this.writeToBlock(content);
 	}
 	
 	/**
@@ -117,7 +128,7 @@ public class Block {
 	 * It will be used by insert query
 	 * @param data
 	 */
-	public void writeToBlock(byte [] data)
+	public void writeToBlock(byte[] data)
 	{
 		/*
 		byte [] test = {data[4], data[5], data[6], data[7]}; 
@@ -129,6 +140,7 @@ public class Block {
 		this.isPinned = true;
 		int recNum = this.getRecordNumber();
 		int pos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
+		//System.out.println("[" + data.length + "/" + this.content.length + "]");
 		for (int i = 0; i < data.length; i++)
 		{
 			this.content[pos+i] = data[i];
