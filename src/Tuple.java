@@ -33,6 +33,8 @@ public class Tuple {
 		this.offset = offset;
 		this.info = info;
 		
+//		System.out.println("[Tuple has offset " + offset + "]");
+		
 	}
 	
 	public Tuple() {

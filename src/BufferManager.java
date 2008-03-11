@@ -130,6 +130,20 @@ public class BufferManager {
 	 */
 	public Block getBlock(long blockID) {
 		
+//		System.out.println("["+ this.lookupTable.size() + " blocks in table]");
+//		System.out.println("[Block " + Utility.split(blockID)[1] + " is not in buffer]");
+//		Enumeration<Long> keys;
+//		keys = this.lookupTable.keys();
+//		
+//		while(keys.hasMoreElements()) {
+//			
+//			long next = keys.nextElement();
+//			System.out.print(Utility.split(next)[1] + ",");
+//			
+//		}
+		
+		System.out.println();
+		
 		if (!this.lookupTable.containsKey(blockID))
 			readBlock(blockID);
 
@@ -211,23 +225,16 @@ public class BufferManager {
 	 */
 	public void readBlock(long blockID) {
 
+		// Get the next available space in the buffer
 		int slot_num = nextSlot();
 
-		// - Use the function Utility.split(blockID) to determine the the
-		// filename
-		// and the relative block_num.
-		// - From the block_num + filename, copy the corresponding byte array
-		// from
-		// the file into a block.
-		// - Fill in the block information.
-		// - Put the block to the given slot_num.
-		// - Update the lookupTable.
 		// - Hint: to avoid the overhead of opening files so many times, create
 		// an array
 		// keep the pointers to the opened files.
 
-		System.out.println("Reading Block " + Utility.split(blockID)[1]);
+//		System.out.println("Reading Block with offset " + Utility.split(blockID)[1]);
 		
+		// As long as we have an available slot...
 		if (slot_num != -1)
 		{
 			try 
@@ -243,16 +250,24 @@ public class BufferManager {
 						FileChannel.MapMode.READ_WRITE, 0, fileIn.length());
 				fileChannel.read(tempBuffer);
 
+				// Make a new byte array the size of a block
 				byte[] temp = new byte[Parameters.BLOCK_SIZE];
 
+				// Copy the bytes from the file to the byte array
 				for (int i = 0; i < Parameters.BLOCK_SIZE - 1; i++) {
 					temp[i] = tempBuffer.get(i + offSet);
 				}
 
+				// Make a new block with and id and content (temp)
 				Block newBlock = new Block(blockID, temp);
+				
+				// Add the block to the lookup table
 				lookupTable.put(blockID, new Integer(slot_num));
+				
+				// Add the new block to the buffer
 				buffer[slot_num] = newBlock;
 
+				// Close the file handle
 				fileIn.close();
 				
 			} catch (FileNotFoundException e) {
@@ -277,6 +292,7 @@ public class BufferManager {
 		if (this.lookupTable.containsKey(blockID))
 		{
 			int slot_num = ((Integer) lookupTable.get(blockID)).intValue();
+//			System.out.println("Writing to disk at offset " + Utility.split(blockID)[1]);
 			temp = buffer[slot_num];
 
 			if (temp != null)
@@ -376,14 +392,10 @@ public class BufferManager {
 		System.out.println(bm.nextSlot());
 		
 		byte[] c1 = new String("foo").getBytes();
-		Block b1 = new Block();
-		b1.blockID = Utility.combine(0, 0);
-		b1.content = c1;
+		Block b1 = new Block(Utility.combine(0, 0), c1);
 		
 		byte[] c2 = new String("bar").getBytes();
-		Block b2 = new Block();
-		b2.blockID = Utility.combine(0, 1);
-		b2.content = c2;
+		Block b2 = new Block(Utility.combine(0, 1), c2);
 		
 		bm.addBlockToBuffer(b1);
 		bm.addBlockToBuffer(b2);

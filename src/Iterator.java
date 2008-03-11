@@ -88,8 +88,10 @@ public class Iterator {
 		
 		this.current_tuple_num++;
 		
+		//System.out.println("[There are " + this.num_tuples_in_block + " tuples in this block");
+		
 		// The iterator is crossing a block boundary, so get the next block
-		if (this.current_tuple_num > this.num_tuples_in_block) {
+		if (this.current_tuple_num >= this.num_tuples_in_block) {
 		
 			this.current_tuple_num = 0;
 			
@@ -97,7 +99,8 @@ public class Iterator {
 			this.current_block_num++;
 			
 			// Get next block from the BufferManager
-			this.current_block = bm.getBlock(Utility.combine(this.relation_id, this.current_block_num));
+			int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
+			this.current_block = bm.getBlock(Utility.combine(this.relation_id, blockOffset));
 
 			// If there is not another block, return null
 			if (this.current_block == null) {
@@ -120,7 +123,7 @@ public class Iterator {
 		// Includes the tuple header
 		int tuple_size = len;
 		
-		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE - 1;
+		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE;
 		
 		return new Tuple(offset, this.current_block, this.ri);
 		
