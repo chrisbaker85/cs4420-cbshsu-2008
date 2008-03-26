@@ -489,10 +489,12 @@ public class Main implements QueryEngine
 		return true;
 	}
 	
-	public boolean selectQuery(String table_name, String [] fields, String [][] where)
+	public boolean selectQuery(String[] table_names, String [] fields, String [][] where)
 	{
 		
-		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		// TODO:  more than the first table_name should be used 
+		
+		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
 		Hashtable atts = relObj.getAttribute();
 		int tupleLength = Utility.getTotalLength(atts);
 		boolean selectAll = false;
@@ -532,6 +534,14 @@ public class Main implements QueryEngine
 			int offset = tuple.getOffset();
 			byte [] data = block.getTupleContent(offset, tupleLength);
 			String [] results = Utility.convertTupleToArray(atts, data);
+			
+//			System.out.println("");
+//			for (int j = 0; j < results.length; j++) {
+//				
+//				System.out.print("[" + results[j] + "]");
+//				
+//			}
+			
 			// test condition before printing the results
 			/**
 			 * 1. get the array of attribute names

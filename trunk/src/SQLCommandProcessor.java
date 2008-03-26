@@ -107,7 +107,7 @@ public class SQLCommandProcessor {
 		
 		field_name = temp.substring(temp.indexOf("(") + 1, temp.indexOf(")"));
 		
-		System.out.println("[" + index_name + "][" + table_name + "][" + field_name + "]");
+		//System.out.println("[" + index_name + "][" + table_name + "][" + field_name + "]");
 		
 		qe.createIndexQuery(index_name, table_name, field_name, duplicates);
 		return "";
@@ -157,7 +157,7 @@ public class SQLCommandProcessor {
 	 */
 	public String parseTableSelect(String command) {
 		
-		String table_name;
+		String[] table_names;
 		String[] fields;
 		String temp;
 		String[][] where = null;
@@ -178,15 +178,16 @@ public class SQLCommandProcessor {
 		temp = temp.substring(temp.indexOf(" from ") + 6);
 		
 		// There is no where clause, so just extract the table name
-		if (temp.indexOf(" ") == -1) {
+		if (!temp.contains("where")) {
 			
-			table_name = temp;
+			table_names = new String[1];
+			table_names[0] = temp;
 			where_pairs = null;
 			
 		} else {
 		
 			// Extract the table name
-			table_name = temp.substring(0, temp.indexOf(" "));
+			table_names = temp.substring(0, temp.indexOf(" where ")).split(",( )?");
 			
 			// Also, extract the where conditions
 			temp = temp.substring(temp.indexOf(" where ") + 7);
@@ -211,7 +212,9 @@ public class SQLCommandProcessor {
 			}
 		}
 		
-		qe.selectQuery(table_name, fields, where);
+		//System.out.println(table_names + "][" + fields + "][" + where);
+		
+		qe.selectQuery(table_names, fields, where);
 		
 		return "";
 	}
