@@ -8,6 +8,6 @@
  */
 public interface IteratorInterface {
 	
-	public boolean hasNext();
+	// public boolean hasNext();
 	public Tuple next();
 }
