@@ -10,10 +10,11 @@ import java.util.ArrayList;
  */
 public class OpSelect extends Op {
 
-	OpSelect(ArrayList list) {
+	OpSelect(String[] where_clause) {
 		
 		this.setType(Op.OpType.SELECT);
-		this.setContents(list);
+		this.setContents(where_clause);
+		this.children = new Op[1];
 		
 	}
 	

@@ -12,6 +12,7 @@ public class OpTable extends Op {
 		
 		this.setType(this.opType.TABLE);
 		this.setContents(tablename);
+		this.children = null;
 		
 	}
 	
