@@ -63,9 +63,28 @@ public abstract class Op {
 		
 	}
 	
-	public void setContents(Object al) {
+	public void setContents(Object o) {
 		
-		this.contents = al;
+		this.contents = o;
+		
+	}
+	
+	public String toString() {
+		
+		String output = null;
+		String contents = "";
+		int children = ((this.children == null)?(0):(this.children.length));
+		
+		output = "|op:" + this.opType.name() + "\n" + "|contents:" + ((this.getContents() == null)?(""):(this.getContents().toString())) + "\n|children:" + children + "\n\n";
+		if (this.children != null) {
+		for (int i = 0; i < this.children.length; i++) {
+
+			output += this.children[i].toString();
+			
+		}
+		}
+		
+		return output;
 		
 	}
 	
