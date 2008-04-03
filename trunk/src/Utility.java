@@ -86,7 +86,7 @@ public class Utility {
 	 */ 
 	public IndexInfo getIndexInfo(int blockID)
 	{
-		return new IndexInfo();
+		return new IndexInfo("test", "test", "test");
 	}
 	
 	/**
