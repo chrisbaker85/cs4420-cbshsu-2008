@@ -27,6 +27,7 @@ public class Main implements QueryEngine
 	private BufferManager bufman;
 	private boolean dbUsed = false;
 	
+	
 	public Main()
 	{
 		bufman = new BufferManager(); 
@@ -372,6 +373,7 @@ public class Main implements QueryEngine
 				}
 			}
 		}
+		
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
@@ -391,7 +393,6 @@ public class Main implements QueryEngine
 		
 		if (recNum < maxRecNum)
 		{
-			
 			//System.out.println("using old block");
 			block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
@@ -437,12 +438,15 @@ public class Main implements QueryEngine
 	 * @param table_name: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public boolean createIndexQuery(String index_name, String table_name, String field_name, boolean duplicates) {
-		
+	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean duplicates) {
+		/*
 		IndexHelper indexhelper = new IndexHelper(index_name);
 		// update the xml file in the relation
 		RelationInfo rel = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		// rel.setColsIndexed(colsIndexed)
+		*/
+		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
+		relInfo.setIndex(indexName, attName, tableName);
 		return false;
 		
 	}
