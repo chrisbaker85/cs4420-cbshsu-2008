@@ -14,6 +14,7 @@ public class RelationInfo {
 	private String indexFilename;
 	private String numDataBlocks;
 	private Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
+	private IndexInfo index;
 	
 	/**
 	 * This is the constructor
@@ -43,10 +44,9 @@ public class RelationInfo {
 	{
 		// do nothing, just test constructor
 	}
-	void setName(String name) {
-		
+	void setName(String name) 
+	{
 		this.name = name; 
-		
 	}
 	
 	String getName() {
@@ -136,6 +136,16 @@ public class RelationInfo {
 		
 		return this.numDataBlocks;
 		
+	}
+	
+	public IndexInfo getIndex()
+	{
+		return this.index;
+	}
+	
+	public void setIndex(String indexName, String attName, String tableName)
+	{
+		index = new IndexInfo(indexName, attName, tableName);
 	}
 	
 	/**
