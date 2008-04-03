@@ -170,6 +170,18 @@ public class RelationInfo {
 	}
 	
 	/**
+	 * Verifies the existance of an attribute
+	 * @return
+	 */
+	public boolean hasAttribute(String att) {
+		
+		if (this.attributes.containsKey(att)) return true;
+		
+		return false;
+		
+	}
+	
+	/**
 	 * Should return the byte offset for this field
 	 * relative to the tuple's first byte.
 	 * @param i the ith column
