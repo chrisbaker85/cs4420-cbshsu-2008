@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 /**
  * 
  */
@@ -25,6 +26,12 @@ public class OpTree {
 	private Op tree_root;
 	
 	/**
+	 * Holds the collection of operation object references
+	 * for easy looping 
+	 */
+	private ArrayList<Op> opList = new ArrayList<Op>();
+	
+	/**
 	 * Default constructor sets up tree based on parsed query
 	 * @param table_names - the names of the tables (FROM) (required)
 	 * @param fields - the names of the fields (SELECT) (required)
@@ -36,15 +43,20 @@ public class OpTree {
 		this.state = 0;
 		
 		// Set the root, a project op
-		this.tree_root = new OpProject(fields);
+		this.tree_root = this.addOp(new OpProject(fields));
 		
-		// Set the second level, a select op
-		this.tree_root.children[0] = new OpSelect(where);
-		
-		if (table_names != null && table_names.length > 0) {
-
+		if (where != null && where.length > 0) {
+			
+			// Set the second level, a select op
+			this.tree_root.children[0] = this.addOp(new OpSelect(where));
+			
 			// Set the third level
-			this.tree_root.children[0].children[0] = new OpCrossProduct(table_names);
+			this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names));
+			
+		} else {
+			
+			// Set the second level b/c there are no selections to make
+			this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names));
 			
 		}
 		
@@ -56,6 +68,18 @@ public class OpTree {
 	public void optimize() {
 		
 		// TODO: write optimization algorithm
+		
+	}
+	
+	/**
+	 * 
+	 * @param op
+	 * @return
+	 */
+	private Op addOp(Op op) {
+		
+		this.opList.add(op);
+		return op;		
 		
 	}
 	
@@ -82,6 +106,7 @@ public class OpTree {
 		// Test a simple example
 		String[] table_names = {"students", "courses"};
 		String[] fields = {"name, title"};
+		//String[] where = null;
 		String[] where = {"A=B", "C=D"};
 		
 		OpTree ot = new OpTree(table_names, fields, where);
