@@ -119,8 +119,7 @@ public class Select implements IteratorInterface {
 			{
 				// get the sorted key larder than specified value 
 				SortedMap sortedmap = index.headMap(where[2]);
-				
-				
+				// TODO: to complete below
 				/**
 				 * 1. get the offsets
 				 * 2. get the tuple using the offset
