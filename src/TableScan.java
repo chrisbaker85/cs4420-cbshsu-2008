@@ -1,3 +1,7 @@
+/**
+ * @author Sovandy Hang
+ *
+ */
 
 public class TableScan implements IteratorInterface {
 
