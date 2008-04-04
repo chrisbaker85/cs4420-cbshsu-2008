@@ -210,6 +210,8 @@ public class Main implements QueryEngine
         {
         	t.printStackTrace ();
         }
+        
+        
 	}
 	
 	/**
@@ -240,7 +242,7 @@ public class Main implements QueryEngine
 	 * @param attributes: list of attributes for that table
 	 * @param db_name: the name of the database
 	 */
-	public boolean createTable(String db_name, String table_name, String [][] attributes)
+	public boolean createTable(String db_name, String table_name, String [][] attributes, boolean isTempRelation)
 	{
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
@@ -250,55 +252,68 @@ public class Main implements QueryEngine
         Hashtable<String, Attribute> atts = new Hashtable<String, Attribute>();
         int id = 0;
 		try {	
-			FileReader fr = new FileReader(db_name + "_relations.xml");
-       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
-       		while((line = br.readLine()) != null)
-       		{
-       	 		data.add(line);
-       		}
-       		id = (data.size() - 2) / 7;
-       		int ind = data.size() - 1;
-			data.add(ind++, "<relation>\n");
-			data.add(ind++, "<name>" + table_name + "</name>\n");
-			data.add(ind++, "<date_created>" + cur_date + "</date_created>\n");
-			data.add(ind++, "<date_modified>" + cur_date + "</date_modified>\n");
-			data.add(ind++, "<num_tuple>0</num_tuple>\n");
-			data.add(ind++, "<id>" + id + "</id>\n");
-			data.add(ind++, "<cols_indexed>-1</cols_indexed>\n");
-			data.add(ind++, "<num_block>1</num_block>\n");
-      		data.add(ind++, "</relation>\n");
-      		data.add(ind++, "</relations>");
-      		
-			File file = new File(db_name + "_relations.xml");
-		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
-		    
-		    for (int i = 0; i < data.size(); i++)
-		    {
-		    	output.write(data.get(i));
-		    }
-		    output.close();
-		    
-		    // write attributes for that relation into table
-		    file = new File(db_name + "_" + table_name + ".xml");
-			output = new BufferedWriter(new FileWriter(file));
-			output.write("<attributes>\n");
-			for (int i = 0; i < attributes.length; i++)
+			// if it's not temporary relation, write to XML files
+			if (!isTempRelation)
 			{
-				output.write("<attribute>\n");
-				output.write("<name>" + attributes[i][0] + "</name>\n");
-				output.write("<type>" + attributes[i][1] + "</type>\n");
-				output.write("<length>" + attributes[i][2] + "</length>\n");
-				output.write("<isnullable>" + attributes[i][3] + "</isnullable>\n");
-				output.write("<relation_name>" + table_name + "</relation_name>\n");
-				output.write("<id>" + i + "</id>\n");
-				output.write("<num_values>0</num_values>\n");
-				output.write("</attribute>\n");
-				// how to get attribute id for the relation
-				Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
-				atts.put(attributes[i][0], attObj);
+				FileReader fr = new FileReader(db_name + "_relations.xml");
+	       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
+	       		while((line = br.readLine()) != null)
+	       		{
+	       	 		data.add(line);
+	       		}
+	       		id = (data.size() - 2) / 7;
+	       		int ind = data.size() - 1;
+				data.add(ind++, "<relation>\n");
+				data.add(ind++, "<name>" + table_name + "</name>\n");
+				data.add(ind++, "<date_created>" + cur_date + "</date_created>\n");
+				data.add(ind++, "<date_modified>" + cur_date + "</date_modified>\n");
+				data.add(ind++, "<num_tuple>0</num_tuple>\n");
+				data.add(ind++, "<id>" + id + "</id>\n");
+				data.add(ind++, "<cols_indexed>-1</cols_indexed>\n");
+				data.add(ind++, "<num_block>1</num_block>\n");
+	      		data.add(ind++, "</relation>\n");
+	      		data.add(ind++, "</relations>");
+	      		
+				File file = new File(db_name + "_relations.xml");
+			    BufferedWriter output = new BufferedWriter(new FileWriter(file));
+			    
+			    for (int i = 0; i < data.size(); i++)
+			    {
+			    	output.write(data.get(i));
+			    }
+			    output.close();
+			    
+			    // write attributes for that relation into table
+			    file = new File(db_name + "_" + table_name + ".xml");
+				output = new BufferedWriter(new FileWriter(file));
+				output.write("<attributes>\n");
+				for (int i = 0; i < attributes.length; i++)
+				{
+					output.write("<attribute>\n");
+					output.write("<name>" + attributes[i][0] + "</name>\n");
+					output.write("<type>" + attributes[i][1] + "</type>\n");
+					output.write("<length>" + attributes[i][2] + "</length>\n");
+					output.write("<isnullable>" + attributes[i][3] + "</isnullable>\n");
+					output.write("<relation_name>" + table_name + "</relation_name>\n");
+					output.write("<id>" + i + "</id>\n");
+					output.write("<num_values>0</num_values>\n");
+					output.write("</attribute>\n");
+					// how to get attribute id for the relation
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
+					atts.put(attributes[i][0], attObj);
+				}
+				output.write("</attributes>");
+				output.close();
 			}
-			output.write("</attributes>");
-			output.close();
+			// if it's temporary solution, get atts
+			else
+			{
+				for (int i = 0; i < attributes.length; i++)
+				{
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
+					atts.put(attributes[i][0], attObj);
+				}
+			}
 		}
 		catch(IOException e)
 		{
@@ -668,11 +683,11 @@ public class Main implements QueryEngine
 		String [][] student_attributes = {{"first_name", "string", "20", "no", "0", "0"},
                 					     {"last_name",   "string", "20", "no", "1", "0"},
                 					     {"dob",         "string", "10", "no", "2", "2"}};
-		mydb.createTable(db_name, "student", student_attributes);
+		mydb.createTable(db_name, "student", student_attributes, false);
 		String [][] course_attributes = {{"course_name",   "string", "20", "no", "0", "0"},
                 					{"course_number", "string", "10", "no", "1", "0"},
                 					{"location",      "string", "10", "no", "2", "2"}};
-		mydb.createTable(db_name, "course", course_attributes);
+		mydb.createTable(db_name, "course", course_attributes, false);
 		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
