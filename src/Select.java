@@ -118,7 +118,7 @@ public class Select implements IteratorInterface {
 			if (where[1].equals("<"))
 			{
 				// get the sorted key larder than specified value 
-				SortedMap sortedmap = index.tailMap(where[2]);
+				SortedMap sortedmap = index.headMap(where[2]);
 				
 				
 				/**
