@@ -349,7 +349,7 @@ public class Main implements QueryEngine
 	public boolean insertQuery(String table_name, String [][] query)
 	{
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
-		Hashtable atts = relObj.getAttribute();
+		Hashtable atts = relObj.getAttributes();
 		
 		for (int i = 0; i < query[1].length; i++)
 		{
@@ -412,7 +412,6 @@ public class Main implements QueryEngine
 			
 			// Write the tuple to the block
 			//block.writeToBlock(dataToWrite);
-			
 			bufman.addBlockToBuffer(block);
 			//block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
@@ -427,6 +426,17 @@ public class Main implements QueryEngine
 			// Increment the number of blocks holding this relation
 			relObj.updateBlockNumber(1);
 		}
+		// TODO: extract the key and insert into index in relation info using relObj
+		String indexName = relObj.getColsIndexed();
+		// search in array
+		int ind;
+		for (ind = 0; ind < query[0].length; ind++)
+		{
+			if (query[0][ind].equals(indexName)) break;
+		}
+		// get key
+		int key = Integer.parseInt(query[1][ind]);
+		relObj.getIndexInfo().getIndex().put(key, lastOffset);
 		this.writeSystemCataglog();
 		return true;
 	}
@@ -438,17 +448,13 @@ public class Main implements QueryEngine
 	 * @param table_name: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean duplicates) {
-		/*
-		IndexHelper indexhelper = new IndexHelper(index_name);
-		// update the xml file in the relation
-		RelationInfo rel = (RelationInfo)syscat.getRelationCatalog().get(table_name);
-		// rel.setColsIndexed(colsIndexed)
-		*/
+	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean duplicates) 
+	{
 		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
-		relInfo.setIndex(indexName, attName, tableName);
-		return false;
-		
+		relInfo.setIndexInfo(indexName, attName, tableName);
+		// update index info
+		relInfo.setColsIndexed("indexName");
+		return true;
 	}
 	
 	/**
@@ -497,7 +503,6 @@ public class Main implements QueryEngine
 	{
 		
 		// TODO:  more than the first table_name should be used 
-		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
 		Hashtable atts = relObj.getAttribute();
 		int tupleLength = Utility.getTotalLength(atts);
@@ -638,6 +643,7 @@ public class Main implements QueryEngine
 	/**
 	 * @param args
 	 */
+	
 	public static void main(String[] args) throws IOException
 	{
 		Main mydb = new Main();
