@@ -235,6 +235,24 @@ public class RelationInfo {
 		return this.attributes;
 	}
 	
+	/**
+	 * added to get a list of the attribute names
+	 * @return
+	 */
+	public Object[] getAttributesAsArray() {
+		
+		Enumeration e = this.attributes.elements();
+		ArrayList<String> al = new ArrayList<String>();
+		
+		while (e.hasMoreElements()) {
+			
+			al.add((String)((Attribute)e.nextElement()).getName());
+			
+		}
+		
+		return al.toArray();
+	}
+	
 	public void updateDateModified()
 	{
 		Calendar cal = Calendar.getInstance();
