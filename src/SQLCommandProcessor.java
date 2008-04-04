@@ -191,7 +191,7 @@ public class SQLCommandProcessor {
 			
 			// Also, extract the where conditions
 			temp = temp.substring(temp.indexOf(" where ") + 7);
-			where = new String[command.split("=").length - 1][2];
+			where = new String[command.split("=|<|>").length - 1][3];
 			                     
 			where_pairs = temp.split(",( )?");
 		
@@ -199,20 +199,42 @@ public class SQLCommandProcessor {
 		
 		
 		//System.out.println("[" + table_name + "]");
+		
+		/**
+		 * parses the comparisons in WHERE clause
+		 * 
+		 * name = joe 
+		 * 
+		 */
 		if (where_pairs != null) {
 			
 			for (int i = 0; i < where_pairs.length; i++) {
 				
 				//System.out.println("[" + where_pairs[i] + "]");
-				where_temp = where_pairs[i].split("( )?=( )?");
+				
+				
+				String compOp = "";
+				
+				if (where_pairs[i].contains("=")) {
+					compOp = "=";
+				} else if (where_pairs[i].contains(">")) {
+					compOp = ">";
+				} else {
+					compOp = "<";
+				}
+				
+				where_temp = where_pairs[i].split("( )?(=|>|<)( )?");
 				where[i][0] = where_temp[0];
 				where[i][1] = where_temp[1];
-				//System.out.println("[" + where[i][0] + "/" + where[i][1] + "]");
+				where[i][2] = compOp;
+				//System.out.println("[" + where[i][0] + "/" + where[i][1] + "/" + where[i][2] + "]");
 				
 			}
 		}
 		
 		//System.out.println(table_names + "][" + fields + "][" + where);
+		
+//		OpTree ot = new OpTree(null, table_names, fields, where);
 		
 		qe.selectQuery(table_names, fields, where);
 		
