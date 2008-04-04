@@ -57,12 +57,16 @@ public class UI {
 			        fr = new FileReader(file);
 			        br = new BufferedReader(fr);
 
-			        while ((command = br.readLine()) != null && !command.startsWith("//")) {
+			        while ((command = br.readLine()) != null) {
 
-			        // this statement reads the line from the file and print it to
-			          // the console.
-			          System.out.println("Running...\n" + command);
-			          this.process(command);
+			        	if (!command.startsWith("//") && !command.contentEquals("")) {
+			        		
+							// this statement reads the line from the file and print it to
+							// the console.
+							System.out.println("Running...\n" + command);
+							this.process(command);
+			        	}
+
 			        }
 
 			        // dispose all the resources after using them.
@@ -148,7 +152,7 @@ public class UI {
 			return true;
 		}
 		
-		b = Pattern.matches("select ((\\*)|(([a-z]+)(,( )?[a-z]+)*)) from [a-zA-Z0-9_-]+(,( )?[a-zA-Z0-9_-]+)*( where ([a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)((,( )?[a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)*)?)?", input);
+		b = Pattern.matches("select ((\\*)|(([a-z_-]+)(,( )?[a-z_-]+)*)) from [a-zA-Z0-9_-]+(,( )?[a-zA-Z0-9_-]+)*( where ([a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)((,( )?[a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)*)?)?", input);
 		if (b) {
 			result = proc.parseTableSelect(input);
 			return true;
