@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Hashtable;
 /**
  * 
  */
@@ -67,8 +68,16 @@ public class OpTree {
 			this.tree_root.children[0] = this.addOp(new OpSelect(where));
 			
 			// Set the third level
-			// TODO: consider one-table query
-			this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names));
+			// Consider a query on single relation
+			if (table_names.length > 1) {
+		
+				this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names));
+				
+			} else {
+				
+				this.tree_root.children[0].children[0] = this.addOp(new OpTable(table_names[0]));
+			}
+			
 			
 		} else {
 			
@@ -77,6 +86,7 @@ public class OpTree {
 			
 		}
 		
+		//System.out.println(this.toString());
 		
 		if (this.validateAttributes(table_names)) this.valid = true;
 		
@@ -119,13 +129,10 @@ public class OpTree {
 			
 			if (op instanceof OpSelect) {
 				
-				// If the op is a select, handle the attributes for
-				// each condition
-					
 				// contents is an 2-D array of relation names
 				String[][] att = ((String[][])op.contents);
 				
-				// Loop through the comparisons
+				// Loop through each comparison
 				for (int j = 0; j < att.length; j++) {
 				
 					// Call method to verify existence of the attribute
@@ -247,14 +254,17 @@ public class OpTree {
 		// Scan through each table to see if it contains this attribute
 		for (int j = 0; j < table_names.length; j++) {
 			
-			// Check if it exists in the jth table in the system catalog
-			if (((RelationInfo)this.sc.getRelationCatalog().get(table_names[j])).hasAttribute(attr)) {
+			Hashtable ht = this.sc.getRelationCatalog();
+			RelationInfo ri = (RelationInfo)ht.get(table_names[j]);
+			boolean hasa = ri.hasAttribute(attr);
+			
+			if (hasa) {
 				
 				instances++;
 				instanceTable = table_names[j];
 				
 			}
-
+			
 		}
 		
 		// Make sure that it exists exactly once
