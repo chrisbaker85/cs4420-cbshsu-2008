@@ -434,7 +434,7 @@ public class Main implements QueryEngine
 		{
 			if (query[0][ind].equals(indexName)) break;
 		}
-		// get key
+		// get key to insert into Index
 		int key = Integer.parseInt(query[1][ind]);
 		relObj.getIndexInfo().getIndex().put(key, lastOffset);
 		this.writeSystemCataglog();
