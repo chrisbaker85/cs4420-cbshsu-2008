@@ -140,8 +140,8 @@ public class Utility {
 	}
 	
 	/**
-	 * return name of attributes give the hashtable of attribute
-	 * @param atts
+	 * return name of attributes sorted by id
+	 * @param atts hashtable of attributes
 	 * @return
 	 */
 	public static String [] getAttributeNames(Hashtable<String, Attribute> atts)
