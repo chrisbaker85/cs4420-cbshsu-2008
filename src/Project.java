@@ -1,6 +1,4 @@
-/**
- * 
- */
+import java.util.Hashtable;
 
 /**
  * @author Sovandy
@@ -13,21 +11,58 @@ public class Project implements IteratorInterface {
 	 */
 	
 	Iterator iterator;
-	// RelationInfo result;
-	public void open(BufferManager bm, RelationInfo R, String [] atts)
+	BufferManager bm;
+	RelationInfo R;
+	String [] atts;
+	
+	public Project(Main main, BufferManager bm, RelationInfo R, String [] atts)
 	{
-		RelationInfo result = new RelationInfo();
-		// set attributes here: dateCreated, dateModified, number of tuples, number of blocks etc...
-		// set attribute to custom attributes atts
-		
-		// tempIterator: iterator for R to be projected
-		Iterator tempIterator = new Iterator(bm, R, R.getId(), Integer.parseInt(R.getNumDataBlocks()));
-		for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
+		main = main;
+		bm = bm;
+		R = R;
+		atts = atts;
+	}
+	
+	public void open()
+	{
+		// get the new type for new attributes
+		String tempRelation;
+		String [][] newatts = new String[atts.length][atts.length];
+		Hashtable<String, Attribute> attHash = R.getAttributes();
+		for (int i = 0; i < atts.length; i++)
 		{
-			// using RelationInfo, insert a new tuple one by one like insert in Main
+			Attribute att = attHash.get(atts[i]);
+			newatts[i][0] = atts[i];
+			newatts[i][1] = att.getType();
+			newatts[i][2] = att.getLength();
+			newatts[i][0] = att.getIsNullable();
 		}
 		
-		iterator = new Iterator(bm, result, result.getId(), Integer.parseInt(result.getNumDataBlocks()));
+		IteratorInterface iterator = new TableScan(bm, R);
+		
+		/**
+		 * use TableScan to scan tuple by tuple. Then form the values to be inserted
+		 */ 
+		String [][] query = new String[2][atts.length];
+		// put attribute name
+		for (int i = 0; i < atts.length; i++)
+		{
+			query[0][i] = newatts[i][0];
+		}
+		
+		Tuple tuple = iterator.next();
+		int tupleLength = Utility.getTotalLength(R.getAttribute());
+		if (tuple != null)
+		{
+			// get the values for projected attributes and put them in query[][]
+			
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] data = block.getTupleContent(offset, tupleLength);
+			String [] results = Utility.convertTupleToArray(attHash, data);
+			// TODO: need to extract the projected data and insert it into query. Then call insertQuery in main
+			tuple = iterator.next();
+		}
 	}
 	
 	public Tuple next()
