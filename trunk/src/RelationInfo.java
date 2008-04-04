@@ -14,7 +14,7 @@ public class RelationInfo {
 	private String indexFilename;
 	private String numDataBlocks;
 	private Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
-	private IndexInfo index;
+	private IndexInfo indexinfo;
 	
 	/**
 	 * This is the constructor
@@ -138,14 +138,14 @@ public class RelationInfo {
 		
 	}
 	
-	public IndexInfo getIndex()
+	public IndexInfo getIndexInfo()
 	{
-		return this.index;
+		return this.indexinfo;
 	}
 	
-	public void setIndex(String indexName, String attName, String tableName)
+	public void setIndexInfo(String indexName, String attName, String tableName)
 	{
-		index = new IndexInfo(indexName, attName, tableName);
+		indexinfo = new IndexInfo(indexName, attName, tableName);
 	}
 	
 	/**
