@@ -9,11 +9,13 @@ public class SystemCatalog {
 	// private Hashtable attributeCatalog;
 	private String db_name;
 	private Hashtable<String, RelationInfo> relationCatalog;
+	private Hashtable<String, RelationInfo> tempRelation; 
 	
 	public SystemCatalog(String db_name)
 	{
 		this.db_name = db_name;
 		relationCatalog = new Hashtable();
+		tempRelation = new Hashtable();
 	}
 	/*
 	public Hashtable getAttributeCatalog()
@@ -43,6 +45,11 @@ public class SystemCatalog {
 	public void addRelationCatalog(String key, RelationInfo relObj)
 	{
 		this.relationCatalog.put(key, relObj);
+	}
+	
+	public Hashtable getTempRelation()
+	{
+		return this.tempRelation;
 	}
 	
 	public static void main(String[] args) {
