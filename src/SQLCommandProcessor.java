@@ -80,7 +80,7 @@ public class SQLCommandProcessor {
 			attributes[i] = meta;
 		}
 		
-		qe.createTable(db_name, table_name, attributes);
+		qe.createTable(db_name, table_name, attributes, false);
 		return "";
 		
 	}
