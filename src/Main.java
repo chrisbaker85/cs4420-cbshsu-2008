@@ -68,7 +68,7 @@ public class Main implements QueryEngine
 			NodeList listOfRelations = doc.getElementsByTagName("attribute");
 			int totalRelations = listOfRelations.getLength();
 
-			for(int s=0; s< listOfRelations.getLength(); s++)
+			for(int s=0; s < listOfRelations.getLength(); s++)
 			{				
                 Node firstRelationNode = listOfRelations.item(s);
                 if(firstRelationNode.getNodeType() == Node.ELEMENT_NODE)
