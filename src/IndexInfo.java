@@ -50,6 +50,11 @@ public class IndexInfo
 		this.attName = attName;
 	}
 	
+	public TreeMap getIndex()
+	{
+		return this.getIndex();
+	}
+	
 	/**
 	 * @param args
 	 */
