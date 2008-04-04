@@ -428,15 +428,17 @@ public class Main implements QueryEngine
 		}
 		// TODO: extract the key and insert into index in relation info using relObj
 		String indexName = relObj.getColsIndexed();
-		// search in array
-		int ind;
-		for (ind = 0; ind < query[0].length; ind++)
-		{
-			if (query[0][ind].equals(indexName)) break;
+		if (indexName != "-1") {
+			// search in array
+			int ind;
+			for (ind = 0; ind < query[0].length; ind++)
+			{
+				if (query[0][ind].equals(indexName)) break;
+			}
+			// get key to insert into Index
+			int key = Integer.parseInt(query[1][ind]);
+			relObj.getIndexInfo().getIndex().put(key, lastOffset);
 		}
-		// get key to insert into Index
-		int key = Integer.parseInt(query[1][ind]);
-		relObj.getIndexInfo().getIndex().put(key, lastOffset);
 		this.writeSystemCataglog();
 		return true;
 	}
@@ -501,6 +503,15 @@ public class Main implements QueryEngine
 	
 	public boolean selectQuery(String[] table_names, String [] fields, String [][] where)
 	{
+		
+		
+		
+		OpTree ot = new OpTree(this.syscat, table_names, fields, where);
+		if (true)	return false;
+		
+		
+		
+		
 		
 		// TODO:  more than the first table_name should be used 
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
