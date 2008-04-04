@@ -180,8 +180,15 @@ public class SQLCommandProcessor {
 		// There is no where clause, so just extract the table name
 		if (!temp.contains("where")) {
 			
-			table_names = new String[1];
-			table_names[0] = temp;
+			//table_names = new String[1];
+			table_names = temp.split(", |,");
+			
+//			for (int i = 0; i < table_names.length; i++) {
+//				
+//				System.out.println("/" + table_names[i] + "/");
+//				
+//			}
+			
 			where_pairs = null;
 			
 		} else {
