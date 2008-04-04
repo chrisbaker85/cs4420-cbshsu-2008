@@ -75,7 +75,39 @@ public abstract class Op {
 		String contents = "";
 		int children = ((this.children == null)?(0):(this.children.length));
 		
-		output = "|op:" + this.opType.name() + "\n" + "|contents:" + ((this.getContents() == null)?(""):(this.getContents().toString())) + "\n|children:" + children + "\n\n";
+		output = "|op:" + this.opType.name() + "\n" + "|contents: ";
+		
+		if (!(this.getContents() == null)) {
+		
+			if (this instanceof OpSelect) {
+				
+				String[][] comps = ((String[][])this.getContents());
+				
+				for (int i = 0; i < comps.length; i++) {
+						
+					output += "(" + comps[i][0] + " " + comps[i][1] + " " + comps[i][2] + ")";						
+						
+				}
+				
+			} else if (this instanceof OpProject) {
+				
+				for (int i = 0; i < ((String[])this.getContents()).length; i++) {
+					
+					output += "(" + ((String[])this.getContents())[i] + ")";
+					
+				}
+				
+			} else {
+				
+				output += this.getContents().toString();
+				
+			}
+			
+		}
+		
+		output += "\n|children:" + children + "\n\n";
+		
+		
 		if (this.children != null) {
 		for (int i = 0; i < this.children.length; i++) {
 
