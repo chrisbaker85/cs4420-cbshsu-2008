@@ -14,6 +14,7 @@ public class Project implements IteratorInterface {
 	BufferManager bm;
 	RelationInfo R;
 	String [] atts;
+	Main main;
 	
 	public Project(Main main, BufferManager bm, RelationInfo R, String [] atts)
 	{
@@ -26,8 +27,8 @@ public class Project implements IteratorInterface {
 	public void open()
 	{
 		// get the new type for new attributes
-		String tempRelation;
-		String [][] newatts = new String[atts.length][atts.length];
+		String tempRelation = R.getName() + "projected";
+		String [][] newatts = new String[atts.length][4];
 		Hashtable<String, Attribute> attHash = R.getAttributes();
 		for (int i = 0; i < atts.length; i++)
 		{
@@ -35,8 +36,10 @@ public class Project implements IteratorInterface {
 			newatts[i][0] = atts[i];
 			newatts[i][1] = att.getType();
 			newatts[i][2] = att.getLength();
-			newatts[i][0] = att.getIsNullable();
+			newatts[i][3] = att.getIsNullable();
 		}
+		// create a temporary relation or table
+		main.createTable(bm.getDBName(), tempRelation, newatts);
 		
 		IteratorInterface iterator = new TableScan(bm, R);
 		
@@ -61,6 +64,10 @@ public class Project implements IteratorInterface {
 			byte [] data = block.getTupleContent(offset, tupleLength);
 			String [] results = Utility.convertTupleToArray(attHash, data);
 			// TODO: need to extract the projected data and insert it into query. Then call insertQuery in main
+			// to be completed here
+			
+			// insert the projected tuple into new tempRelation
+			main.insertQuery(tempRelation, query);
 			tuple = iterator.next();
 		}
 	}
