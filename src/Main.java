@@ -424,11 +424,7 @@ public class Main implements QueryEngine
 			
 			// Make the block, give it ID and data
 			block = new Block(blockID, dataToWrite);
-			
-			// Write the tuple to the block
-			//block.writeToBlock(dataToWrite);
 			bufman.addBlockToBuffer(block);
-			//block.writeToBlock(dataToWrite);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
 			
@@ -441,7 +437,8 @@ public class Main implements QueryEngine
 			// Increment the number of blocks holding this relation
 			relObj.updateBlockNumber(1);
 		}
-		// TODO: extract the key and insert into index in relation info using relObj
+		
+		// extract the key and insert into index in relation info using relObj
 		String indexName = relObj.getColsIndexed();
 		if (indexName != "-1") {
 			// search in array
