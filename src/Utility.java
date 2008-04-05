@@ -306,6 +306,17 @@ public class Utility {
 		}
 	}
 	
+	public static String [][] formInsertQuery(String [] attNames, String [] values)
+	{
+		String [][] query = new String[2][attNames.length]; 
+		for (int i = 0; i < attNames.length; i++)
+		{
+			query[0][i] = attNames[i];
+			query[1][i] = values[i];
+		}
+		return query;
+	}
+	
 	/**
 	 * @param args
 	 */
