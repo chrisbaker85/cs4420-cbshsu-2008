@@ -14,13 +14,24 @@ public abstract class Op {
 	 * V(R,b), V(R,c), V(R,d)).
 	 * information for tempR(a,b,c,d).
 	 */
-	public RelationInfo info;
+	private RelationInfo info;
 	
-	public Op parent;
+	/**
+	 * The parent to this operator
+	 */
+	protected Op parent;
 	
-	public OpType opType;
+	/**
+	 * The operator type.  See OpType below
+	 */
+	protected OpType opType;
 	
-	public Object contents;
+	/**
+	 * The contents of the operator: a String[], or String[][]
+	 */
+	protected Object contents;
+	
+
 	
 	/**
 	 * In a logical query plan, the op can contain more than 2 children so that

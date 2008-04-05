@@ -8,8 +8,9 @@
  */
 public class OpSort extends Op {
 
-	OpSort() {
+	OpSort(Op parent) {
 		
+		this.parent = parent;
 		this.setType(this.opType.SORT);
 		
 	}
