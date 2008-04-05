@@ -137,10 +137,6 @@ public class UI {
 	 * @param input the user's input
 	 * @return boolean - syntax is valid or not
 	 */
-	/**
-	 * @param input
-	 * @return
-	 */
 	private boolean checkSyntax(String input) {
 		
 		boolean b = false;
@@ -152,7 +148,7 @@ public class UI {
 			return true;
 		}
 		
-		b = Pattern.matches("select ((\\*)|((([a-z_-]+)((\\.)([a-z_-]+)?))(,( )?([a-z_-]+)((\\.)([a-z_-]+)?))*)) from [a-zA-Z0-9_-]+(,( )?[a-zA-Z0-9_-]+)*( where ([a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)((,( )?[a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)*)?)?", input);
+		b = Pattern.matches("select ((\\*)|((([a-z_-]+)((\\.)([a-z_-]+))?)(,( )?([a-z_-]+)((\\.)([a-z_-]+))?)*)) from [a-zA-Z0-9_-]+(,( )?[a-zA-Z0-9_-]+)*( where ([a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)((,( )?[a-zA-Z0-9_-]+( )?[=<>]( )?[a-zA-Z0-9_-]+)*)?)?", input);
 		if (b) {
 			result = proc.parseTableSelect(input);
 			return true;
