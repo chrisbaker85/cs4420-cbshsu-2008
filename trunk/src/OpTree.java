@@ -43,6 +43,16 @@ public class OpTree {
 	private boolean valid = false;
 	
 	/**
+	 * Create an array of Op objects
+	 */
+	private ArrayList<Op> queryList = null;
+	
+	/**
+	 * Incremented to point to next operation to hand over
+	 */
+	private int opCursor = -1;
+	
+	/**
 	 * Default constructor sets up tree based on parsed query
 	 * @param table_names - the names of the tables (FROM) (required)
 	 * @param fields - the names of the fields (SELECT) (required)
@@ -69,6 +79,8 @@ public class OpTree {
 		if (this.validateAttributes(table_names)) this.state = 0;
 		
 		if (this.state > -1) System.out.println(this.toString());
+		
+		this.nextOp();
 		
 	}
 	
@@ -382,8 +394,63 @@ public class OpTree {
 	 */
 	public Op nextOp() {
 		
-		// TODO: Implement nextOp
-		return this.tree_root;
+		if (this.queryList == null) this.queryList = this.generateQueryPlan(this.tree_root);
+		System.out.println("size: " + this.queryList.size());
+		
+		if (this.opCursor < this.queryList.size()) {
+			
+			opCursor++;
+			return this.queryList.get(this.opCursor);
+			
+		}
+		
+		return null;
+		
+	}
+	
+	/**
+	 * Generates a query plan (order of operations)
+	 * 0) Start at the tree-root
+	 * 1) Climb down the tree until an OpTree is reached
+	 * 2) Move up until an Op is hit that has another child
+	 * 3) Climb down that subtree until an OpTree is reached
+	 * 4) (keep going...)
+	 * 
+	 * biased to the left
+	 */
+	private ArrayList<Op> generateQueryPlan(Op op) {
+		
+		Op temp = op;
+		ArrayList<Op> list = new ArrayList<Op>();
+		int counter = 0;
+		
+		while (counter < this.opList.size()) {
+
+			// Base cases
+			if (temp instanceof OpTable || !temp.hasUnvisitedChildren()) {
+				
+				temp.use();
+				list.add(temp);
+				counter++;
+				temp = temp.parent;
+			}
+			
+			for (int i = 0; i < temp.children.length; i++) {
+				
+				
+				if (temp.children[i] != null && !temp.children[i].isUsed()) {
+					
+					temp = temp.children[i];
+					break;
+					
+				}
+				
+			}
+			
+		}
+		
+		temp.isUsed();
+		return list;
 		
 	}
 	
