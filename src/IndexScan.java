@@ -9,23 +9,21 @@ public class IndexScan implements IteratorInterface {
 	 * @param args
 	 */
 	
-	IndexInfo index; 
+	// IndexInfo index; 
 	Iterator iterator;
 	RelationInfo R;
 	Main main;
-	BufferManager bm;
 	String [] condition;
 	
-	public IndexScan(Main main, BufferManager bm, RelationInfo R, String [] condition)
+	public IndexScan(Main main, RelationInfo R, String [] condition)
 	{
 		main = main;
-		bm = bm;
 		R = R;
 		condition = condition;
 	}
  	public void open(BufferManager bm, RelationInfo R, String [] where)
 	{
- 		String tempRelation = R.getName() + "indexscaned";
+ 		String tempRelation = R.getName() + "_indexscaned";
  		Hashtable attHash = R.getAttribute();
 		String [] attNames = Utility.getAttributeNames(attHash);
 		String [][] atts = new String[attNames.length][4];
@@ -38,7 +36,7 @@ public class IndexScan implements IteratorInterface {
 			atts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(bm.getDBName(), tempRelation, atts);
+		main.createTable(bm.getDBName(), tempRelation, atts, true);
 		
 		// get index information
 		TreeMap index = R.getIndexInfo().getIndex();
@@ -50,7 +48,7 @@ public class IndexScan implements IteratorInterface {
 			// TODO: to complete below
 			/**
 			 * 1. get the offsets
-			 * 2. get the tuple using the offset
+			 * 2. get the tuple using the offset by scanning through the block
 			 * 3. insert tuple into tempRelation using main.insertQuery()
 			 */
 		} 
