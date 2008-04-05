@@ -31,7 +31,10 @@ public abstract class Op {
 	 */
 	protected Object contents;
 	
-
+	/**
+	 * Helps in query plan generation...I think
+	 */
+	private boolean used = false;
 	
 	/**
 	 * In a logical query plan, the op can contain more than 2 children so that
@@ -77,6 +80,25 @@ public abstract class Op {
 	public void setContents(Object o) {
 		
 		this.contents = o;
+		
+	}
+	
+	/**
+	 * Tells if the op has been used in query plan generation
+	 * @return
+	 */
+	public boolean isUsed() {
+		
+		return this.used;
+		
+	}
+	
+	/**
+	 * Allows stating that this op has been "used" in query plan generation
+	 */
+	public void use() {
+		
+		this.used = true;
 		
 	}
 	
@@ -128,6 +150,33 @@ public abstract class Op {
 		}
 		
 		return output;
+		
+	}
+	
+	/**
+	 * Checks to see if this operator has any children that have
+	 * not yet been "visited" by the query plan algorithm
+	 * @return true or false
+	 */
+	public boolean hasUnvisitedChildren() {
+		
+		boolean value = false;
+		
+		if (this.children != null) {
+		
+			for (int i = 0; i < this.children.length; i++) {
+				
+				if (!this.children[i].isUsed()) {
+					
+					value = true;
+					
+				}
+				
+			}
+			
+		}
+		
+		return value;
 		
 	}
 	
