@@ -1,4 +1,9 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
+import java.io.FileOutputStream;
 
 /**
  * @author chrisb
@@ -287,6 +292,19 @@ public class Utility {
 		}
 		return results;
  	}
+	
+	public static void appendToFile(String filename, String line)
+	{
+		try {	
+			FileOutputStream output = new FileOutputStream(filename, true);
+		    output.write(line.getBytes());
+		    output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
+	}
 	
 	/**
 	 * @param args
