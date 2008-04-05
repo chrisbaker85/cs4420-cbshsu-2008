@@ -57,6 +57,8 @@ public class Filter implements IteratorInterface {
 				break;
 			}
 		}
+		// set index exists false right now
+		indexPos = -1;
 		if (indexPos == -1)
 		{
 			// get the position of condition in the array of attributes
@@ -111,7 +113,7 @@ public class Filter implements IteratorInterface {
 					}
 					if (allOp)
 					{
-						// TODO: insert tuple into tempRelation by calling main.insertQuery()
+						// TODO: insert tuple into tempTableName by calling main.insertQuery()
 					}
 				}
 			}
@@ -144,6 +146,9 @@ public class Filter implements IteratorInterface {
 			}
 			// using offsets, get tuple one by one. Then compare with the rest of condition
 		}
+		Hashtable hashTemp = main.getSysCat().getTempRelation();
+		RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
+		iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
 		
 	}
 	
