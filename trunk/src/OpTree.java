@@ -69,6 +69,7 @@ public class OpTree {
 			
 			// Set the third level
 			// Consider a query on single relation
+			//System.out.println(table_names.length);
 			if (table_names.length > 1) {
 		
 				this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names));
@@ -82,7 +83,16 @@ public class OpTree {
 		} else {
 			
 			// Set the second level b/c there are no selections to make
-			this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names));
+//			this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names));
+			
+			if (table_names.length > 1) {
+				
+				this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names));
+				
+			} else {
+				
+				this.tree_root.children[0] = this.addOp(new OpTable(table_names[0]));
+			}
 			
 		}
 		
@@ -159,7 +169,6 @@ public class OpTree {
 					
 				} else{
 					
-					// TODO: Handle verification here for each attribute
 					for (int j = 0; j < att.length; j++) {
 						
 						// Call method to verify existence of the attribute
