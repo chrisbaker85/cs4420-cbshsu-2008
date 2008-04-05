@@ -15,9 +15,9 @@ public class OpTree {
 
 	/**
 	 * State variable holds the state of the tree
-	 * 0 - incomplete and unoptimized
-	 * 1 - complete and unoptimized
-	 * 2 - complete and optimized
+	 * -1 - query invalid
+	 *  0 - complete and unoptimized
+	 *  1 - complete and optimized
 	 */
 	private int state;
 	
@@ -56,27 +56,42 @@ public class OpTree {
 		// Set a reference to the system catalog to use
 		this.sc = sc;
 		
+		// Create a basic tree for the query
+		this.createBaseTree(table_names, fields, where);
+		
+		// TODO: identify joins
+		
 		// Verify that all relations used in the query are valid
 		if (this.validateRelationNames(table_names)) this.valid = true;
 		
+		//System.out.println(this.toString());
+		
+		if (this.validateAttributes(table_names)) this.state = 0;
+		
+		if (this.state > -1) System.out.println(this.toString());
+		
+	}
+	
+	private void createBaseTree(String[] table_names, String[] fields, String[][] where) {
+		
 		// Set the root, a project operation
-		this.tree_root = this.addOp(new OpProject(fields));
+		this.tree_root = this.addOp(new OpProject(fields, null));
 		
 		if (where != null && where.length > 0) {
 			
 			// Set the second level, a select operation
-			this.tree_root.children[0] = this.addOp(new OpSelect(where));
+			this.tree_root.children[0] = this.addOp(new OpSelect(where, this.tree_root));
 			
 			// Set the third level
 			// Consider a query on single relation
 			//System.out.println(table_names.length);
 			if (table_names.length > 1) {
 		
-				this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names));
+				this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names, this.tree_root.children[0]));
 				
 			} else {
 				
-				this.tree_root.children[0].children[0] = this.addOp(new OpTable(table_names[0]));
+				this.tree_root.children[0].children[0] = this.addOp(new OpTable(table_names[0], this.tree_root.children[0]));
 			}
 			
 			
@@ -87,20 +102,14 @@ public class OpTree {
 			
 			if (table_names.length > 1) {
 				
-				this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names));
+				this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names, this.tree_root));
 				
 			} else {
 				
-				this.tree_root.children[0] = this.addOp(new OpTable(table_names[0]));
+				this.tree_root.children[0] = this.addOp(new OpTable(table_names[0], this.tree_root));
 			}
 			
 		}
-		
-		//System.out.println(this.toString());
-		
-		if (this.validateAttributes(table_names)) this.valid = true;
-		
-		System.out.println(this.toString());
 		
 	}
 	
@@ -152,6 +161,19 @@ public class OpTree {
 						error = true;
 					} else {
 						att[j][0] = (table_name + "." + att[j][0]);
+					}
+					
+					if (!att[j][1].startsWith("'")) {
+						
+						// Call method to verify existence of the attribute
+						table_name = verifyAttribute(att[j][1], table_names);
+						
+						if (table_name == null) {
+							error = true;
+						} else {
+							att[j][1] = (table_name + "." + att[j][1]);
+						}
+						
 					}
 					
 				}
@@ -361,7 +383,7 @@ public class OpTree {
 	public Op nextOp() {
 		
 		// TODO: Implement nextOp
-		return new OpTable("table");
+		return this.tree_root;
 		
 	}
 	

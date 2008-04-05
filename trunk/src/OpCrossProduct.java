@@ -8,8 +8,9 @@
  */
 public class OpCrossProduct extends Op {
 
-	OpCrossProduct(String[] table_names) {
+	OpCrossProduct(String[] table_names, Op parent) {
 		
+		this.parent = parent;
 		this.setType(this.opType.CROSSPRODUCT);
 		
 		// Set # of children equal to number of tables
@@ -18,7 +19,7 @@ public class OpCrossProduct extends Op {
 		// Set the children relations
 		for (int i = 0; i < table_names.length; i++) {
 		
-			this.children[i] = new OpTable(table_names[i]);
+			this.children[i] = new OpTable(table_names[i], this);
 			
 		}
 		
