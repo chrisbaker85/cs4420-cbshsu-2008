@@ -140,7 +140,8 @@ public class Select implements IteratorInterface {
 						String [] results = Utility.convertTupleToArray(attHash, data);
 						if (results[indPos].equals(where[2])) 
 						{
-							// TODO: insert the tuple into temporary table 
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 							break;
 						}
 					}
@@ -154,6 +155,7 @@ public class Select implements IteratorInterface {
 				 * 2. convert it to tuple 
 				 * 3. insert tuple into tempRelation using main.insertQuery()
 				 */
+				 
 			}
 			if (where[1].equals("<"))
 			{
@@ -183,7 +185,8 @@ public class Select implements IteratorInterface {
 						String [] results = Utility.convertTupleToArray(attHash, data);
 						if (results[indPos].equals(where[2])) 
 						{
-							// TODO: insert the tuple into temporary table 
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 							break;
 						}
 					}
