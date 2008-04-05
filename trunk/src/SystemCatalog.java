@@ -47,6 +47,11 @@ public class SystemCatalog {
 		this.relationCatalog.put(key, relObj);
 	}
 	
+	public void addTempRelation(String key, RelationInfo relObj)
+	{
+		this.tempRelation.put(key, relObj);
+	}
+	
 	public Hashtable getTempRelation()
 	{
 		return this.tempRelation;
