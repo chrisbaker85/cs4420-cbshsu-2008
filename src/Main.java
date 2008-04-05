@@ -557,7 +557,6 @@ public class Main implements QueryEngine
 	{
 		
 		OpTree ot = new OpTree(this.syscat, table_names, fields, where);
-		if (true)	return false;
 		
 		// TODO:  more than the first table_name should be used 
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
