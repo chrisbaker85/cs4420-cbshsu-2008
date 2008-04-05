@@ -192,6 +192,12 @@ public class Main implements QueryEngine
 					Hashtable attributes = readAttributes(db_name, table_name);
 					RelationInfo relation = new RelationInfo(table_name, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, table_name + "_" + db_name + "index.dat", numBlock, attributes);
 					this.syscat.addRelationCatalog(table_name, relation);
+					
+					// test to see if there is index for that relation, set indexinfo
+					if (!colsIndexed.equals(""))
+					{
+						relation.setIndexInfo(colsIndexed + "_indexed", colsIndexed, table_name);
+					}
 				}
 			}
         }
@@ -251,17 +257,20 @@ public class Main implements QueryEngine
         ArrayList<String> data = new ArrayList<String>();
         Hashtable<String, Attribute> atts = new Hashtable<String, Attribute>();
         int id = 0;
-		try {	
+		try {
+			
+			FileReader fr = new FileReader(db_name + "_relations.xml");
+       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
+       		while((line = br.readLine()) != null)
+       		{
+       	 		data.add(line);
+       		}
+       		id = (data.size() - 2) / 7;
+       		
 			// if it's not temporary relation, write to XML files
 			if (!isTempRelation)
 			{
-				FileReader fr = new FileReader(db_name + "_relations.xml");
-	       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
-	       		while((line = br.readLine()) != null)
-	       		{
-	       	 		data.add(line);
-	       		}
-	       		id = (data.size() - 2) / 7;
+				
 	       		int ind = data.size() - 1;
 				data.add(ind++, "<relation>\n");
 				data.add(ind++, "<name>" + table_name + "</name>\n");
