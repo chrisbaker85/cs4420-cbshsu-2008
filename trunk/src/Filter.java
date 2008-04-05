@@ -11,15 +11,13 @@ public class Filter implements IteratorInterface {
 	 */
 	
 	Iterator iterator;
-	BufferManager bm;
 	Main main;
 	RelationInfo R;
 	String [][] where;
 	
-	public Filter(Main main, BufferManager bm, RelationInfo R, String [][] where)
+	public Filter(Main main, RelationInfo R, String [][] where)
 	{
 		main = main;
-		bm = bm;
 		R = R;
 		where = where;
 	}
@@ -33,7 +31,7 @@ public class Filter implements IteratorInterface {
 		 * tempRelation will be used to  
 		 */ 
 		
-		String tempRelation = R.getName() + "filtered";
+		String tempTableName = R.getName() + "_filtered";
 		Hashtable attHash = R.getAttribute();
 		String [] attNames = Utility.getAttributeNames(attHash);
 		String [][] atts = new String[attNames.length][4];
@@ -46,7 +44,7 @@ public class Filter implements IteratorInterface {
 			atts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(bm.getDBName(), tempRelation, atts);
+		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
 		
 		// find out which condition is indexed
 		
@@ -72,7 +70,7 @@ public class Filter implements IteratorInterface {
 				}
 			}
 			// use tablescan to iterate through relation
-			IteratorInterface iterator = new TableScan(bm, R);
+			IteratorInterface iterator = new TableScan(main, R);
 			Tuple tuple;
 			int tupleLength = Utility.getTotalLength(R.getAttribute());
 			
@@ -132,6 +130,7 @@ public class Filter implements IteratorInterface {
 			{
 				SortedMap key = index.headMap(Integer.parseInt(where[indexPos][2]));
 				// TODO: get the offset and store it in ArrayList offsets 
+				
 			}
 			if (where[indexPos][1].equals("="))
 			{
