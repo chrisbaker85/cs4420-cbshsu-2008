@@ -11,16 +11,14 @@ public class Select implements IteratorInterface {
 	 */
 	
 	Iterator iterator;
-	BufferManager bm;
 	RelationInfo R;
 	String [] where;
 	Main main;
 	boolean index;
 	
-	public Select(Main main, BufferManager bm, RelationInfo R, String [] where, boolean index)
+	public Select(Main main, RelationInfo R, String [] where, boolean index)
 	{
 		main = main;
-		bm = bm;
 		R = R;
 		where = where;
 		index = index;
@@ -29,7 +27,7 @@ public class Select implements IteratorInterface {
 	// public void open(RelationInfo R, String [] where, Index idx)
 	public void open()
 	{
-		String tempRelation = R.getName() + "selected";
+		String tempTableName = R.getName() + "_selected";
 		Hashtable attHash = R.getAttribute();
 		String [] attNames = Utility.getAttributeNames(attHash);
 		String [][] atts = new String[attNames.length][4];
@@ -42,9 +40,9 @@ public class Select implements IteratorInterface {
 			atts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(bm.getDBName(), tempRelation, atts);
-		
-		if (!index) // if index is specified
+		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
+		// if index is not specified
+		if (!index) 
 		{
 			// get the position of condition in the array of attributes
 			int ind;
@@ -53,10 +51,10 @@ public class Select implements IteratorInterface {
 				if (attNames[ind].equals(where[0])) break;
 			}
 			// use tablescan to interate through relation
-			IteratorInterface iterator = new TableScan(bm, R);
+			IteratorInterface iterator = new TableScan(main, R);
 			Tuple tuple;
 			int tupleLength = Utility.getTotalLength(R.getAttribute());
-			
+			String [][] query = new String[2][attNames.length];
 			for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
 			{
 				tuple = iterator.next();
@@ -64,31 +62,40 @@ public class Select implements IteratorInterface {
 				int offset = tuple.getOffset();
 				byte [] content = block.getTupleContent(offset, tupleLength);
 				String [] results = Utility.convertTupleToArray(attHash, content);
+				// form query to be inserted
+				for (int j = 0; j < results.length; j++)
+				{
+					query[0][j] = attNames[j];
+					query[1][j] = results[j];
+				}
 				// compare it result with condition
 				if (where[1].equals(">"))
 				{
 					if (Integer.parseInt(results[ind]) > Integer.parseInt(where[2]))
 					{
-						// TODO: insert the tuple here by calling main.insertQuery()
+						// insert the tuple here by calling main.insertQuery()
+						main.insertQuery(tempTableName, query);
 					}
 				}
 				if (where[1].equals("="))
 				{
 					if (Integer.parseInt(results[ind]) == Integer.parseInt(where[2]))
 					{
-						// TODO: insert the tuple here by calling main.insertQuery()
+						// insert the tuple here by calling main.insertQuery()
+						main.insertQuery(tempTableName, query);
 					}
 				}
 				if (where[1].equals("<"))
 				{
 					if (Integer.parseInt(results[ind]) < Integer.parseInt(where[2]))
 					{
-						// TODO: insert the tuple here by calling main.insertQuery()
-						
+						// insert the tuple here by calling main.insertQuery()
+						main.insertQuery(tempTableName, query);
 					}
 				}
 			}
 		}
+		// if index is not specified
 		else
 		{
 			// get index information
@@ -127,6 +134,9 @@ public class Select implements IteratorInterface {
 				 */
 			}
 		}
+		Hashtable hashTemp = main.getSysCat().getTempRelation();
+		RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
+		iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
 	}
 	
 	public Tuple next()
