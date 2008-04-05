@@ -34,6 +34,7 @@ public class Filter implements IteratorInterface {
 		String tempTableName = R.getName() + "_filtered";
 		Hashtable attHash = R.getAttribute();
 		String [] attNames = Utility.getAttributeNames(attHash);
+		int tupleSize = Utility.getTotalLength(R.getAttribute());
 		String [][] atts = new String[attNames.length][4];
 		for (int i = 0; i < attNames.length; i++)
 		{
@@ -51,7 +52,7 @@ public class Filter implements IteratorInterface {
 		int indexPos = -1;
 		for (int i = 0; i < where.length; i++)
 		{
-			if (R.getIndexInfo().getAttName().equals(where[i]))
+			if (R.getColsIndexed().equals(where[i]))
 			{
 				indexPos = i;
 				break;
@@ -74,14 +75,14 @@ public class Filter implements IteratorInterface {
 			// use tablescan to iterate through relation
 			IteratorInterface iterator = new TableScan(main, R);
 			Tuple tuple;
-			int tupleLength = Utility.getTotalLength(R.getAttribute());
+			
 			
 			for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
 			{
 				tuple = iterator.next();
 				Block block = tuple.getBlock();
 				int offset = tuple.getOffset();
-				byte [] content = block.getTupleContent(offset, tupleLength);
+				byte [] content = block.getTupleContent(offset, tupleSize);
 				String [] results = Utility.convertTupleToArray(attHash, content);
 				// compare it result with condition
 				boolean allOp = true;
@@ -113,7 +114,8 @@ public class Filter implements IteratorInterface {
 					}
 					if (allOp)
 					{
-						// TODO: insert tuple into tempTableName by calling main.insertQuery()
+						// insert tuple into tempTableName by calling main.insertQuery()
+						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 					}
 				}
 			}
@@ -127,24 +129,108 @@ public class Filter implements IteratorInterface {
 			 */
 			
 			TreeMap index = R.getIndexInfo().getIndex();
-			ArrayList<Long> offsets = new ArrayList<Long>(); 
-			if (where[indexPos][1].equals("<"))
+			if (where[1].equals(">"))
 			{
-				SortedMap key = index.headMap(Integer.parseInt(where[indexPos][2]));
-				// TODO: get the offset and store it in ArrayList offsets 
+				// get the sorted key larder than specified value 
+				SortedMap sortedmap = index.tailMap(where[2]);
+				/**
+				 * 1. get the offsets
+				 * 2. get the tuple using the offset
+				 * 3. insert tuple into tempRelation using main.insertQuery()
+				 */
 				
-			}
-			if (where[indexPos][1].equals("="))
-			{
-				// TODO: get the offset and store it in ArrayList offsets
+				TreeMap tempTree = new TreeMap(sortedmap);
 				
-			}
-			if (where[indexPos][1].equals(">"))
+				for (int i = 0; i < tempTree.size(); i++)
+				{
+					int firstkey = (Integer)tempTree.firstKey();
+					int offset = (Integer)index.get(firstkey); // offset in reference to the table
+					tempTree.remove(firstkey);
+					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
+					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
+					// get the block that the tuple is in
+					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+					int tupleOffset = 3;
+					for (int j = 0; j < tupleNumPerBlock; j++)
+					{
+						byte [] data = current_block.getTupleContent(offset, tupleSize);
+						String [] results = Utility.convertTupleToArray(attHash, data);
+						if (results[indexPos].equals(where[2])) 
+						{
+							// TODO: compare with other conditions
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
+							break;
+						}
+					}
+				}
+			} 
+			if (where[1].equals("="))
 			{
-				SortedMap key = index.tailMap(Integer.parseInt(where[indexPos][2]));
-				// TODO: get the offset and store it in ArrayList offsets
+				/**
+				 * 1. get the offset using TreeMap.get()
+				 * 2. convert it to tuple 
+				 * 3. insert tuple into tempRelation using main.insertQuery()
+				 */
+				Integer offset = (Integer)index.get(where[2]);
+				if (offset != null)
+				{
+					// scan through block to find the tuple
+					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
+					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
+					// get the block that the tuple is in
+					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+					int tupleOffset = 3;
+					for (int j = 0; j < tupleNumPerBlock; j++)
+					{
+						byte [] data = current_block.getTupleContent(offset, tupleSize);
+						String [] results = Utility.convertTupleToArray(attHash, data);
+						if (results[indexPos].equals(where[2])) 
+						{
+							// TODO: compare with other conditions
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
+							break;
+						}
+					}
+				}
 			}
-			// using offsets, get tuple one by one. Then compare with the rest of condition
+			if (where[1].equals("<"))
+			{
+				/**
+				 * 1. get the offsets
+				 * 2. get the tuple using the offset
+				 * 3. insert tuple into tempRelation using main.insertQuery()
+				 */
+				
+				// get the sorted key larder than specified value 
+				SortedMap sortedmap = index.headMap(where[2]);
+				
+				TreeMap tempTree = new TreeMap(sortedmap);
+				for (int i = 0; i < tempTree.size(); i++)
+				{
+					int firstkey = (Integer)tempTree.firstKey();
+					int offset = (Integer)index.get(firstkey); // offset in reference to the table
+					tempTree.remove(firstkey);
+					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
+					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
+					// get the block that the tuple is in
+					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+					int tupleOffset = 3;
+					for (int j = 0; j < tupleNumPerBlock; j++)
+					{
+						byte [] data = current_block.getTupleContent(offset, tupleSize);
+						String [] results = Utility.convertTupleToArray(attHash, data);
+						if (results[indexPos].equals(where[2])) 
+						{
+							// TODO: compare with other condition
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
+							break;
+						}
+					}
+				}
+			}
 		}
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
