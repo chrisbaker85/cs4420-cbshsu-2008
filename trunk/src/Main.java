@@ -344,7 +344,9 @@ public class Main implements QueryEngine
 			System.out.println(e.getMessage());
 		}
 		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "1", atts);
-		this.syscat.addRelationCatalog(table_name, relObj);
+		
+		if (!isTempRelation) this.syscat.addRelationCatalog(table_name, relObj);
+		else this.syscat.addTempRelation(table_name, relObj);
 		// update filename Hashtable in BufferManager 
 		this.bufman.getTableNames(syscat.getRelationCatalog());
 		// create a blank data file
@@ -560,7 +562,7 @@ public class Main implements QueryEngine
 		// TODO:  more than the first table_name should be used 
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
 		Hashtable atts = relObj.getAttribute();
-		int tupleLength = Utility.getTotalLength(atts);
+		int tupleSize = Utility.getTotalLength(atts);
 		boolean selectAll = false;
 		// testing if the field entered by user exists
 		if (fields != null)
@@ -596,7 +598,7 @@ public class Main implements QueryEngine
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
-			byte [] data = block.getTupleContent(offset, tupleLength);
+			byte [] data = block.getTupleContent(offset, tupleSize);
 			String [] results = Utility.convertTupleToArray(atts, data);
 			
 //			System.out.println("");
