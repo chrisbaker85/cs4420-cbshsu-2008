@@ -194,9 +194,24 @@ public class Main implements QueryEngine
 					this.syscat.addRelationCatalog(table_name, relation);
 					
 					// test to see if there is index for that relation, set indexinfo
-					if (!colsIndexed.equals(""))
+					if (!colsIndexed.equals("-1"))
 					{
-						relation.setIndexInfo(colsIndexed + "_indexed", colsIndexed, table_name);
+						relation.setIndexInfo(colsIndexed + "_index", colsIndexed, table_name);
+						// read index file and add it to TreeMap
+						try {
+							FileReader fr = new FileReader(colsIndexed + "_index.txt");
+				       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
+				       		String line;
+				       		TreeMap tm = relation.getIndexInfo().getIndex();
+				       		while((line = br.readLine()) != null)
+				       		{
+				       	 		String [] keyval = line.split("\t");
+				       	 		tm.put(Integer.parseInt(keyval[0]), keyval[1]);
+				       		}
+						}
+						catch (IOException e)
+						{
+						}
 					}
 				}
 			}
@@ -450,7 +465,7 @@ public class Main implements QueryEngine
 		// extract the key and insert into index in relation info using relObj
 		String indexName = relObj.getColsIndexed();
 		if (indexName != "-1") {
-			// search in array
+			// search in array for the key
 			int ind;
 			for (ind = 0; ind < query[0].length; ind++)
 			{
@@ -459,6 +474,10 @@ public class Main implements QueryEngine
 			// get key to insert into Index
 			int key = Integer.parseInt(query[1][ind]);
 			relObj.getIndexInfo().getIndex().put(key, lastOffset);
+			// write it to file.
+			String filename = indexName + "_index.txt";
+			String line = key + "\t" + lastOffset + "\n";
+			Utility.appendToFile(filename, line);
 		}
 		this.writeSystemCataglog();
 		return true;
@@ -474,9 +493,19 @@ public class Main implements QueryEngine
 	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean duplicates) 
 	{
 		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
-		relInfo.setIndexInfo(indexName, attName, tableName);
+		relInfo.setIndexInfo(attName + "_index", attName, tableName);
 		// update index info
-		relInfo.setColsIndexed("indexName");
+		relInfo.setColsIndexed(attName);
+		// create a blank index file
+		try {	
+			File file = new File(attName + "_index.txt");
+		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
+		    output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
 		return true;
 	}
 	
@@ -525,14 +554,8 @@ public class Main implements QueryEngine
 	public boolean selectQuery(String[] table_names, String [] fields, String [][] where)
 	{
 		
-		
-		
 		OpTree ot = new OpTree(this.syscat, table_names, fields, where);
 		if (true)	return false;
-		
-		
-		
-		
 		
 		// TODO:  more than the first table_name should be used 
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
