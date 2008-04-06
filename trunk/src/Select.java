@@ -64,11 +64,8 @@ public class Select implements IteratorInterface {
 				byte [] content = block.getTupleContent(offset, tupleSize);
 				String [] results = Utility.convertTupleToArray(attHash, content);
 				// form query to be inserted
-				for (int j = 0; j < results.length; j++)
-				{
-					query[0][j] = attNames[j];
-					query[1][j] = results[j];
-				}
+				query = Utility.formInsertQuery(attNames, results);
+				
 				// compare it result with condition
 				if (where[1].equals(">"))
 				{
