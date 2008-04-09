@@ -23,7 +23,7 @@ public class Project implements IteratorInterface {
 		atts = atts;
 	}
 	
-	public void open()
+	public RelationInfo open()
 	{
 		// get the new type for new attributes
 		String tempTableName = R.getName() + "_projected";
@@ -80,8 +80,9 @@ public class Project implements IteratorInterface {
 			tuple = tempIterator.next();
 		}
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
-		RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
-		iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
+		return (RelationInfo)hashTemp.get(tempTableName);
+		//RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
+		//iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
 	}
 	
 	public Tuple next()
