@@ -470,6 +470,12 @@ public class OpTree {
 		
 	}
 	
+	public int getNumOps () {
+		
+		return this.opList.size();
+		
+	}
+	
 	/**
 	 * @param args
 	 */
