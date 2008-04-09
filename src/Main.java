@@ -562,18 +562,20 @@ public class Main implements QueryEngine
 		// optable: hashtable to store all temporary relations
 		Hashtable<Integer, Op> optable = new Hashtable<Integer, Op>();
 		Op op = ot.nextOp();
+		int lastIndex;
 		while(op != null)
 		{
+			lastIndex = op.getID();
 			if (op instanceof OpSelect)
 			{
 				// call select class here
 				RelationInfo R = op.getInfo();
-				String [][] conditions = (String [][])op.getContents();
+				String [] conditions = (String [])op.getContents();
 				// figure out if it's index or not
 				boolean hasIndex = false;
 				for (int i = 0; i < conditions.length; i++)
 				{
-					if (conditions[0][i].equals(R.getColsIndexed())) 
+					if (conditions[i].equals(R.getColsIndexed())) 
 					{
 						hasIndex = true;
 						break;
@@ -586,16 +588,29 @@ public class Main implements QueryEngine
 			}
 			else if (op instanceof OpProject)
 			{
+				RelationInfo R = op.getInfo();
+				String [] attList = (String [])op.getContents();
 				// call project class here
-				
-			}
-			else if (op instanceof OpJoin)
-			{
-				// call join class here
+				Project myproject = new Project(this, R, attList);
+				RelationInfo result = myproject.open();
+				op.info = result;
+				optable.put(new Integer(op.getID()), op);
 			}
 			else if (op instanceof OpCrossProduct)
 			{
 				// call  class CrossProduct here
+				Op leftOp = op.left();
+				RelationInfo leftR = leftOp.getInfo();
+				Op rightOp = op.right();
+				RelationInfo rightR = rightOp.getInfo();
+				CrossProduct mycp = new CrossProduct(this, leftR, rightR);
+				RelationInfo result = mycp.open();
+				op.info = result;
+				optable.put(new Integer(op.getID()), op);
+			}
+			else if (op instanceof OpJoin)
+			{
+				// call join class here
 			}
 			op = ot.nextOp();
 		}
