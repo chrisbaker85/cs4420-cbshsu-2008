@@ -85,7 +85,9 @@ public class OpTree {
 		
 		if (this.state > -1) System.out.println(this.toString());
 		
-		this.nextOp();
+		bindRelationInfos();
+		
+		//this.nextOp();
 		
 	}
 	
@@ -484,6 +486,25 @@ public class OpTree {
 	public int getNumOps () {
 		
 		return this.opList.size();
+		
+	}
+	
+	/**
+	 * Set the RelationInfo property for every "leaf" OpTable node
+	 */
+	private void bindRelationInfos() {
+		
+		// Loop through all the operators and find the OpTable types
+		for (int i = 0; i < this.opList.size(); i++) {
+			
+			if (this.opList.get(i) instanceof OpTable) {
+				
+				this.opList.get(i).info = (RelationInfo)this.sc.getRelationCatalog().get((String)this.opList.get(i).contents);
+				
+			}
+			
+		}
+		
 		
 	}
 	

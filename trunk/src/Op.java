@@ -14,7 +14,7 @@ public abstract class Op {
 	 * V(R,b), V(R,c), V(R,d)).
 	 * information for tempR(a,b,c,d).
 	 */
-	private RelationInfo info;
+	protected RelationInfo info;
 	
 	/**
 	 * The parent to this operator
@@ -140,6 +140,12 @@ public abstract class Op {
 				output += this.getContents().toString();
 				
 			}
+			
+		}
+		
+		if (this.info != null) {
+			
+			output += "\n|relationinfo set\n";
 			
 		}
 		
