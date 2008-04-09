@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public class OpSelect extends Op {
 
-	OpSelect(String[][] where_clause, Op parent) {
+	OpSelect(String[] where_clause, Op parent) {
 		
 		this.parent = parent;
 		this.setType(Op.OpType.SELECT);
