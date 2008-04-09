@@ -80,12 +80,12 @@ public class OpTree {
 		if (this.validateRelationNames(table_names)) this.valid = true;
 		
 		//System.out.println(this.toString());
+
+		bindRelationInfos();
 		
 		if (this.validateAttributes(table_names)) this.state = 0;
 		
 		if (this.state > -1) System.out.println(this.toString());
-		
-		bindRelationInfos();
 		
 		//this.nextOp();
 		
@@ -93,13 +93,22 @@ public class OpTree {
 	
 	private void createBaseTree(String[] table_names, String[] fields, String[][] where) {
 		
+		Op curr;
+		
 		// Set the root, a project operation
 		this.tree_root = this.addOp(new OpProject(fields, null));
+		curr = this.tree_root;
 		
 		if (where != null && where.length > 0) {
 			
-			// Set the second level, a select operation
-			this.tree_root.children[0] = this.addOp(new OpSelect(where, this.tree_root));
+			// daisy-chain the select operators
+			for (int i = 0; i < where.length; i++) {
+			
+				// Set the "second" level, a select operation
+				curr.children[0] = this.addOp(new OpSelect(where[i], this.tree_root));
+				curr = curr.children[0];
+				
+			}
 			
 			// Set the third level
 			// Consider a query on single relation
@@ -168,31 +177,26 @@ public class OpTree {
 			if (op instanceof OpSelect) {
 				
 				// contents is an 2-D array of relation names
-				String[][] att = ((String[][])op.contents);
+				String[] att = ((String[])op.contents);
 				
-				// Loop through each comparison
-				for (int j = 0; j < att.length; j++) {
+				// Call method to verify existence of the attribute
+				String table_name = verifyAttribute(att[0], table_names);
 				
+				if (table_name == null) {
+					error = true;
+				} else {
+					att[0] = (table_name + "." + att[0]);
+				}
+				
+				if (!att[1].startsWith("'")) {
+					
 					// Call method to verify existence of the attribute
-					String table_name = verifyAttribute(att[j][0], table_names);
+					table_name = verifyAttribute(att[1], table_names);
 					
 					if (table_name == null) {
 						error = true;
 					} else {
-						att[j][0] = (table_name + "." + att[j][0]);
-					}
-					
-					if (!att[j][1].startsWith("'")) {
-						
-						// Call method to verify existence of the attribute
-						table_name = verifyAttribute(att[j][1], table_names);
-						
-						if (table_name == null) {
-							error = true;
-						} else {
-							att[j][1] = (table_name + "." + att[j][1]);
-						}
-						
+						att[1] = (table_name + "." + att[1]);
 					}
 					
 				}
