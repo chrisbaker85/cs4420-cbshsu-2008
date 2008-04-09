@@ -6,9 +6,18 @@ public class Sort  implements IteratorInterface {
 	 */
 	
 	Iterator iterator;
-	// public void open(RelationInfo R, String [] where, Index idx)
-	public void open(BufferManager bm, RelationInfo R, String [] where)
+	Main main;
+	String [] where;
+	RelationInfo R;
+	public Sort(Main main, RelationInfo R, String [] where)
 	{
+		where = where;
+		main = main;
+		R = R;
+	}
+	public RelationInfo open()
+	{
+		return R;
 	}
 	
 	public Tuple next()

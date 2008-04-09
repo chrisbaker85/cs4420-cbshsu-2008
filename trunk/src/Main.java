@@ -558,8 +558,10 @@ public class Main implements QueryEngine
 		
 		OpTree ot = new OpTree(this.syscat, table_names, fields, where);
 		
+		int opNumber = ot.getNumOps();
+		// optable: hashtable to store all temporary relations
+		Hashtable<Integer, Op> optable = new Hashtable<Integer, Op>();
 		Op op = ot.nextOp();
-		// create an array of IteratorInterface to store temporary solution
 		while(op != null)
 		{
 			if (op instanceof OpSelect)
@@ -578,6 +580,9 @@ public class Main implements QueryEngine
 					}
 				}
 				Select myselect = new Select(this, R, conditions, false);
+				RelationInfo result = myselect.open();
+				op.info = result;
+				optable.put(new Integer(op.getID()), op);
 			}
 			else if (op instanceof OpProject)
 			{

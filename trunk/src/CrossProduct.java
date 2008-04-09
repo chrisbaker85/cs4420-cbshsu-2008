@@ -24,7 +24,7 @@ public class CrossProduct implements IteratorInterface{
 		R1 = R1;
 		R2 = R2;
 	}
-	public void open()
+	public RelationInfo open()
 	{
 		String tempRelation = R1.getColsIndexed() + "_CROSS_" + R2.getName();
 		/**
@@ -102,6 +102,8 @@ public class CrossProduct implements IteratorInterface{
 				main.insertQuery(tempTableName, query);
 			}
 		}
+		Hashtable hashTemp = main.getSysCat().getTempRelation();
+		return (RelationInfo)hashTemp.get(tempTableName);
 	}
 	
 	public Tuple next()

@@ -4,6 +4,7 @@ import java.util.*;
  * @author Sovandy
  *
  */
+
 public class Select implements IteratorInterface {
 
 	/**
@@ -25,7 +26,7 @@ public class Select implements IteratorInterface {
 	}
 	
 	// public void open(RelationInfo R, String [] where, Index idx)
-	public void open()
+	public RelationInfo open()
 	{
 		String tempTableName = R.getName() + "_selected";
 		Hashtable attHash = R.getAttribute();
@@ -210,8 +211,9 @@ public class Select implements IteratorInterface {
 			}
 		}
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
-		RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
-		iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
+		//RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
+		return (RelationInfo)hashTemp.get(tempTableName);
+		//iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
 	}
 	
 	public Tuple next()

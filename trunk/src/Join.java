@@ -25,7 +25,7 @@ public class Join implements IteratorInterface{
 		index = index;
 		passNumber = passNumber;
 	}
-	public void open()
+	public RelationInfo open()
 	{
 		String tempTableName = R1.getColsIndexed() + "_JOIN_" + R2.getName();
 		/**
@@ -107,7 +107,8 @@ public class Join implements IteratorInterface{
 			// TODO if there is index, get the key in relation 1, and search for value in relation 2 index
 			// If found, write it to new relation
 		}
-		
+		Hashtable hashTemp = main.getSysCat().getTempRelation();
+		return (RelationInfo)hashTemp.get(tempTableName);
 	}
 	
 	public Tuple next()

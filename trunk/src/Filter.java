@@ -22,7 +22,7 @@ public class Filter implements IteratorInterface {
 		where = where;
 	}
 	
-	public void open()
+	public RelationInfo open()
 	{
 		/**
 		 * there are two way of doing it.
@@ -233,9 +233,9 @@ public class Filter implements IteratorInterface {
 			}
 		}
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
-		RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
-		iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
-		
+		//RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
+		//iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
+		return (RelationInfo)hashTemp.get(tempTableName);
 	}
 	
 	public Tuple next()
