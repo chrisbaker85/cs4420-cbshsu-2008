@@ -1,7 +1,7 @@
 import java.util.*;
 
 /**
- * @author Sovandy
+ * @author Sovandy Hang
  *
  */
 
@@ -13,11 +13,11 @@ public class Select implements IteratorInterface {
 	
 	Iterator iterator;
 	RelationInfo R;
-	String [][] where;
+	String [] where;
 	Main main;
 	boolean index;
 	
-	public Select(Main main, RelationInfo R, String [][] where, boolean index)
+	public Select(Main main, RelationInfo R, String [] where, boolean index)
 	{
 		main = main;
 		R = R;
@@ -50,7 +50,7 @@ public class Select implements IteratorInterface {
 			int ind;
 			for (ind = 0; ind < attNames.length; ind++)
 			{
-				if (attNames[ind].equals(where[0][0])) break;
+				if (attNames[ind].equals(where[0])) break;
 			}
 			// use tablescan to interate through relation
 			IteratorInterface iterator = new TableScan(main, R);
@@ -68,9 +68,9 @@ public class Select implements IteratorInterface {
 				query = Utility.formInsertQuery(attNames, results);
 				
 				// compare it result with condition
-				if (where[0][2].equals(">"))
+				if (where[2].equals(">"))
 				{
-					if (Integer.parseInt(results[ind]) > Integer.parseInt(where[0][1]))
+					if (Integer.parseInt(results[ind]) > Integer.parseInt(where[1]))
 					{
 						// insert the tuple here by calling main.insertQuery()
 						main.insertQuery(tempTableName, query);
@@ -78,15 +78,15 @@ public class Select implements IteratorInterface {
 				}
 				if (where[1].equals("="))
 				{
-					if (Integer.parseInt(results[ind]) == Integer.parseInt(where[0][1]))
+					if (Integer.parseInt(results[ind]) == Integer.parseInt(where[1]))
 					{
 						// insert the tuple here by calling main.insertQuery()
 						main.insertQuery(tempTableName, query);
 					}
 				}
-				if (where[0][2].equals("<"))
+				if (where[2].equals("<"))
 				{
-					if (Integer.parseInt(results[ind]) < Integer.parseInt(where[0][1]))
+					if (Integer.parseInt(results[ind]) < Integer.parseInt(where[1]))
 					{
 						// insert the tuple here by calling main.insertQuery()
 						main.insertQuery(tempTableName, query);
@@ -110,10 +110,10 @@ public class Select implements IteratorInterface {
 				}
 			}
 			// check the type of operation ( >, < or =)
-			if (where[0][2].equals(">"))
+			if (where[2].equals(">"))
 			{
 				// get the sorted key larder than specified value 
-				SortedMap sortedmap = index.tailMap(where[0][1]);
+				SortedMap sortedmap = index.tailMap(where[1]);
 				/**
 				 * 1. get the offsets
 				 * 2. get the tuple using the offset
@@ -136,7 +136,7 @@ public class Select implements IteratorInterface {
 					{
 						byte [] data = current_block.getTupleContent(offset, tupleSize);
 						String [] results = Utility.convertTupleToArray(attHash, data);
-						if (results[indPos].equals(where[0][1])) 
+						if (results[indPos].equals(where[1])) 
 						{
 							// insert the tuple into temporary table 
 							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -152,7 +152,7 @@ public class Select implements IteratorInterface {
 				 * 2. convert it to tuple 
 				 * 3. insert tuple into tempRelation using main.insertQuery()
 				 */
-				Integer offset = (Integer)index.get(where[0][1]);
+				Integer offset = (Integer)index.get(where[1]);
 				if (offset != null)
 				{
 					// scan through block to find the tuple
@@ -165,7 +165,7 @@ public class Select implements IteratorInterface {
 					{
 						byte [] data = current_block.getTupleContent(offset, tupleSize);
 						String [] results = Utility.convertTupleToArray(attHash, data);
-						if (results[indPos].equals(where[0][1])) 
+						if (results[indPos].equals(where[1])) 
 						{
 							// insert the tuple into temporary table 
 							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -183,7 +183,7 @@ public class Select implements IteratorInterface {
 				 */
 				
 				// get the sorted key larder than specified value 
-				SortedMap sortedmap = index.headMap(where[0][1]);
+				SortedMap sortedmap = index.headMap(where[1]);
 				
 				TreeMap tempTree = new TreeMap(sortedmap);
 				for (int i = 0; i < tempTree.size(); i++)
@@ -200,7 +200,7 @@ public class Select implements IteratorInterface {
 					{
 						byte [] data = current_block.getTupleContent(offset, tupleSize);
 						String [] results = Utility.convertTupleToArray(attHash, data);
-						if (results[indPos].equals(where[0][1])) 
+						if (results[indPos].equals(where[1])) 
 						{
 							// insert the tuple into temporary table 
 							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
