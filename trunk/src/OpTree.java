@@ -105,7 +105,7 @@ public class OpTree {
 			for (int i = 0; i < where.length; i++) {
 			
 				// Set the "second" level, a select operation
-				curr.children[0] = this.addOp(new OpSelect(where[i], this.tree_root));
+				curr.children[0] = this.addOp(new OpSelect(where[i], curr));
 				curr = curr.children[0];
 				
 			}
@@ -115,11 +115,13 @@ public class OpTree {
 			//System.out.println(table_names.length);
 			if (table_names.length > 1) {
 		
-				this.tree_root.children[0].children[0] = this.addOp(new OpCrossProduct(table_names, this.tree_root.children[0]));
+				curr.children[0] = this.addOp(new OpCrossProduct(table_names, curr));
+				curr = curr.children[0];
 				
 			} else {
 				
-				this.tree_root.children[0].children[0] = this.addOp(new OpTable(table_names[0], this.tree_root.children[0]));
+				curr.children[0] = this.addOp(new OpTable(table_names[0], curr));
+				curr = curr.children[0];
 			}
 			
 			
