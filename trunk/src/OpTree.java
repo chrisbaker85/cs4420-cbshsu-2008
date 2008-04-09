@@ -53,6 +53,11 @@ public class OpTree {
 	private int opCursor = -1;
 	
 	/**
+	 * Keep track of the next operator UID
+	 */
+	private int currOpID = 0;
+	
+	/**
 	 * Default constructor sets up tree based on parsed query
 	 * @param table_names - the names of the tables (FROM) (required)
 	 * @param fields - the names of the fields (SELECT) (required)
@@ -383,6 +388,8 @@ public class OpTree {
 	 */
 	private Op addOp(Op op) {
 		
+		op.setID(this.currOpID);
+		this.currOpID++;
 		this.opList.add(op);
 		return op;		
 		
@@ -470,6 +477,10 @@ public class OpTree {
 		
 	}
 	
+	/**
+	 * Get the number of operators in this tree
+	 * @return number of operators
+	 */
 	public int getNumOps () {
 		
 		return this.opList.size();

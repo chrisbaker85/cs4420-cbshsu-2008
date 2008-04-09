@@ -27,6 +27,11 @@ public abstract class Op {
 	protected OpType opType;
 	
 	/**
+	 * The unique operator ID
+	 */
+	protected int id;
+	
+	/**
 	 * The contents of the operator: a String[], or String[][]
 	 */
 	protected Object contents;
@@ -177,6 +182,26 @@ public abstract class Op {
 		}
 		
 		return value;
+		
+	}
+	
+	/**
+	 * Sets the operator's UID
+	 * @param id int (0, 1, 2, ...)
+	 */
+	public void setID(int id) {
+		
+		this.id = id;
+		
+	}
+	
+	/**
+	 * Gets the operator's UID
+	 * @return int ID
+	 */
+	public int getID() {
+		
+		return this.id;
 		
 	}
 	
