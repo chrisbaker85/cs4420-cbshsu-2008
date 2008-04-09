@@ -16,7 +16,7 @@ public class Select implements IteratorInterface {
 	Main main;
 	boolean index;
 	
-	public Select(Main main, RelationInfo R, String [] where, boolean index)
+	public Select(Main main, RelationInfo R, String [][] where, boolean index)
 	{
 		main = main;
 		R = R;
