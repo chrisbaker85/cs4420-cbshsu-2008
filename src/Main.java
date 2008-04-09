@@ -567,6 +567,16 @@ public class Main implements QueryEngine
 				// call select class here
 				RelationInfo R = op.getInfo();
 				String [][] conditions = (String [][])op.getContents();
+				// figure out if it's index or not
+				boolean hasIndex = false;
+				for (int i = 0; i < conditions.length; i++)
+				{
+					if (conditions[0][i].equals(R.getColsIndexed())) 
+					{
+						hasIndex = true;
+						break;
+					}
+				}
 				Select myselect = new Select(this, R, conditions, false);
 			}
 			else if (op instanceof OpProject)
