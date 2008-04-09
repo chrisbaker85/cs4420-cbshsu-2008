@@ -558,90 +558,33 @@ public class Main implements QueryEngine
 		
 		OpTree ot = new OpTree(this.syscat, table_names, fields, where);
 		
-		// TODO:  more than the first table_name should be used 
-		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_names[0]);
-		Hashtable atts = relObj.getAttribute();
-		int tupleSize = Utility.getTotalLength(atts);
-		boolean selectAll = false;
-		// testing if the field entered by user exists
-		if (fields != null)
+		Op op = ot.nextOp();
+		// create an array of IteratorInterface to store temporary solution
+		while(op != null)
 		{
-			for (int i = 0; i < fields.length; i++)
+			if (op instanceof OpSelect)
 			{
-				if (!atts.containsKey(fields[i]))
-				{
-					System.out.println("Attribute " + fields[i] + " doesn't exist");
-					return false;
-				}
+				// call select class here
+				RelationInfo R = op.getInfo();
+				String [][] conditions = (String [][])op.getContents();
+				Select myselect = new Select(this, R, conditions, false);
 			}
-		}
-		else selectAll = true;
-		/**
-		 * 1. Iterate tuple by tuple
-		 * 2. parse it to 
-		 */
-		
-		// System.out.println("creating Iterator");
-		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
-		Tuple tuple;
-		String [] attNames = Utility.getAttributeNames(atts);
-		for (int j = 0; j < attNames.length; j++)
-		{
-			System.out.print(attNames[j] + "\t\t");
-		}
-		System.out.println("");
-		System.out.println("==============================================");
-		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
-		{
-			boolean toPrint = false;
-			tuple = iterator.getNext();
-			Block block = tuple.getBlock();
-			int offset = tuple.getOffset();
-			byte [] data = block.getTupleContent(offset, tupleSize);
-			String [] results = Utility.convertTupleToArray(atts, data);
-			
-//			System.out.println("");
-//			for (int j = 0; j < results.length; j++) {
-//				
-//				System.out.print("[" + results[j] + "]");
-//				
-//			}
-			
-			// test condition before printing the results
-			/**
-			 * 1. get the array of attribute names
-			 * 2. 
-			 */
-			if (results.length == 0) System.out.println("No record found");
-			else
-			if (where != null)
+			else if (op instanceof OpProject)
 			{
+				// call project class here
 				
-				boolean condition = true;
-				for (int j=0; j < where.length; j++)
-				{
-					int ind = Utility.searchStringArray(where[j][0], attNames);
-					condition = condition && (results[ind].startsWith(where[j][1]));
-					if (condition)
-					{
-						toPrint = true;
-						for(int k = 0; k < results.length; k++)
-						{
-							System.out.print(results[k] + "\t\t");
-						}
-					}
-				}
 			}
-			else
+			else if (op instanceof OpJoin)
 			{
-				toPrint = true;
-				for(int j = 0; j < results.length; j++)
-				{
-					System.out.print(results[j] + "\t\t");
-				}
+				// call join class here
 			}
-			if (toPrint) System.out.println("");
+			else if (op instanceof OpCrossProduct)
+			{
+				// call  class CrossProduct here
+			}
+			op = ot.nextOp();
 		}
+		// print out result here
 		return true;
 	}
 	
