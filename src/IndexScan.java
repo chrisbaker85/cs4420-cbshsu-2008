@@ -9,19 +9,18 @@ public class IndexScan implements IteratorInterface {
 	 * @param args
 	 */
 	
-	// IndexInfo index; 
 	Iterator iterator;
 	RelationInfo R;
 	Main main;
-	String [] condition;
+	String [][] where;
 	
-	public IndexScan(Main main, RelationInfo R, String [] condition)
+	public IndexScan(Main main, RelationInfo R, String [] where)
 	{
 		main = main;
 		R = R;
-		condition = condition;
+		where = where;
 	}
- 	public void open(BufferManager bm, RelationInfo R, String [] where)
+ 	public RelationInfo open()
 	{
  		String tempTableName = R.getName() + "_indexscaned";
  		Hashtable attHash = R.getAttribute();
@@ -37,7 +36,7 @@ public class IndexScan implements IteratorInterface {
 			atts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(bm.getDBName(), tempTableName, atts, true);
+		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
 		
 		// get index position
 		int indPos = -1;
@@ -53,10 +52,10 @@ public class IndexScan implements IteratorInterface {
 		// get index information
 		TreeMap index = R.getIndexInfo().getIndex();
 		// check the type of operation ( >, < or =)
-		if (where[1].equals(">"))
+		if (where[2].equals(">"))
 		{
 			// get the sorted key larder than specified value 
-			SortedMap sortedmap = index.tailMap(where[2]);
+			SortedMap sortedmap = index.tailMap(where[1]);
 			/**
 			 * 1. get the offsets
 			 * 2. get the tuple using the offset
@@ -79,7 +78,7 @@ public class IndexScan implements IteratorInterface {
 				{
 					byte [] data = current_block.getTupleContent(offset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indPos].equals(where[2])) 
+					if (results[indPos].equals(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -95,7 +94,7 @@ public class IndexScan implements IteratorInterface {
 			 * 2. convert it to tuple 
 			 * 3. insert tuple into tempRelation using main.insertQuery()
 			 */
-			Integer offset = (Integer)index.get(where[2]);
+			Integer offset = (Integer)index.get(where[1]);
 			if (offset != null)
 			{
 				// scan through block to find the tuple
@@ -108,7 +107,7 @@ public class IndexScan implements IteratorInterface {
 				{
 					byte [] data = current_block.getTupleContent(offset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indPos].equals(where[2])) 
+					if (results[indPos].equals(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -126,7 +125,7 @@ public class IndexScan implements IteratorInterface {
 			 */
 			
 			// get the sorted key larder than specified value 
-			SortedMap sortedmap = index.headMap(where[2]);
+			SortedMap sortedmap = index.headMap(where[1]);
 			
 			TreeMap tempTree = new TreeMap(sortedmap);
 			for (int i = 0; i < tempTree.size(); i++)
@@ -143,7 +142,7 @@ public class IndexScan implements IteratorInterface {
 				{
 					byte [] data = current_block.getTupleContent(offset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indPos].equals(where[2])) 
+					if (results[indPos].equals(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -152,6 +151,8 @@ public class IndexScan implements IteratorInterface {
 				}
 			}
 		}
+		Hashtable hashTemp = main.getSysCat().getTempRelation();
+		return (RelationInfo)hashTemp.get(tempTableName);
 	}
 	
 	public Tuple next()
