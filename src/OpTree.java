@@ -431,25 +431,33 @@ public class OpTree {
 				
 				temp.use();
 				list.add(temp);
+				
+				System.out.println("USED>>" + temp.getType());
+				
 				counter++;
 				temp = temp.parent;
 			}
 			
-			for (int i = 0; i < temp.children.length; i++) {
+			// At the end, the root's parent is null, so check for that
+			if (temp != null) {
 				
-				
-				if (temp.children[i] != null && !temp.children[i].isUsed()) {
+				for (int i = 0; i < temp.children.length; i++) {
 					
-					temp = temp.children[i];
-					break;
+					
+					if (temp.children[i] != null && !temp.children[i].isUsed()) {
+						
+						temp = temp.children[i];
+						break;
+						
+					}
 					
 				}
 				
 			}
 			
+			
 		}
 		
-		temp.isUsed();
 		return list;
 		
 	}
