@@ -145,7 +145,7 @@ public abstract class Op {
 		
 		if (this.info != null) {
 			
-			output += "\n|relationinfo set\n";
+			output += "\n|relationinfo set";
 			
 		}
 		
