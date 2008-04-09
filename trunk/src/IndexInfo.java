@@ -52,7 +52,7 @@ public class IndexInfo
 	
 	public TreeMap getIndex()
 	{
-		return this.getIndex();
+		return this.index;
 	}
 	
 	/**
