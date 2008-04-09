@@ -1,9 +1,10 @@
 import java.util.Hashtable;
 
 /**
- * @author Sovandy
+ * @author Sovandy Hang
  *
  */
+
 public class Project implements IteratorInterface {
 
 	/**
@@ -87,7 +88,6 @@ public class Project implements IteratorInterface {
 	{
 		return iterator.getNext();
 	}
-	
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
