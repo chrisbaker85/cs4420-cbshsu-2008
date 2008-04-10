@@ -20,9 +20,9 @@ public class CrossProduct implements IteratorInterface{
 	
 	public CrossProduct(Main main, RelationInfo R1, RelationInfo R2)
 	{
-		main = main;
-		R1 = R1;
-		R2 = R2;
+		this.main = main;
+		this.R1 = R1;
+		this.R2 = R2;
 	}
 	public RelationInfo open()
 	{
