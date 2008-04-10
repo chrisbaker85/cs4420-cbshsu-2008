@@ -25,19 +25,18 @@ public class Block {
 	 */
 	private boolean isUpdated = false;
 	
-	/**
-	 * Generic constructor
-	 * Cannot be called
-	 * the Block MUST be setup correctly!
-	 */
-	private Block()
-	{
-		content = new byte[Parameters.BLOCK_SIZE];
+	Block() {
+		
+		// Dim content to right size
+		this.content = new byte[Parameters.BLOCK_SIZE];
+		
+		// Fill the first 4 bytes with for creation of new block
 		byte [] header = Utility.makeByte4FromInt(0);
 		content[0] = header[0];
 		content[1] = header[1];
 		content[2] = header[2];
 		content[3] = header[3];
+		
 	}
 	
 	/**
@@ -47,9 +46,16 @@ public class Block {
 	 * @param content
 	 */
 	public Block(long blockID, byte[] content) {
+		
+		// Call default constructor to initialize variables
 		this();
+		
+		// Set the block ID
 		this.blockID = blockID;
+		
+		// Write the given data to the content variable
 		this.writeToBlock(content);
+		
 	}
 	
 	/**
@@ -156,6 +162,7 @@ public class Block {
 		}
 		
 		if (data.length > 0) this.updateRecordNumber(1);
+		System.out.println(this.getRecordNumber());
 		this.isPinned = false;
 	}
 	
