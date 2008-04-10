@@ -400,7 +400,9 @@ public class Main implements QueryEngine
 		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		if (relObj == null) return false;
-		//System.out.println("NUM TUPLES: " + relObj.getNumTuples());
+		
+		System.out.println("INFO: num tuples in table: " + relObj.getNumTuples());
+		
 		Hashtable atts = relObj.getAttributes();
 		
 		for (int i = 0; i < query[1].length; i++)
@@ -429,8 +431,15 @@ public class Main implements QueryEngine
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
+		// The length of the attributes in bytes
+	    int attLength = Utility.getTotalLength(atts);
+	    
+	    // The length of a tuple in bytes
+	    int tupLength = attLength + Parameters.TUPLE_HEADER_SIZE;
+	    
 		// The block to write the data to (the last block)
 		int blockNum = Integer.parseInt(relObj.getNumDataBlocks().trim());
+		System.out.println("INFO: blockNum:" + blockNum);
 		int lastOffset = Parameters.BLOCK_SIZE * (blockNum - 1);
 		
 		// Using relation ID for file ID
@@ -440,7 +449,6 @@ public class Main implements QueryEngine
 		
 		Block block = bufman.getBlock(blockID);
 		
-		int attLength = Utility.getTotalLength(atts);
 		int maxRecNum = (Parameters.BLOCK_SIZE - Parameters.BLOCK_HEADER_SIZE) / attLength;
 		int recNum = block.getRecordNumber();
 		System.out.println("INFO: RecordNumber: " + block.getRecordNumber());		
@@ -481,7 +489,8 @@ public class Main implements QueryEngine
 		
 		// extract the key and insert into index in relation info using relObj
 		String indexName = relObj.getColsIndexed();
-		if (indexName != "-1") {
+		System.out.println("INFO: indexName " + indexName);
+		if (!indexName.equals("-1")) {
 			// search in array for the key
 			int ind;
 			for (ind = 0; ind < query[0].length; ind++)
