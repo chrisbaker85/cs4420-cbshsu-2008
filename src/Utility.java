@@ -323,6 +323,12 @@ public class Utility {
 		
 	}
 	
+   public static String getTable(String fqf) {
+        
+        return fqf.substring(0, fqf.indexOf("."));
+        
+    }
+	
 	/**
 	 * @param args
 	 */
@@ -330,7 +336,7 @@ public class Utility {
 		
 	    Utility u = new Utility();
 	    
-	    System.out.println(u.getField("students.name"));
+	    System.out.println(u.getTable("students.name"));
 	    
 //	    Integer i1 = new Integer(1000);
 //	    Integer i2 = new Integer(512);
