@@ -52,7 +52,7 @@ public class CrossProduct implements IteratorInterface{
 		for (i =0; i < attNames1.length; i++)
 		{
 			Attribute att = (Attribute)attHash1.get(attNames1[i]);
-			atts[i][0] = attNames1[i];
+			atts[i][0] = R1.getName() + "." + attNames1[i];
 			atts[i][1] = att.getType();
 			atts[i][2] = att.getLength();
 			atts[i][3] = att.getIsNullable();
@@ -60,7 +60,7 @@ public class CrossProduct implements IteratorInterface{
 		for (int j = 0; j < attNames2.length; j++)
 		{
 			Attribute att = (Attribute)attHash2.get(attNames2[j]);
-			atts[i+j][0] = attNames2[j];
+			atts[i+j][0] = R2.getName() + "." + attNames2[j];
 			atts[i+j][1] = att.getType();
 			atts[i+j][2] = att.getLength();
 			atts[i+j][3] = att.getIsNullable();
