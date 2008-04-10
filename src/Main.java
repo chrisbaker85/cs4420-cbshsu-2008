@@ -399,10 +399,12 @@ public class Main implements QueryEngine
 	{
 		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
-		System.out.println("ERROR: Table does not exist");
-		if (relObj == null) return false;
+		if (relObj == null) {
+		    System.out.println("ERROR: Table does not exist");
+		    return false;
+		}
 		
-		System.out.println("INFO: num tuples in table: " + relObj.getNumTuples());
+		//System.out.println("INFO: num tuples in table: " + relObj.getNumTuples());
 		
 		Hashtable atts = relObj.getAttributes();
 		
@@ -440,26 +442,26 @@ public class Main implements QueryEngine
 	    
 		// The block to write the data to (the last block)
 		int blockNum = Integer.parseInt(relObj.getNumDataBlocks().trim());
-		System.out.println("INFO: blockNum:" + blockNum);
+		//System.out.println("INFO: blockNum:" + blockNum);
 		int lastOffset = Parameters.BLOCK_SIZE * (blockNum - 1);
 		
 		// Using relation ID for file ID
 		int fileId = relObj.getId();
 		long blockID = Utility.combine(fileId, lastOffset);
-		System.out.println("INFO: fileId: " + fileId + "/Offset: " + lastOffset);
+		//System.out.println("INFO: fileId: " + fileId + "/Offset: " + lastOffset);
 		
 		Block block = bufman.getBlock(blockID);
 		
 		int maxRecNum = (Parameters.BLOCK_SIZE - Parameters.BLOCK_HEADER_SIZE) / attLength;
 		int recNum = block.getRecordNumber();
-		System.out.println("INFO: RecordNumber: " + block.getRecordNumber());		
+		//System.out.println("INFO: RecordNumber: " + block.getRecordNumber());		
 		//System.out.println("MAX: " + maxRecNum + "/ACT:" + recNum);
 		
 		if (recNum < maxRecNum)
 		{
 			//System.out.println("using old block");
 			block.writeToBlock(dataToWrite);
-			System.out.println(block.blockID);
+			//System.out.println(block.blockID);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
 			relObj.updateTupleNumber(1);
@@ -489,22 +491,34 @@ public class Main implements QueryEngine
 		}
 		
 		// extract the key and insert into index in relation info using relObj
-		String indexName = relObj.getColsIndexed();
-		System.out.println("INFO: indexName " + indexName);
-		if (!indexName.equals("-1")) {
-			// search in array for the key
-			int ind;
-			for (ind = 0; ind < query[0].length; ind++)
-			{
-				if (query[0][ind].equals(indexName)) break;
-			}
-			// get key to insert into Index
-			int key = Integer.parseInt(query[1][ind]);
-			relObj.getIndexInfo().getIndex().put(key, lastOffset);
-			// write it to file.
-			String filename = indexName + "_index.txt";
-			String line = key + "\t" + lastOffset + "\n";
-			Utility.appendToFile(filename, line);
+		String[] indexNames = relObj.getColsIndexed().split(",");
+		
+		//if (!indexName.equals("-1")) {
+		if (indexNames.length > 0 && !indexNames[0].equals("-1")) {
+
+		    for (int i = 0; i < indexNames.length; i++) {
+		                
+		        String indexName = indexNames[i];
+		        
+		        System.out.println("INFO: indexName " + indexName);
+		        
+		        // search in array for the key
+	            int ind;
+	            for (ind = 0; ind < query[0].length; ind++)
+	            {
+	                if (query[0][ind].equals(indexName)) break;
+	            }
+	            // get key to insert into Index
+	            int key = Integer.parseInt(query[1][ind]);
+	            relObj.getIndexInfo().getIndex().put(key, lastOffset);
+	            // write it to file.
+	            String filename = indexName + "_index.txt";
+	            String line = key + "\t" + lastOffset + "\n";
+	            Utility.appendToFile(filename, line);
+		        
+		    }
+		    
+
 		}
 		this.writeSystemCataglog();
 		return true;
