@@ -189,6 +189,54 @@ public abstract class Op {
 		
 	}
 	
+   public boolean hasChildren(String table_1, String table_2) {
+        
+       boolean e1 = false;
+       boolean e2 = false;
+       
+        if (this.children != null) {
+            
+            for (int i = 0; i < this.children.length; i++) {
+                
+                if (this.children[i].contents.equals(table_1)) e1 = true;
+                if (this.children[i].contents.equals(table_2)) e2 = true;
+                
+            }
+            
+        }
+        
+        return (e1 && e2);
+        
+    }
+   
+   public Op[] removeChildren(String[] table) {
+       
+       if (this instanceof OpCrossProduct) {
+       
+           Op[] ops = new Op[2];
+           
+           for (int i = 0; i < this.children.length; i++) {
+               
+               if (this.children[i].contents.equals(Utility.getTable(table[0]))) {
+                   
+                   ops[0] = this.children[i];
+                   
+               }
+               
+               if (this.children[i].contents.equals(Utility.getTable(table[1]))) {
+                   
+                   ops[1] = this.children[i];
+               }
+               
+           }
+           
+           return ops;
+       }
+       
+       return null;
+       
+   }
+	
 	/**
 	 * Sets the operator's UID
 	 * @param id int (0, 1, 2, ...)
