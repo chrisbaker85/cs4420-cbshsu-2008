@@ -317,6 +317,12 @@ public class Utility {
 		return query;
 	}
 	
+	public static String getField(String fqf) {
+		
+		return fqf.substring(fqf.indexOf(".") + 1, fqf.length());
+		
+	}
+	
 	/**
 	 * @param args
 	 */
@@ -324,14 +330,16 @@ public class Utility {
 		
 	    Utility u = new Utility();
 	    
-	    Integer i1 = new Integer(1000);
-	    Integer i2 = new Integer(512);
-	    Long l = new Long(u.combine(i1, i2));
-        int[] temp = u.split(l);
-	    System.out.println("i1: " + Integer.toBinaryString(i1));
-	    System.out.println("i2: " + Integer.toBinaryString(i2));
-	    System.out.println(" l: " + Long.toBinaryString(l));
-	    System.out.println(temp[0] + ", " + temp[1]);
+	    System.out.println(u.getField("students.name"));
+	    
+//	    Integer i1 = new Integer(1000);
+//	    Integer i2 = new Integer(512);
+//	    Long l = new Long(u.combine(i1, i2));
+//        int[] temp = u.split(l);
+//	    System.out.println("i1: " + Integer.toBinaryString(i1));
+//	    System.out.println("i2: " + Integer.toBinaryString(i2));
+//	    System.out.println(" l: " + Long.toBinaryString(l));
+//	    System.out.println(temp[0] + ", " + temp[1]);
 
 	}
 
