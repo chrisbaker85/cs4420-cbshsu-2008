@@ -21,8 +21,9 @@ public class TableScan implements IteratorInterface {
 	// public void open(RelationInfo R, String [] where, Index idx)
 	public RelationInfo open()
 	{
+		iterator = new Iterator(main.getBm(), R, R.getId(), Integer.parseInt(R.getNumDataBlocks()));
 		return R;
-		//iterator = new Iterator(main.getBm(), R, R.getId(), Integer.parseInt(R.getNumDataBlocks()));
+		
 	}
 	
 	public Tuple next()
