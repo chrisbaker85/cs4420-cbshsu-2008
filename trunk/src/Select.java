@@ -51,8 +51,9 @@ public class Select implements IteratorInterface {
 			int ind;
 			for (ind = 0; ind < attNames.length; ind++)
 			{
-				if (attNames[ind].equals(where[0])) break;
+				if (attNames[ind].equals(Utility.getField(where[0]))) break;
 			}
+			System.out.println("Match fields " + Utility.getField(where[0]) + " " + attNames[ind]);
 			// use tablescan to interate through relation
 			IteratorInterface iterator = new TableScan(main, R);
 			Tuple tuple;
@@ -80,13 +81,30 @@ public class Select implements IteratorInterface {
 				}
 				if (where[1].equals("="))
 				{
-					if (Integer.parseInt(results[ind]) == Integer.parseInt(where[1]))
+					// TODO check type to see if it's int or string. Then, compare the two
+					Attribute a = (Attribute)attHash.get(attNames[ind]);
+					// if it's integer
+					if(a.getType().equals("int"))
 					{
-						System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(where[1]));
-						// form query to be inserted
-						query = Utility.formInsertQuery(attNames, results);
-						// insert the tuple here by calling main.insertQuery()
-						main.insertQuery(tempTableName, query);
+						if (Integer.parseInt(results[ind]) == Integer.parseInt(where[1]))
+						{
+							System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(where[1]));
+							// form query to be inserted
+							query = Utility.formInsertQuery(attNames, results);
+							// insert the tuple here by calling main.insertQuery()
+							main.insertQuery(tempTableName, query);
+						}
+					}
+					else
+					{
+						if (results[ind].startsWith(where[1]))
+						{
+							System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(where[1]));
+							// form query to be inserted
+							query = Utility.formInsertQuery(attNames, results);
+							// insert the tuple here by calling main.insertQuery()
+							main.insertQuery(tempTableName, query);
+						}
 					}
 				}
 				if (where[2].equals("<"))
@@ -164,22 +182,25 @@ public class Select implements IteratorInterface {
 				Integer offset = (Integer)index.get(where[1]);
 				if (offset != null)
 				{
+					System.out.println("According to index, tuple is in block " + offset);
 					// scan through block to find the tuple
 					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
 					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
 					// get the block that the tuple is in
 					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
-					int tupleOffset = 3;
+					int tupleOffset = 4;
 					for (int j = 0; j < tupleNumPerBlock; j++)
 					{
-						byte [] data = current_block.getTupleContent(offset, tupleSize);
+						byte [] data = current_block.getTupleContent(tupleOffset, tupleSize);
 						String [] results = Utility.convertTupleToArray(attHash, data);
 						if (results[indPos].equals(where[1])) 
 						{
+							System.out.println("found tuple in block");
 							// insert the tuple into temporary table 
 							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 							break;
 						}
+						tupleOffset += tupleSize;
 					}
 				}
 			}
