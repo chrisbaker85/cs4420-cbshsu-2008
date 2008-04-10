@@ -151,7 +151,7 @@ public class Block {
 		this.isUpdated = true;
 		this.isPinned = true;
 		int recNum = this.getRecordNumber();
-		System.out.println("INFO: #records: " + recNum);
+		//System.out.println("INFO: #records: " + recNum);
 		int appendPos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
 		if (data.length == 1024) appendPos = 0;
 		//System.out.println("[" + data.length + "/" + recNum + "/" + Parameters.BLOCK_HEADER_SIZE + "]");
@@ -164,7 +164,7 @@ public class Block {
 		}
 		
 		if (data.length > 0) this.updateRecordNumber(1);
-		System.out.println(this.getRecordNumber());
+		//System.out.println(this.getRecordNumber());
 		this.isPinned = false;
 	}
 	
