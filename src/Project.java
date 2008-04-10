@@ -18,9 +18,9 @@ public class Project implements IteratorInterface {
 	
 	public Project(Main main, RelationInfo R, String [] atts)
 	{
-		main = main;
-		R = R;
-		atts = atts;
+		this.main = main;
+		this.R = R;
+		this.atts = atts;
 	}
 	
 	public RelationInfo open()
