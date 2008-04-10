@@ -265,6 +265,9 @@ public class Main implements QueryEngine
 	 */
 	public boolean createTable(String db_name, String table_name, String [][] attributes, boolean isTempRelation)
 	{
+		
+		if (syscat.getRelationCatalog().get(table_name) != null) return false;
+		
 		// get current date
 		Calendar cal = Calendar.getInstance();
 		// set date format
@@ -428,25 +431,26 @@ public class Main implements QueryEngine
 		
 		// The block to write the data to (the last block)
 		int blockNum = Integer.parseInt(relObj.getNumDataBlocks().trim());
-		
 		int lastOffset = Parameters.BLOCK_SIZE * (blockNum - 1);
 		
 		// Using relation ID for file ID
 		int fileId = relObj.getId();
 		long blockID = Utility.combine(fileId, lastOffset);
+		System.out.println("INFO: fileId: " + fileId + "/Offset: " + lastOffset);
 		
 		Block block = bufman.getBlock(blockID);
 		
 		int attLength = Utility.getTotalLength(atts);
 		int maxRecNum = (Parameters.BLOCK_SIZE - Parameters.BLOCK_HEADER_SIZE) / attLength;
 		int recNum = block.getRecordNumber();
-		
+		System.out.println("INFO: RecordNumber: " + block.getRecordNumber());		
 		//System.out.println("MAX: " + maxRecNum + "/ACT:" + recNum);
 		
 		if (recNum < maxRecNum)
 		{
 			//System.out.println("using old block");
 			block.writeToBlock(dataToWrite);
+			System.out.println(block.blockID);
 			bufman.writeBlock(blockID);
 			relObj.updateDateModified();
 			relObj.updateTupleNumber(1);
@@ -602,13 +606,17 @@ public class Main implements QueryEngine
 			}
 			else if (op instanceof OpProject)
 			{
+				System.out.println("INFO: entered project");
+				
 				// RelationInfo R = op.getInfo();
 				RelationInfo R = op.left().getInfo();
 				String [] attList = (String [])op.getContents();
+				
 				// call project class here
 				Project myproject = new Project(this, R, attList);
 				RelationInfo result = myproject.open();
 				op.info = result;
+				
 				//optable.put(new Integer(op.getID()), op);
 			}
 			else if (op instanceof OpCrossProduct)
@@ -630,6 +638,8 @@ public class Main implements QueryEngine
 			op = ot.nextOp();
 		}
 		// print out results in currentOp here
+
+		System.out.println("INFO: printing out results");
 		RelationInfo relObj = currentOp.getInfo();
 		Hashtable atts = relObj.getAttribute();
 		int tupleSize = Utility.getTotalLength(atts);
