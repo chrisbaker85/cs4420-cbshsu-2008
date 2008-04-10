@@ -68,20 +68,22 @@ public class CrossProduct implements IteratorInterface{
 		// create a temporary relation
 		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
 		
-		IteratorInterface iterator1 = new TableScan(main, R1);
+		//IteratorInterface iterator1 = new TableScan(main, R1);
+		Iterator iterator1 = new Iterator(main.getBm(), R1, R1.getId(), Integer.parseInt(R1.getNumDataBlocks())); 
 		for (int j = 0; j < Integer.parseInt(R1.getNumTuples().trim()); j++)
 		{
-			Tuple tuple1 = iterator1.next();
+			Tuple tuple1 = iterator1.getNext();
 			Block block1 = tuple1.getBlock();
 			int offset = tuple1.getOffset();
 			byte [] content = block1.getTupleContent(offset, tupleSize1);
 			String [] results1 = Utility.convertTupleToArray(attHash1, content);
 			
 			// Scan table 2 one by one and append it to result1 
-			IteratorInterface iterator2 = new TableScan(main, R2);
+			// IteratorInterface iterator2 = new TableScan(main, R2);
+			Iterator iterator2 = new Iterator(main.getBm(), R1, R1.getId(), Integer.parseInt(R1.getNumDataBlocks())); 
 			for (int k = 0; k < Integer.parseInt(R2.getNumTuples().trim()); k++)
 			{
-				Tuple tuple2 = iterator2.next();
+				Tuple tuple2 = iterator2.getNext();
 				Block block2 = tuple2.getBlock();
 				offset = tuple2.getOffset();
 				content = block2.getTupleContent(offset, tupleSize1);
