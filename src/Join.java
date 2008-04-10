@@ -25,6 +25,7 @@ public class Join implements IteratorInterface{
 		index = index;
 		passNumber = passNumber;
 	}
+	
 	public RelationInfo open()
 	{
 		String tempTableName = R1.getColsIndexed() + "_JOIN_" + R2.getName();
@@ -52,7 +53,7 @@ public class Join implements IteratorInterface{
 		for (i =0; i < attNames1.length; i++)
 		{
 			Attribute att = (Attribute)attHash1.get(attNames1[i]);
-			atts[i][0] = attNames1[i];
+			atts[i][0] = R1.getName() + "." + attNames1[i];
 			atts[i][1] = att.getType();
 			atts[i][2] = att.getLength();
 			atts[i][3] = att.getIsNullable();
@@ -60,7 +61,7 @@ public class Join implements IteratorInterface{
 		for (int j = 0; j < attNames2.length; j++)
 		{
 			Attribute att = (Attribute)attHash2.get(attNames2[j]);
-			atts[i+j][0] = attNames2[j];
+			atts[i+j][0] = R2.getName() + "." + attNames2[j];
 			atts[i+j][1] = att.getType();
 			atts[i+j][2] = att.getLength();
 			atts[i+j][3] = att.getIsNullable();
@@ -87,7 +88,7 @@ public class Join implements IteratorInterface{
 				content = block2.getTupleContent(offset, tupleSize1);
 				String [] results2 = Utility.convertTupleToArray(attHash2, content);
 				
-				// TODO need to verify condition here before writing tuple. If found, write to new relation and break out of loop
+				// TODO verify condition here before writing tuple. If found, write to new relation and break out of loop
 				// combine result 
 				int l;
 				String [][] query = new String[2][attNames2.length + attNames2.length];
