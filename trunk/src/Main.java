@@ -389,7 +389,9 @@ public class Main implements QueryEngine
 
 	public boolean insertQuery(String table_name, String [][] query)
 	{
+		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		if (relObj == null) return false;
 		Hashtable atts = relObj.getAttributes();
 		
 		for (int i = 0; i < query[1].length; i++)
