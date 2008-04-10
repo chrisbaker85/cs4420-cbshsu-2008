@@ -392,6 +392,7 @@ public class Main implements QueryEngine
 		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		if (relObj == null) return false;
+		System.out.println("NUM TUPLES: " + relObj.getNumTuples());
 		Hashtable atts = relObj.getAttributes();
 		
 		for (int i = 0; i < query[1].length; i++)
@@ -431,8 +432,11 @@ public class Main implements QueryEngine
 		
 		Block block = bufman.getBlock(blockID);
 		
-		int maxRecNum = Parameters.BLOCK_SIZE / Utility.getTotalLength(atts);
+		int attLength = Utility.getTotalLength(atts);
+		int maxRecNum = (Parameters.BLOCK_SIZE - Parameters.BLOCK_HEADER_SIZE) / attLength;
 		int recNum = block.getRecordNumber();
+		
+		System.out.println("MAX: " + maxRecNum + "/ACT:" + recNum);
 		
 		if (recNum < maxRecNum)
 		{
