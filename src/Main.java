@@ -265,11 +265,16 @@ public class Main implements QueryEngine
 	 */
 	public boolean createTable(String db_name, String table_name, String [][] attributes, boolean isTempRelation)
 	{
+		// get current date
 		Calendar cal = Calendar.getInstance();
+		// set date format
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		// get current date
 		String cur_date = (String)sdf.format(cal.getTime());
 		String line = "";
+		// temp array for xml data
         ArrayList<String> data = new ArrayList<String>();
+ 
         Hashtable<String, Attribute> atts = new Hashtable<String, Attribute>();
         int id = 0;
 		try {
@@ -392,7 +397,7 @@ public class Main implements QueryEngine
 		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
 		if (relObj == null) return false;
-		System.out.println("NUM TUPLES: " + relObj.getNumTuples());
+		//System.out.println("NUM TUPLES: " + relObj.getNumTuples());
 		Hashtable atts = relObj.getAttributes();
 		
 		for (int i = 0; i < query[1].length; i++)
@@ -436,7 +441,7 @@ public class Main implements QueryEngine
 		int maxRecNum = (Parameters.BLOCK_SIZE - Parameters.BLOCK_HEADER_SIZE) / attLength;
 		int recNum = block.getRecordNumber();
 		
-		System.out.println("MAX: " + maxRecNum + "/ACT:" + recNum);
+		//System.out.println("MAX: " + maxRecNum + "/ACT:" + recNum);
 		
 		if (recNum < maxRecNum)
 		{
