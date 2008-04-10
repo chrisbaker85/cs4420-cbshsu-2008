@@ -560,16 +560,19 @@ public class Main implements QueryEngine
 		
 		int opNumber = ot.getNumOps();
 		// optable: hashtable to store all temporary relations
-		Hashtable<Integer, Op> optable = new Hashtable<Integer, Op>();
+		//Hashtable<Integer, Op> optable = new Hashtable<Integer, Op>();
 		Op op = ot.nextOp();
+		Op currentOp = op; 
 		int lastIndex;
 		while(op != null)
 		{
+			currentOp = op;
 			lastIndex = op.getID();
 			if (op instanceof OpSelect)
 			{
 				// call select class here
-				RelationInfo R = op.getInfo();
+				// RelationInfo R = op.getInfo();
+				RelationInfo R = op.left().getInfo();
 				String [] conditions = (String [])op.getContents();
 				// figure out if it's index or not
 				boolean hasIndex = false;
@@ -584,17 +587,18 @@ public class Main implements QueryEngine
 				Select myselect = new Select(this, R, conditions, false);
 				RelationInfo result = myselect.open();
 				op.info = result;
-				optable.put(new Integer(op.getID()), op);
+				//optable.put(new Integer(op.getID()), op);
 			}
 			else if (op instanceof OpProject)
 			{
-				RelationInfo R = op.getInfo();
+				// RelationInfo R = op.getInfo();
+				RelationInfo R = op.left().getInfo();
 				String [] attList = (String [])op.getContents();
 				// call project class here
 				Project myproject = new Project(this, R, attList);
 				RelationInfo result = myproject.open();
 				op.info = result;
-				optable.put(new Integer(op.getID()), op);
+				//optable.put(new Integer(op.getID()), op);
 			}
 			else if (op instanceof OpCrossProduct)
 			{
@@ -606,7 +610,7 @@ public class Main implements QueryEngine
 				CrossProduct mycp = new CrossProduct(this, leftR, rightR);
 				RelationInfo result = mycp.open();
 				op.info = result;
-				optable.put(new Integer(op.getID()), op);
+				//optable.put(new Integer(op.getID()), op);
 			}
 			else if (op instanceof OpJoin)
 			{
@@ -614,7 +618,32 @@ public class Main implements QueryEngine
 			}
 			op = ot.nextOp();
 		}
-		// print out result here
+		// print out results in currentOp here
+		RelationInfo relObj = currentOp.getInfo();
+		Hashtable atts = relObj.getAttribute();
+		int tupleSize = Utility.getTotalLength(atts);
+		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
+		Tuple tuple;
+		String [] attNames = Utility.getAttributeNames(atts);
+		for (int j = 0; j < attNames.length; j++)
+		{
+			System.out.print(attNames[j] + "\t\t");
+		}
+		System.out.println("");
+		System.out.println("==============================================");
+		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
+		{
+			tuple = iterator.getNext();
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] data = block.getTupleContent(offset, tupleSize);
+			String [] results = Utility.convertTupleToArray(atts, data);
+			for (int j = 0; j < attNames.length; j++)
+			{
+				System.out.print(results[j]);
+			}
+			System.out.println("");
+		}
 		return true;
 	}
 	
