@@ -32,7 +32,7 @@ public class Project implements IteratorInterface {
 		Hashtable<String, Attribute> attHash = R.getAttributes();
 		for (int i = 0; i < atts.length; i++)
 		{
-			Attribute att = attHash.get(atts[i]);
+			Attribute att = attHash.get(Utility.getField(atts[i]));
 			newatts[i][0] = atts[i];
 			newatts[i][1] = att.getType();
 			newatts[i][2] = att.getLength();
@@ -45,7 +45,9 @@ public class Project implements IteratorInterface {
 		 * use TableScan to scan tuple by tuple. Then form the values to be inserted
 		 */
 		
-		IteratorInterface tempIterator = new TableScan(main, R);
+//		IteratorInterface tempIterator = new TableScan(main, R);
+		Iterator tempIterator = new Iterator(main.getBm(), R, R.getId(), Integer.parseInt(R.getNumDataBlocks()));
+		tempIterator.open();
 		String [] attNames = Utility.getAttributeNames(R.getAttribute()); 
 		String [][] query = new String[2][newatts.length];
 		// get position of newatts in attNames
@@ -54,16 +56,17 @@ public class Project implements IteratorInterface {
 		{
 			for (int j = 0; j < attNames.length; j++)
 			{
-				if (newatts[i].equals(attNames[j])) pos[i] = j;
+				if (Utility.getField(newatts[0][i]).equals(attNames[j])) 
+				{
+					pos[i] = j;
+				}
 			}
 		}
 		
-		for (int i = 0; i < atts.length; i++)
+		int tupleLength = Utility.getTotalLength(R.getAttribute());
+		for (int i = 0; i < Integer.parseInt(R.getNumTuples()); i++)
 		{
-			query[0][i] = newatts[i][0];
-			Tuple tuple = tempIterator.next();
-		
-			int tupleLength = Utility.getTotalLength(R.getAttribute());
+			Tuple tuple = tempIterator.getNext();
 			if (tuple != null)
 			{
 				// get the values for projected attributes and put them in query[][]
@@ -72,12 +75,18 @@ public class Project implements IteratorInterface {
 				int offset = tuple.getOffset();
 				byte [] data = block.getTupleContent(offset, tupleLength);
 				String [] results = Utility.convertTupleToArray(attHash, data);
-				// extract the projected data and insert it into query. Then call insertQuery in main
-				query[1][i] = results[pos[i]];
-				// insert the projected tuple into new tempRelation
+		
+				for(int j = 0; j < atts.length; j++)
+				{
+					query[0][j] = newatts[j][0];	
+					// extract the projected data and insert it into query. Then call insertQuery in main
+					query[1][j] = results[pos[j]];
+					System.out.println("Data : " + query[1][j]);
+					// insert the projected tuple into new tempRelation
+				}
 				main.insertQuery(tempTableName, query);
+				//tuple = tempIterator.getNext();
 			}
-			tuple = tempIterator.next();
 		}
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		return (RelationInfo)hashTemp.get(tempTableName);
