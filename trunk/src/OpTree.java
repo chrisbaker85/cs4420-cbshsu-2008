@@ -394,7 +394,7 @@ public class OpTree {
 	        
 	        if ((this.opList.get(i) instanceof OpSelect) && (xprod = crossProductExistsWith((String[])this.opList.get(i).contents)) != null) {
 	            
-	            tables = xprod.removeChildren((String[])this.opList.get(i).contents);
+	            //tables = xprod.removeChildren((String[])this.opList.get(i).contents);
 	            
 	        }
 	        
@@ -531,9 +531,24 @@ public class OpTree {
 		// Loop through all the operators and find the OpTable types
 		for (int i = 0; i < this.opList.size(); i++) {
 			
-			if (this.opList.get(i) instanceof OpTable) {
+			//System.out.println("INFO: type:" + this.opList.get(i).getType());
+			
+			Op op = this.opList.get(i);
+			
+			if (op instanceof OpCrossProduct || op instanceof OpJoin || op instanceof OpIndexBasedJoin || op instanceof OpJoin || op instanceof OpSortBasedJoin) {
 				
-				this.opList.get(i).info = (RelationInfo)this.sc.getRelationCatalog().get((String)this.opList.get(i).contents);
+				for (int j = 0; j < op.children.length; j++) {
+
+					if (op.children[j] != null) {
+					
+						op.children[j].info = (RelationInfo)this.sc.getRelationCatalog().get((String)op.children[j].contents); 
+						//ystem.out.println("INFO: info object: " + op.children[j].info);
+						
+					}
+					
+					
+				}
+				
 				
 			}
 			
