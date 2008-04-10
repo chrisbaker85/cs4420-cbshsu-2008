@@ -399,6 +399,7 @@ public class Main implements QueryEngine
 	{
 		
 		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		System.out.println("ERROR: Table does not exist");
 		if (relObj == null) return false;
 		
 		System.out.println("INFO: num tuples in table: " + relObj.getNumTuples());
