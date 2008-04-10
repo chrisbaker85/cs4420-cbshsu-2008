@@ -15,8 +15,8 @@ public class TableScan implements IteratorInterface {
 	
 	public TableScan(Main main, RelationInfo R)
 	{
-		main = main;
-		R = R;
+		this.main = main;
+		this.R = R;
 	}
 	// public void open(RelationInfo R, String [] where, Index idx)
 	public RelationInfo open()
