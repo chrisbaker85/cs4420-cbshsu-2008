@@ -151,14 +151,16 @@ public class Block {
 		this.isUpdated = true;
 		this.isPinned = true;
 		int recNum = this.getRecordNumber();
-		int pos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
-
+		System.out.println("INFO: #records: " + recNum);
+		int appendPos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
+		if (data.length == 1024) appendPos = 0;
 		//System.out.println("[" + data.length + "/" + recNum + "/" + Parameters.BLOCK_HEADER_SIZE + "]");
 		//System.out.println("POS: " + pos);
 		
+		// Append the new data to the end of the existing data
 		for (int i = 0; i < data.length; i++)
 		{
-			this.content[pos+i] = data[i];
+			this.content[appendPos+i] = data[i];
 		}
 		
 		if (data.length > 0) this.updateRecordNumber(1);
