@@ -147,8 +147,8 @@ public class Block {
 		int recNum = this.getRecordNumber();
 		int pos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
 
-		System.out.println("[" + data.length + "/" + recNum + "/" + Parameters.BLOCK_HEADER_SIZE + "]");
-		System.out.println("POS: " + pos);
+		//System.out.println("[" + data.length + "/" + recNum + "/" + Parameters.BLOCK_HEADER_SIZE + "]");
+		//System.out.println("POS: " + pos);
 		
 		for (int i = 0; i < data.length; i++)
 		{
