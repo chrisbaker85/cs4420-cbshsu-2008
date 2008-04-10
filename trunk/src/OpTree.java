@@ -386,7 +386,35 @@ public class OpTree {
 	public void optimize() {
 		
 		// TODO: write optimization algorithm
+	    
+	    for (int i = 0; i < this.opList.size(); i++) {
+
+	        Op xprod;
+	        Op[] tables;
+	        
+	        if ((this.opList.get(i) instanceof OpSelect) && (xprod = crossProductExistsWith((String[])this.opList.get(i).contents)) != null) {
+	            
+	            tables = xprod.removeChildren((String[])this.opList.get(i).contents);
+	            
+	        }
+	        
+	    }
 		
+	}
+	
+	private Op crossProductExistsWith(String[] x) {
+	    
+	    for (int i = 0; i < this.opList.size(); i++) {
+	        
+	        if ((this.opList.get(i) instanceof OpCrossProduct) && this.opList.get(i).hasChildren(Utility.getTable(x[0]), Utility.getTable(x[1]))) {
+	            
+	            return this.opList.get(i);
+	            
+	        }
+	        
+	    }
+	    
+	    return null;
 	}
 	
 	/**
@@ -410,7 +438,7 @@ public class OpTree {
 	public Op nextOp() {
 		
 		if (this.queryList == null) this.queryList = this.generateQueryPlan(this.tree_root);
-		System.out.println("size: " + this.queryList.size());
+		//System.out.println("size: " + this.queryList.size());
 		
 		if (this.opCursor < this.queryList.size()) {
 			
@@ -447,7 +475,7 @@ public class OpTree {
 				temp.use();
 				list.add(temp);
 				
-				System.out.println("USED>>" + temp.getType());
+				//System.out.println("USED>>" + temp.getType());
 				
 				counter++;
 				temp = temp.parent;
