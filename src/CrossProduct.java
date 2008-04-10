@@ -26,7 +26,7 @@ public class CrossProduct implements IteratorInterface{
 	}
 	public RelationInfo open()
 	{
-		String tempRelation = R1.getColsIndexed() + "_CROSS_" + R2.getName();
+		//String tempRelation = R1.getColsIndexed() + "_CROSS_" + R2.getName();
 		/**
 		 * 1. get attributes of R1 and R2
 		 * 2. compare and merge them
@@ -69,6 +69,7 @@ public class CrossProduct implements IteratorInterface{
 		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
 		
 		//IteratorInterface iterator1 = new TableScan(main, R1);
+		System.out.println("R1 name " + R1.getName());
 		Iterator iterator1 = new Iterator(main.getBm(), R1, R1.getId(), Integer.parseInt(R1.getNumDataBlocks())); 
 		for (int j = 0; j < Integer.parseInt(R1.getNumTuples().trim()); j++)
 		{
