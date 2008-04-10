@@ -67,22 +67,28 @@ public class Block {
 	}
 	
 	/**
-	 * It updates the number of record in the block
+	 * It updates the number of records in the block
 	 */
-	public void updateRecordNumber(int blockNum)
+	public void updateRecordNumber(int numRecords)
 	{
+		// Get the number of records in the block already
 		byte [] byteArray = new byte[4];
 		byteArray[0] = this.content[0];
 		byteArray[1] = this.content[1];
 		byteArray[2] = this.content[2];
 		byteArray[3] = this.content[3];
 		int recNum = Utility.makeIntFromByte4(byteArray);
-		recNum = recNum + blockNum;
+		
+		// Add to the number of records that is in the block now
+		recNum = recNum + numRecords;
 		byteArray = Utility.makeByte4FromInt(recNum);
+		
+		// Set the new number back
 		content[0] = byteArray[0];
 		content[1] = byteArray[1];
 		content[2] = byteArray[2];
 		content[3] = byteArray[3];
+		
 	}
 
 	public int getBlockNumber()
@@ -140,12 +146,16 @@ public class Block {
 		this.isPinned = true;
 		int recNum = this.getRecordNumber();
 		int pos = data.length * recNum + Parameters.BLOCK_HEADER_SIZE;
-		//System.out.println("[" + data.length + "/" + this.content.length + "]");
+
+		System.out.println("[" + data.length + "/" + recNum + "/" + Parameters.BLOCK_HEADER_SIZE + "]");
+		System.out.println("POS: " + pos);
+		
 		for (int i = 0; i < data.length; i++)
 		{
 			this.content[pos+i] = data[i];
 		}
-		this.updateRecordNumber(1);
+		
+		if (data.length > 0) this.updateRecordNumber(1);
 		this.isPinned = false;
 	}
 	
