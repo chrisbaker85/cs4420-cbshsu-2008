@@ -142,7 +142,7 @@ public class BufferManager {
 //			
 //		}
 		
-		System.out.println();
+		//System.out.println();
 		
 		if (!this.lookupTable.containsKey(blockID))
 			readBlock(blockID);
