@@ -77,6 +77,10 @@ public class Iterator {
 		// Calculate the total length of a tuple
 		len = Utility.getTotalLength(atts);
 		
+		int x = bm.getBlock(Utility.combine(ri.getId(), this.current_block_num)).getRecordNumber();
+		//System.out.println("INFO blockid:" + x);
+		this.num_tuples_in_block = x;
+		
 	}
 	
 	/**
@@ -88,7 +92,7 @@ public class Iterator {
 		
 		this.current_tuple_num++;
 		
-		//System.out.println("[There are " + this.num_tuples_in_block + " tuples in this block");
+		System.out.println("[There are " + this.num_tuples_in_block + " tuples in this block]");
 		
 		// The iterator is crossing a block boundary, so get the next block
 		if (this.current_tuple_num >= this.num_tuples_in_block) {
@@ -97,6 +101,7 @@ public class Iterator {
 			
 			// Increment to get the next block
 			this.current_block_num++;
+			System.out.println("INFO: current_block_number incremented");
 			
 			// Get next block from the BufferManager
 			int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
