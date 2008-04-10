@@ -80,7 +80,7 @@ public class SQLCommandProcessor {
 			attributes[i] = meta;
 		}
 		
-		qe.createTable(db_name, table_name, attributes, false);
+		if (qe.createTable(db_name, table_name, attributes, false) == false) System.out.println("ERROR: create table failed");
 		return "";
 		
 	}
@@ -109,7 +109,7 @@ public class SQLCommandProcessor {
 		
 		//System.out.println("[" + index_name + "][" + table_name + "][" + field_name + "]");
 		
-		qe.createIndexQuery(index_name, table_name, field_name, duplicates);
+		if (qe.createIndexQuery(index_name, table_name, field_name, duplicates) == false) System.out.println("ERROR: create index failed");
 		return "";
 		
 	}
@@ -146,7 +146,7 @@ public class SQLCommandProcessor {
 			attributes[1][i] = vals[i];
 			
 		}		
-		qe.insertQuery(table_name, attributes);
+		if (qe.insertQuery(table_name, attributes) == false) System.out.println("ERROR: insert failed");
 		return "";
 	}
 	
@@ -243,7 +243,7 @@ public class SQLCommandProcessor {
 		
 //		OpTree ot = new OpTree(null, table_names, fields, where);
 		
-		qe.selectQuery(table_names, fields, where);
+		if(qe.selectQuery(table_names, fields, where) == false) System.out.println("ERROR: select failed");
 		
 		return "";
 	}
@@ -264,7 +264,7 @@ public class SQLCommandProcessor {
 		index_name = temp.substring(temp.indexOf(" ") + 1, temp.length());
 		//System.out.println(table_name + "/" + index_name);
 		
-		qe.selectIndexQuery(table_name, index_name);
+		if (qe.selectIndexQuery(table_name, index_name) == false) System.out.println("ERROR: index select failed");
 		
 		return "";
 	}
@@ -276,7 +276,7 @@ public class SQLCommandProcessor {
 	 */
 	public String parseCatalogSelect(String command) {
 		
-		qe.selectCatalogQuery();
+		if (qe.selectCatalogQuery() == false) System.out.println("ERROR: select catalog failed");
 		
 		return "";
 	}
