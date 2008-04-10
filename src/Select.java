@@ -46,6 +46,7 @@ public class Select implements IteratorInterface {
 		// if index is not specified
 		if (!index) 
 		{
+			System.out.println("In case there is no index");
 			// get the position of condition in the array of attributes
 			int ind;
 			for (ind = 0; ind < attNames.length; ind++)
@@ -64,14 +65,15 @@ public class Select implements IteratorInterface {
 				int offset = tuple.getOffset();
 				byte [] content = block.getTupleContent(offset, tupleSize);
 				String [] results = Utility.convertTupleToArray(attHash, content);
-				// form query to be inserted
-				query = Utility.formInsertQuery(attNames, results);
 				
 				// compare it result with condition
 				if (where[2].equals(">"))
 				{
 					if (Integer.parseInt(results[ind]) > Integer.parseInt(where[1]))
 					{
+						System.out.println("Match :" + Integer.parseInt(results[ind]) + " > " + Integer.parseInt(where[1]));
+						// form query to be inserted
+						query = Utility.formInsertQuery(attNames, results);
 						// insert the tuple here by calling main.insertQuery()
 						main.insertQuery(tempTableName, query);
 					}
@@ -80,6 +82,9 @@ public class Select implements IteratorInterface {
 				{
 					if (Integer.parseInt(results[ind]) == Integer.parseInt(where[1]))
 					{
+						System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(where[1]));
+						// form query to be inserted
+						query = Utility.formInsertQuery(attNames, results);
 						// insert the tuple here by calling main.insertQuery()
 						main.insertQuery(tempTableName, query);
 					}
@@ -88,6 +93,9 @@ public class Select implements IteratorInterface {
 				{
 					if (Integer.parseInt(results[ind]) < Integer.parseInt(where[1]))
 					{
+						System.out.println("Match :" + Integer.parseInt(results[ind]) + " < " + Integer.parseInt(where[1]));
+						// form query to be inserted
+						query = Utility.formInsertQuery(attNames, results);
 						// insert the tuple here by calling main.insertQuery()
 						main.insertQuery(tempTableName, query);
 					}
@@ -97,6 +105,7 @@ public class Select implements IteratorInterface {
 		// if index is not specified
 		else
 		{
+			System.out.println("In case there is index");
 			// get index information
 			TreeMap index = R.getIndexInfo().getIndex();
 			int indPos = -1;
