@@ -52,7 +52,7 @@ public class Iterator {
 	 * @param relation_id the relation unique id #
 	 * @param num_blocks the number of blocks in this relation's file
 	 */
-	public Iterator(BufferManager bm, RelationInfo ri, int relation_id, int num_blocks) {
+	public Iterator(BufferManager bm, RelationInfo ri, int num_blocks) {
 		
 		this.ri = ri;
 		this.bm = bm;

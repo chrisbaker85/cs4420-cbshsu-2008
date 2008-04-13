@@ -46,7 +46,7 @@ public class Project implements IteratorInterface {
 		 */
 		
 //		IteratorInterface tempIterator = new TableScan(main, R);
-		Iterator tempIterator = new Iterator(main.getBm(), R, R.getId(), Integer.parseInt(R.getNumDataBlocks()));
+		Iterator tempIterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks()));
 		tempIterator.open();
 		String [] attNames = Utility.getAttributeNames(R.getAttribute()); 
 		String [][] query = new String[2][newatts.length];

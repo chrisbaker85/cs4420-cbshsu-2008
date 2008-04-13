@@ -668,7 +668,7 @@ public class Main implements QueryEngine
 		RelationInfo relObj = currentOp.getInfo();
 		Hashtable atts = relObj.getAttribute();
 		int tupleSize = Utility.getTotalLength(atts);
-		Iterator iterator = new Iterator(bufman, relObj, relObj.getId(), Integer.parseInt(relObj.getNumDataBlocks().trim()));
+		Iterator iterator = new Iterator(bufman, relObj, Integer.parseInt(relObj.getNumDataBlocks().trim()));
 		Tuple tuple;
 		String [] attNames = Utility.getAttributeNames(atts);
 		for (int j = 0; j < attNames.length; j++)
