@@ -634,6 +634,7 @@ public class Main implements QueryEngine
 				
 				// RelationInfo R = op.getInfo();
 				RelationInfo R = op.left().getInfo();
+				System.out.println("TYPE: " + op.getType() + "/CHILDTYPE" + op.left().getType() + "/INFO" + op.left().getInfo());
 				String [] attList = (String [])op.getContents();
 				
 				// call project class here
