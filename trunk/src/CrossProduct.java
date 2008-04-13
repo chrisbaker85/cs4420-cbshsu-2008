@@ -75,6 +75,7 @@ public class CrossProduct implements IteratorInterface{
 		{
 			Tuple tuple1 = iterator1.getNext();
 			Block block1 = tuple1.getBlock();
+			System.out.println("block1"+ block1);
 			int offset = tuple1.getOffset();
 			byte [] content = block1.getTupleContent(offset, tupleSize1);
 			String [] results1 = Utility.convertTupleToArray(attHash1, content);
