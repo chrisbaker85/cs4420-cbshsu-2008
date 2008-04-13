@@ -515,10 +515,8 @@ public class Main implements QueryEngine
 	            String filename = indexName + "_index.txt";
 	            String line = key + "\t" + lastOffset + "\n";
 	            Utility.appendToFile(filename, line);
-		        
+   
 		    }
-		    
-
 		}
 		this.writeSystemCataglog();
 		return true;
@@ -611,6 +609,7 @@ public class Main implements QueryEngine
 			{
 				// call select class here
 				// RelationInfo R = op.getInfo();
+				System.out.println("INFO: In select");
 				RelationInfo R = op.left().getInfo();
 				String [] conditions = (String [])op.getContents();
 				// figure out if it's index or not
