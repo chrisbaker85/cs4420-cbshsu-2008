@@ -439,10 +439,14 @@ public class OpTree {
 		
 		if (this.queryList == null) this.queryList = this.generateQueryPlan(this.tree_root);
 		//System.out.println("size: " + this.queryList.size());
+
+		// Increment the cursor
+		opCursor++;
 		
-		if (this.opCursor < this.queryList.size()) {
+		if (this.opCursor + 1 < this.queryList.size()) {
 			
-			opCursor++;
+			
+			System.out.println("INFO: LIST SIZE: " + this.opList.size() + "/CURSOR: " + this.opCursor);
 			return this.queryList.get(this.opCursor);
 			
 		}
