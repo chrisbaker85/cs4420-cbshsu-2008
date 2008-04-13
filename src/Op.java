@@ -113,7 +113,7 @@ public abstract class Op {
 		String contents = "";
 		int children = ((this.children == null)?(0):(this.children.length));
 		
-		output = "|op:" + this.opType.name() + "\n" + "|contents: ";
+		output = "|op:" + this.opType.name() + "\n|info: " + this.info + "\n|contents: ";
 		
 		if (!(this.getContents() == null)) {
 		
