@@ -17,9 +17,9 @@ public class Filter implements IteratorInterface {
 	
 	public Filter(Main main, RelationInfo R, String [][] where)
 	{
-		main = main;
-		R = R;
-		where = where;
+		this.main = main;
+		this.R = R;
+		this.where = where;
 	}
 	
 	public RelationInfo open()
@@ -73,13 +73,15 @@ public class Filter implements IteratorInterface {
 				}
 			}
 			// use tablescan to iterate through relation
-			IteratorInterface iterator = new TableScan(main, R);
+			//IteratorInterface iterator = new TableScan(main, R);
+			Iterator iterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks())); 
+
 			Tuple tuple;
 			
 			
 			for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
 			{
-				tuple = iterator.next();
+				tuple = iterator.getNext();
 				Block block = tuple.getBlock();
 				int offset = tuple.getOffset();
 				byte [] content = block.getTupleContent(offset, tupleSize);
