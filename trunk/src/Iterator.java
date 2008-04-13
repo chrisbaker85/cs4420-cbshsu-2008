@@ -129,8 +129,14 @@ public class Iterator {
 		int tuple_size = len;
 		
 		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE;
-		
-		return new Tuple(offset, this.current_block, this.ri);
+		if (this.current_block != null) {
+
+			return new Tuple(offset, this.current_block, this.ri);
+			
+		} else {
+			return null;
+		}
+
 		
 	}
 	
