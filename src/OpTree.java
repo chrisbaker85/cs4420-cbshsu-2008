@@ -535,22 +535,27 @@ public class OpTree {
 			
 			Op op = this.opList.get(i);
 			
-			if (op instanceof OpCrossProduct || op instanceof OpJoin || op instanceof OpIndexBasedJoin || op instanceof OpJoin || op instanceof OpSortBasedJoin) {
+//			if (op instanceof OpCrossProduct || op instanceof OpJoin || op instanceof OpIndexBasedJoin || op instanceof OpJoin || op instanceof OpSortBasedJoin) {
+				
+			if (op.children != null) {
 				
 				for (int j = 0; j < op.children.length; j++) {
 
-					if (op.children[j] != null) {
+					if (op.children[j] != null && (op.children[j] instanceof OpTable)) {
 					
 						op.children[j].info = (RelationInfo)this.sc.getRelationCatalog().get((String)op.children[j].contents); 
-						//ystem.out.println("INFO: info object: " + op.children[j].info);
+						System.out.println("INFO: info object: " + op.children[j].info);
 						
 					}
 					
 					
 				}
 				
-				
 			}
+
+				
+				
+//			}
 			
 		}
 		
