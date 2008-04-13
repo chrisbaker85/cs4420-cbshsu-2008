@@ -11,12 +11,14 @@ public class IndexInfo
 	private String attName;
 	private String tableName;
 	private TreeMap index;
+	private boolean isDuplicate;
 	
-	public IndexInfo(String indexName, String attName, String tableName)
+	public IndexInfo(String indexName, String attName, String tableName, boolean isDuplicate)
 	{
 		this.indexName = indexName;
 		this.attName = tableName;
 		this.attName = attName;
+		this.isDuplicate = isDuplicate;
 		index = new TreeMap();
 	}
 	
@@ -48,6 +50,16 @@ public class IndexInfo
 	public void setAttName(String attName)
 	{
 		this.attName = attName;
+	}
+	
+	public void setIsDuplicate(boolean d)
+	{
+		this.isDuplicate = d;
+	}
+	
+	public boolean getIsDuplicate()
+	{
+		return this.isDuplicate;
 	}
 	
 	public TreeMap getIndex()
