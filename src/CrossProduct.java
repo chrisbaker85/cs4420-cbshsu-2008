@@ -70,7 +70,7 @@ public class CrossProduct implements IteratorInterface{
 		
 		//IteratorInterface iterator1 = new TableScan(main, R1);
 		System.out.println("R1 name " + R1.getName());
-		Iterator iterator1 = new Iterator(main.getBm(), R1, R1.getId(), Integer.parseInt(R1.getNumDataBlocks())); 
+		Iterator iterator1 = new Iterator(main.getBm(), R1, Integer.parseInt(R1.getNumDataBlocks())); 
 		for (int j = 0; j < Integer.parseInt(R1.getNumTuples().trim()); j++)
 		{
 			Tuple tuple1 = iterator1.getNext();
@@ -82,7 +82,7 @@ public class CrossProduct implements IteratorInterface{
 			
 			// Scan table 2 one by one and append it to result1 
 			// IteratorInterface iterator2 = new TableScan(main, R2);
-			Iterator iterator2 = new Iterator(main.getBm(), R1, R1.getId(), Integer.parseInt(R1.getNumDataBlocks())); 
+			Iterator iterator2 = new Iterator(main.getBm(), R1, Integer.parseInt(R1.getNumDataBlocks())); 
 			for (int k = 0; k < Integer.parseInt(R2.getNumTuples().trim()); k++)
 			{
 				Tuple tuple2 = iterator2.getNext();
