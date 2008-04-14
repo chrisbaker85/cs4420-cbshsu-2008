@@ -31,7 +31,7 @@ public class Iterator {
 	Block current_block;
 	
 	/**
-	 * The number of the current block in the relation
+	 * The number of the current block in the relation (1..x)
 	 */
 	int current_block_num;
 	
@@ -42,9 +42,19 @@ public class Iterator {
 	int num_tuples_in_block;
 	
 	/**
-	 * The number of the current tuple in the block
+	 * The number of the current tuple in the block (1..x)
 	 */
 	int current_tuple_num;
+	
+	/**
+	 * How many records are in the relation
+	 */
+	int records_in_relation;
+	
+	/**
+	 * The record number in relation to the relation (1..x)
+	 */
+	int abs_record_number;
 
 	/**
 	 * Class constructor
@@ -69,17 +79,26 @@ public class Iterator {
 	 */
 	public void open() {
 		
-		this.current_block_num = 0;
+		this.current_block_num = 1;
 		this.current_tuple_num = 0;
+		this.records_in_relation = Integer.parseInt(ri.getNumTuples().trim());
+		this.abs_record_number = 0;
 		
 		atts = this.ri.getAttribute();
 		
 		// Calculate the total length of a tuple
 		len = Utility.getTotalLength(atts);
 		
-		int x = bm.getBlock(Utility.combine(ri.getId(), this.current_block_num)).getRecordNumber();
-		//System.out.println("INFO blockid:" + x);
+		int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
+		this.current_block = bm.getBlock(Utility.combine(ri.getId(), blockOffset)); 
+		int x = this.current_block.getRecordNumber();
 		this.num_tuples_in_block = x;
+		
+		System.out.println("INFO blockid:" + blockOffset + "(" + ri.getId() + "/" + blockOffset + ")");
+		System.out.println("INFO: tuples in block: " + this.num_tuples_in_block);
+		System.out.println("INFO: current tuple " + this.current_tuple_num);
+		System.out.println("INFO: block " + this.current_block_num);
+		if (this.current_block == null) System.out.println("INFO: block null");
 		
 	}
 	
@@ -91,11 +110,12 @@ public class Iterator {
 	public Tuple getNext() {
 		
 		this.current_tuple_num++;
+		this.abs_record_number++;
 		
-		System.out.println("[There are " + this.num_tuples_in_block + " tuples in this block]");
+		System.out.println("INFO: tuple: " + this.current_tuple_num + "/" + this.num_tuples_in_block);
 		
 		// The iterator is crossing a block boundary, so get the next block
-		if (this.current_tuple_num >= this.num_tuples_in_block) {
+		if ((this.current_tuple_num + 1) >= this.num_tuples_in_block && (this.abs_record_number < this.records_in_relation)) {
 		
 			this.current_tuple_num = 0;
 			
@@ -105,14 +125,12 @@ public class Iterator {
 			
 			// Get next block from the BufferManager
 			int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
+			//System.out.println("INFO: blockOffset: " + blockOffset);
 			this.current_block = bm.getBlock(Utility.combine(this.relation_id, blockOffset));
 
+
 			// If there is not another block, return null
-			if (this.current_block == null) {
-				
-				return null;
-				
-			} else {
+			if (this.current_block != null) {
 				
 				// Set num_tuples from the Block we've just gotten
 				this.num_tuples_in_block = this.current_block.getRecordNumber();
@@ -121,22 +139,20 @@ public class Iterator {
 			
 		}
 		
-		// No new blocks were needed, so just return
-		// the next tuple in the current block
-		//int header_size = Parameters.TUPLE_HEADER_SIZE;
-		
 		// Includes the tuple header
 		int tuple_size = len;
 		
 		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE;
-		if (this.current_block != null) {
+		if (this.current_block == null) {
 
-			return new Tuple(offset, this.current_block, this.ri);
-			
-		} else {
+			System.out.println("INFO: iterator over; return null");
 			return null;
+			
 		}
-
+		
+		System.out.println("INFO: tuple offset:" + offset + "/block offset:" + Utility.split(this.current_block.blockID)[1] + "/relationinfo:" + this.ri);
+		
+		return new Tuple(offset, this.current_block, this.ri);
 		
 	}
 	

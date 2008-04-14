@@ -676,8 +676,27 @@ public class Main implements QueryEngine
 		}
 		System.out.println("");
 		System.out.println("==============================================");
+		
+//		while((tuple = iterator.getNext()) != null) {
+//			
+//			tuple = iterator.getNext();
+//			Block block = tuple.getBlock();
+//			int offset = tuple.getOffset();
+//			byte [] data = block.getTupleContent(offset, tupleSize);
+//			String [] results = Utility.convertTupleToArray(atts, data);
+//			for (int j = 0; j < attNames.length; j++)
+//			{
+//				System.out.print(results[j]);
+//			}
+//			System.out.println("");
+//			
+//		}
+		
+		System.out.println("INFO: (main) tuples: " + Integer.parseInt(relObj.getNumTuples().trim()));
+		
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
 		{
+			System.out.println("INFO: index " + i);
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
@@ -685,7 +704,7 @@ public class Main implements QueryEngine
 			String [] results = Utility.convertTupleToArray(atts, data);
 			for (int j = 0; j < attNames.length; j++)
 			{
-				System.out.print(results[j]);
+				System.out.print(">>" + results[j]);
 			}
 			System.out.println("");
 		}
