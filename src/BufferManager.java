@@ -130,20 +130,6 @@ public class BufferManager {
 	 */
 	public Block getBlock(long blockID) {
 		
-//		System.out.println("["+ this.lookupTable.size() + " blocks in table]");
-//		System.out.println("[Block " + Utility.split(blockID)[1] + " is not in buffer]");
-//		Enumeration<Long> keys;
-//		keys = this.lookupTable.keys();
-//		
-//		while(keys.hasMoreElements()) {
-//			
-//			long next = keys.nextElement();
-//			System.out.print(Utility.split(next)[1] + ",");
-//			
-//		}
-		
-		//System.out.println();
-		
 		if (!this.lookupTable.containsKey(blockID))
 			readBlock(blockID);
 
