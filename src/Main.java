@@ -60,10 +60,10 @@ public class Main implements QueryEngine
 	 * @param table_name
 	 * @return
 	 */
-	private Hashtable readIndexs(String dbname, String tablename)
+	private Hashtable readIndexs(String tableName)
 	{
 		Hashtable<String, IndexInfo> indexInfos = new Hashtable<String, IndexInfo>();
-		String filename = dbname + "_" + tablename + "_index.txt";
+		String filename = syscat.getDBName() + "_" + tableName + "_index.txt";
 		try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -124,10 +124,10 @@ public class Main implements QueryEngine
 	 * @param tablename name of relation 
 	 * @return
 	 */
-	private Hashtable readAttributes(String dbname, String tablename)
+	private Hashtable readAttributes(String tableName)
 	{
 		Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
-		String filename = dbname + "_" + tablename + ".xml";
+		String filename = syscat.getDBName() + "_" + tableName + ".xml";
 		try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -174,7 +174,7 @@ public class Main implements QueryEngine
 					nodeList = firstElement.getChildNodes();
 					String num_values = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 					
-					Attribute attObj = new Attribute(name, type, length, isnullable, tablename, id, num_values);
+					Attribute attObj = new Attribute(name, type, length, isnullable, tableName, id, num_values);
 					attributes.put(name, attObj);
 				}
 			}
@@ -204,9 +204,9 @@ public class Main implements QueryEngine
 	 * SystemCatalog
 	 * @param db_name: the name of the database
 	 */
-	public void readDBRelations(String dbname)
+	public void readDBRelations()
 	{
-		String filename = dbname + "_relations.xml";
+		String filename = syscat.getDBName() + "_relations.xml";
 		
     	try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -257,15 +257,14 @@ public class Main implements QueryEngine
 					textFNList = firstNameElement.getChildNodes();
 					String numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					
-					Hashtable attributes = readAttributes(dbname, tablename);
-					RelationInfo relation = new RelationInfo(tablename, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, tablename + "_" + dbname + "index.dat", numBlock, attributes);
+					Hashtable attributes = readAttributes(tablename);
+					RelationInfo relation = new RelationInfo(tablename, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, tablename + "_" + syscat.getDBName() + "index.dat", numBlock, attributes);
 					// test to see if there is index for that relation, set indexinfo
 					if (!colsIndexed.equals("0"))
 					{
-						Hashtable indexInfos = this.readIndexs(dbname, tablename);
+						Hashtable indexInfos = this.readIndexs(tablename);
 						relation.setIndexInfos(indexInfos);
 					}
-					
 					this.syscat.addRelationCatalog(tablename, relation);
 				}
 			}
@@ -315,10 +314,9 @@ public class Main implements QueryEngine
 	 * @param attributes: list of attributes for that table
 	 * @param dbname: the name of the database
 	 */
-	public boolean createTable(String dbname, String tablename, String [][] attributes, boolean isTempRelation)
+	public boolean createTable(String tableName, String [][] attributes, boolean isTempRelation)
 	{
-		
-		if (syscat.getRelationCatalog().get(tablename) != null) return false;
+		if (syscat.getRelationCatalog().get(tableName) != null) return false;
 		
 		// get current date
 		Calendar cal = Calendar.getInstance();
@@ -334,7 +332,7 @@ public class Main implements QueryEngine
         int id = 0;
 		try {
 			
-			FileReader fr = new FileReader(dbname + "_relations.xml");
+			FileReader fr = new FileReader(this.syscat.getDBName() + "_relations.xml");
        		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
        		while((line = br.readLine()) != null)
        		{
@@ -348,7 +346,7 @@ public class Main implements QueryEngine
 				
 	       		int ind = data.size() - 1;
 				data.add(ind++, "<relation>\n");
-				data.add(ind++, "<name>" + tablename + "</name>\n");
+				data.add(ind++, "<name>" + tableName + "</name>\n");
 				data.add(ind++, "<date_created>" + cur_date + "</date_created>\n");
 				data.add(ind++, "<date_modified>" + cur_date + "</date_modified>\n");
 				data.add(ind++, "<num_tuple>0</num_tuple>\n");
@@ -358,7 +356,7 @@ public class Main implements QueryEngine
 	      		data.add(ind++, "</relation>\n");
 	      		data.add(ind++, "</relations>");
 	      		
-				File file = new File(dbname + "_relations.xml");
+				File file = new File(syscat.getDBName() + "_relations.xml");
 			    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			    
 			    for (int i = 0; i < data.size(); i++)
@@ -368,7 +366,7 @@ public class Main implements QueryEngine
 			    output.close();
 			    
 			    // write attributes for that relation into table
-			    file = new File(dbname + "_" + tablename + ".xml");
+			    file = new File(syscat.getDBName() + "_" + tableName + ".xml");
 				output = new BufferedWriter(new FileWriter(file));
 				output.write("<attributes>\n");
 				for (int i = 0; i < attributes.length; i++)
@@ -378,12 +376,12 @@ public class Main implements QueryEngine
 					output.write("<type>" + attributes[i][1] + "</type>\n");
 					output.write("<length>" + attributes[i][2] + "</length>\n");
 					output.write("<isnullable>" + attributes[i][3] + "</isnullable>\n");
-					output.write("<relation_name>" + tablename + "</relation_name>\n");
+					output.write("<relation_name>" + tableName + "</relation_name>\n");
 					output.write("<id>" + i + "</id>\n");
 					output.write("<num_values>0</num_values>\n");
 					output.write("</attribute>\n");
 					// how to get attribute id for the relation
-					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tablename, Integer.toString(i), "0");
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tableName, Integer.toString(i), "0");
 					atts.put(attributes[i][0], attObj);
 				}
 				output.write("</attributes>");
@@ -394,7 +392,7 @@ public class Main implements QueryEngine
 			{
 				for (int i = 0; i < attributes.length; i++)
 				{
-					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tablename, Integer.toString(i), "0");
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tableName, Integer.toString(i), "0");
 					atts.put(attributes[i][0], attObj);
 				}
 			}
@@ -403,16 +401,16 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		RelationInfo relObj = new RelationInfo(tablename, cur_date, cur_date, "0", id, "-1", "", "1", atts);
+		RelationInfo relObj = new RelationInfo(tableName, cur_date, cur_date, "0", id, "-1", "", "1", atts);
 		
-		if (!isTempRelation) this.syscat.addRelationCatalog(tablename, relObj);
-		else this.syscat.addTempRelation(tablename, relObj);
+		if (!isTempRelation) this.syscat.addRelationCatalog(tableName, relObj);
+		else this.syscat.addTempRelation(tableName, relObj);
 		// update filename Hashtable in BufferManager 
 		this.bufman.getTableNames(syscat.getRelationCatalog());
 		
 		// create a blank data file
 		try {
-			File file = new File(dbname + "_" + tablename + "_data.dat");
+			File file = new File(syscat.getDBName() + "_" + tableName + "_data.dat");
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			output.close();
 		}
@@ -423,7 +421,7 @@ public class Main implements QueryEngine
 	    
 		// create a blank index xml file
 		try {
-			File file = new File(dbname + "_" + tablename + "_index.txt");
+			File file = new File(syscat.getDBName() + "_" + tableName + "_index.txt");
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			output.write("<indexs>\n");
 		    output.write("</indexs>");
@@ -589,8 +587,6 @@ public class Main implements QueryEngine
 	}
 	
 	/**
-	 * Creates a new index (index_name) on a field (field_name) of a relation
-	 * (tablename)
 	 * @param index_name: name of the index to be created
 	 * @param tablename: name of table
 	 * @param field_name: the name of the field we're creating an index on
@@ -784,7 +780,7 @@ public class Main implements QueryEngine
 	public void useDatabase(String dbname)
 	{
 		syscat = new SystemCatalog(dbname); 
-		this.readDBRelations(dbname);
+		this.readDBRelations();
 		bufman.setDBName(dbname);
 		bufman.getTableNames(syscat.getRelationCatalog());
 	}
@@ -845,11 +841,11 @@ public class Main implements QueryEngine
 		String [][] student_attributes = {{"first_name", "string", "20", "no", "0", "0"},
                 					     {"last_name",   "string", "20", "no", "1", "0"},
                 					     {"dob",         "string", "10", "no", "2", "2"}};
-		mydb.createTable(dbName, "student", student_attributes, false);
+		mydb.createTable("student", student_attributes, false);
 		String [][] course_attributes = {{"course_name",   "string", "20", "no", "0", "0"},
                 					{"course_number", "string", "10", "no", "1", "0"},
                 					{"location",      "string", "10", "no", "2", "2"}};
-		mydb.createTable(dbName, "course", course_attributes, false);
+		mydb.createTable("course", course_attributes, false);
 		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
