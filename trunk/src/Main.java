@@ -54,10 +54,80 @@ public class Main implements QueryEngine
 		this.syscat = obj;
 	}
 	
-	public Hashtable readAttributes(String dbname, String table_name)
+	/**
+	 * read indexs from xml file 
+	 * @param dbname
+	 * @param table_name
+	 * @return
+	 */
+	private Hashtable readIndexs(String dbname, String tablename)
+	{
+		Hashtable<String, IndexInfo> indexInfos = new Hashtable<String, IndexInfo>();
+		String filename = dbname + "_" + tablename + "_index.txt";
+		try {
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            Document doc = docBuilder.parse(new File(filename));
+
+            doc.getDocumentElement ().normalize ();
+
+			NodeList listOfIndexs = doc.getElementsByTagName("index");
+			
+			for(int s=0; s < listOfIndexs.getLength(); s++)
+			{				
+                Node firstIndexNode = listOfIndexs.item(s);
+                if(firstIndexNode.getNodeType() == Node.ELEMENT_NODE)
+                {
+					Element firstIndexElement = (Element)firstIndexNode;
+
+					NodeList node = firstIndexElement.getElementsByTagName("index_name");
+					Element firstElement = (Element)node.item(0);
+					NodeList nodeList = firstElement.getChildNodes();
+					String indexName = (String)((Node)nodeList.item(0)).getNodeValue().trim();
+
+					node = firstIndexElement.getElementsByTagName("att_name");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String attName = (String)((Node)nodeList.item(0)).getNodeValue().trim();
+
+					node = firstIndexElement.getElementsByTagName("is_duplicate");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String isDuplicate = (String)((Node)nodeList.item(0)).getNodeValue().trim();
+
+					IndexInfo indexInfo = new IndexInfo(indexName, attName, isDuplicate.equals("yes"));
+					indexInfos.put(attName, indexInfo);
+				}
+			}
+        }
+        catch (SAXParseException err)
+        {
+        	System.out.println ("** Parsing error" + ", line " + err.getLineNumber () + ", uri " + err.getSystemId ());
+        	System.out.println(" " + err.getMessage ());
+        }
+        catch (SAXException e)
+        {
+        	Exception x = e.getException ();
+        	((x == null) ? e : x).printStackTrace ();
+
+        }
+        catch (Throwable t)
+        {
+        	t.printStackTrace ();
+        }
+		return indexInfos;
+	}
+	
+	/**
+	 * read attributes from xml file that belong to relation tablename 
+	 * @param dbname name of database 
+	 * @param tablename name of relation 
+	 * @return
+	 */
+	private Hashtable readAttributes(String dbname, String tablename)
 	{
 		Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
-		String filename = dbname + "_" + table_name + ".xml";
+		String filename = dbname + "_" + tablename + ".xml";
 		try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -65,46 +135,46 @@ public class Main implements QueryEngine
 
             doc.getDocumentElement ().normalize ();
 
-			NodeList listOfRelations = doc.getElementsByTagName("attribute");
-			int totalRelations = listOfRelations.getLength();
+			NodeList listOfAttributes = doc.getElementsByTagName("attribute");
 
-			for(int s=0; s < listOfRelations.getLength(); s++)
+			for(int s=0; s < listOfAttributes.getLength(); s++)
 			{				
-                Node firstRelationNode = listOfRelations.item(s);
-                if(firstRelationNode.getNodeType() == Node.ELEMENT_NODE)
+                Node firstAttributeNode = listOfAttributes.item(s);
+                if(firstAttributeNode.getNodeType() == Node.ELEMENT_NODE)
                 {
-					Element firstRelationElement = (Element)firstRelationNode;
+					Element firstAttributeElement = (Element)firstAttributeNode;
 
-					NodeList node = firstRelationElement.getElementsByTagName("name");
-					Element firstNameElement = (Element)node.item(0);
-					NodeList textFNList = firstNameElement.getChildNodes();
-					String name = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					NodeList node = firstAttributeElement.getElementsByTagName("name");
+					Element firstElement = (Element)node.item(0);
+					NodeList nodeList = firstElement.getChildNodes();
+					String name = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 
-					node = firstRelationElement.getElementsByTagName("type");
-					firstNameElement = (Element)node.item(0);
-					textFNList = firstNameElement.getChildNodes();
-					String type = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					node = firstAttributeElement.getElementsByTagName("type");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String type = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 
-					node = firstRelationElement.getElementsByTagName("length");
-					firstNameElement = (Element)node.item(0);
-					textFNList = firstNameElement.getChildNodes();
-					String length = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					node = firstAttributeElement.getElementsByTagName("length");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String length = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 
-					node = firstRelationElement.getElementsByTagName("isnullable");
-					firstNameElement = (Element)node.item(0);
-					textFNList = firstNameElement.getChildNodes();
-					String isnullable = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					node = firstAttributeElement.getElementsByTagName("isnullable");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String isnullable = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 
-					node = firstRelationElement.getElementsByTagName("id");
-					firstNameElement = (Element)node.item(0);
-					textFNList = firstNameElement.getChildNodes();
-					String id = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					node = firstAttributeElement.getElementsByTagName("id");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String id = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 
-					node = firstRelationElement.getElementsByTagName("num_values");
-					firstNameElement = (Element)node.item(0);
-					textFNList = firstNameElement.getChildNodes();
-					String num_values = (String)((Node)textFNList.item(0)).getNodeValue().trim();
-					Attribute attObj = new Attribute(name, type, length, isnullable, table_name, id, num_values);
+					node = firstAttributeElement.getElementsByTagName("num_values");
+					firstElement = (Element)node.item(0);
+					nodeList = firstElement.getChildNodes();
+					String num_values = (String)((Node)nodeList.item(0)).getNodeValue().trim();
+					
+					Attribute attObj = new Attribute(name, type, length, isnullable, tablename, id, num_values);
 					attributes.put(name, attObj);
 				}
 			}
@@ -126,6 +196,7 @@ public class Main implements QueryEngine
         }
         return attributes;
 	}
+	
 	/**
 	 * It will read database relations XML file for database dbname. Then it will instantiate 
 	 * RelationInfo object, add to hashtable in SystemCatalog. For each relation, it will read 
@@ -133,20 +204,17 @@ public class Main implements QueryEngine
 	 * SystemCatalog
 	 * @param db_name: the name of the database
 	 */
-	public void readDBRelations(String db_name)
+	public void readDBRelations(String dbname)
 	{
-		String filename = db_name + "_relations.xml";
+		String filename = dbname + "_relations.xml";
 		
     	try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             Document doc = docBuilder.parse (new File(filename));
-
             doc.getDocumentElement ().normalize ();
-
 			NodeList listOfRelations = doc.getElementsByTagName("relation");
-			int totalRelations = listOfRelations.getLength();
-
+			
 			for(int s=0; s< listOfRelations.getLength(); s++)
 			{
                 Node firstRelationNode = listOfRelations.item(s);
@@ -157,7 +225,7 @@ public class Main implements QueryEngine
 					NodeList node = firstRelationElement.getElementsByTagName("name");
 					Element firstNameElement = (Element)node.item(0);
 					NodeList textFNList = firstNameElement.getChildNodes();
-					String table_name = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					String tablename = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 
 					node = firstRelationElement.getElementsByTagName("date_created");
 					firstNameElement = (Element)node.item(0);
@@ -189,30 +257,16 @@ public class Main implements QueryEngine
 					textFNList = firstNameElement.getChildNodes();
 					String numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					
-					Hashtable attributes = readAttributes(db_name, table_name);
-					RelationInfo relation = new RelationInfo(table_name, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, table_name + "_" + db_name + "index.dat", numBlock, attributes);
-					this.syscat.addRelationCatalog(table_name, relation);
-					
+					Hashtable attributes = readAttributes(dbname, tablename);
+					RelationInfo relation = new RelationInfo(tablename, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, tablename + "_" + dbname + "index.dat", numBlock, attributes);
 					// test to see if there is index for that relation, set indexinfo
-					if (!colsIndexed.equals("-1"))
+					if (!colsIndexed.equals("0"))
 					{
-						relation.setIndexInfo(colsIndexed + "_index", colsIndexed, table_name);
-						// read index file and add it to TreeMap
-						try {
-							FileReader fr = new FileReader(colsIndexed + "_index.txt");
-				       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
-				       		String line;
-				       		TreeMap tm = relation.getIndexInfo().getIndex();
-				       		while((line = br.readLine()) != null)
-				       		{
-				       	 		String [] keyval = line.split("\t");
-				       	 		tm.put(Integer.parseInt(keyval[0]), keyval[1]);
-				       		}
-						}
-						catch (IOException e)
-						{
-						}
+						Hashtable indexInfos = this.readIndexs(dbname, tablename);
+						relation.setIndexInfos(indexInfos);
 					}
+					
+					this.syscat.addRelationCatalog(tablename, relation);
 				}
 			}
         }
@@ -231,18 +285,16 @@ public class Main implements QueryEngine
         {
         	t.printStackTrace ();
         }
-        
-        
 	}
 	
 	/**
 	 * create a blank file for relation info
-	 * @param db_name
+	 * @param dbname
 	 */
-	public void createDB(String db_name)
+	public void createDB(String dbname)
 	{
 		try {	
-		File file = new File(db_name+"_relations.xml");
+		File file = new File(dbname+"_relations.xml");
 	    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 	    output.write("<relations>\n");
 	    output.write("</relations>");
@@ -252,21 +304,21 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		this.useDatabase(db_name);
+		this.useDatabase(dbname);
 	}
 	
 	/**
 	 * When CREATED TABLE command is entered, it will open file relations file for that database
 	 * Then, it append table info to the file. Then it create a file containing all the attribute
 	 * info for that table.  
-	 * @param table_name: name of table
+	 * @param tablename: name of table
 	 * @param attributes: list of attributes for that table
-	 * @param db_name: the name of the database
+	 * @param dbname: the name of the database
 	 */
-	public boolean createTable(String db_name, String table_name, String [][] attributes, boolean isTempRelation)
+	public boolean createTable(String dbname, String tablename, String [][] attributes, boolean isTempRelation)
 	{
 		
-		if (syscat.getRelationCatalog().get(table_name) != null) return false;
+		if (syscat.getRelationCatalog().get(tablename) != null) return false;
 		
 		// get current date
 		Calendar cal = Calendar.getInstance();
@@ -282,7 +334,7 @@ public class Main implements QueryEngine
         int id = 0;
 		try {
 			
-			FileReader fr = new FileReader(db_name + "_relations.xml");
+			FileReader fr = new FileReader(dbname + "_relations.xml");
        		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
        		while((line = br.readLine()) != null)
        		{
@@ -296,17 +348,17 @@ public class Main implements QueryEngine
 				
 	       		int ind = data.size() - 1;
 				data.add(ind++, "<relation>\n");
-				data.add(ind++, "<name>" + table_name + "</name>\n");
+				data.add(ind++, "<name>" + tablename + "</name>\n");
 				data.add(ind++, "<date_created>" + cur_date + "</date_created>\n");
 				data.add(ind++, "<date_modified>" + cur_date + "</date_modified>\n");
 				data.add(ind++, "<num_tuple>0</num_tuple>\n");
 				data.add(ind++, "<id>" + id + "</id>\n");
-				data.add(ind++, "<cols_indexed>-1</cols_indexed>\n");
+				data.add(ind++, "<cols_indexed>0</cols_indexed>\n");
 				data.add(ind++, "<num_block>1</num_block>\n");
 	      		data.add(ind++, "</relation>\n");
 	      		data.add(ind++, "</relations>");
 	      		
-				File file = new File(db_name + "_relations.xml");
+				File file = new File(dbname + "_relations.xml");
 			    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			    
 			    for (int i = 0; i < data.size(); i++)
@@ -316,7 +368,7 @@ public class Main implements QueryEngine
 			    output.close();
 			    
 			    // write attributes for that relation into table
-			    file = new File(db_name + "_" + table_name + ".xml");
+			    file = new File(dbname + "_" + tablename + ".xml");
 				output = new BufferedWriter(new FileWriter(file));
 				output.write("<attributes>\n");
 				for (int i = 0; i < attributes.length; i++)
@@ -326,12 +378,12 @@ public class Main implements QueryEngine
 					output.write("<type>" + attributes[i][1] + "</type>\n");
 					output.write("<length>" + attributes[i][2] + "</length>\n");
 					output.write("<isnullable>" + attributes[i][3] + "</isnullable>\n");
-					output.write("<relation_name>" + table_name + "</relation_name>\n");
+					output.write("<relation_name>" + tablename + "</relation_name>\n");
 					output.write("<id>" + i + "</id>\n");
 					output.write("<num_values>0</num_values>\n");
 					output.write("</attribute>\n");
 					// how to get attribute id for the relation
-					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tablename, Integer.toString(i), "0");
 					atts.put(attributes[i][0], attObj);
 				}
 				output.write("</attributes>");
@@ -342,7 +394,7 @@ public class Main implements QueryEngine
 			{
 				for (int i = 0; i < attributes.length; i++)
 				{
-					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], table_name, Integer.toString(i), "0");
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tablename, Integer.toString(i), "0");
 					atts.put(attributes[i][0], attObj);
 				}
 			}
@@ -351,15 +403,16 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		RelationInfo relObj = new RelationInfo(table_name, cur_date, cur_date, "0", id, "-1", "", "1", atts);
+		RelationInfo relObj = new RelationInfo(tablename, cur_date, cur_date, "0", id, "-1", "", "1", atts);
 		
-		if (!isTempRelation) this.syscat.addRelationCatalog(table_name, relObj);
-		else this.syscat.addTempRelation(table_name, relObj);
+		if (!isTempRelation) this.syscat.addRelationCatalog(tablename, relObj);
+		else this.syscat.addTempRelation(tablename, relObj);
 		// update filename Hashtable in BufferManager 
 		this.bufman.getTableNames(syscat.getRelationCatalog());
+		
 		// create a blank data file
 		try {
-			File file = new File(db_name + "_" + table_name + "_data.dat");
+			File file = new File(dbname + "_" + tablename + "_data.dat");
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			output.close();
 		}
@@ -368,6 +421,19 @@ public class Main implements QueryEngine
 			System.out.println(e.getMessage());
 		}
 	    
+		// create a blank index xml file
+		try {
+			File file = new File(dbname + "_" + tablename + "_index.txt");
+			BufferedWriter output = new BufferedWriter(new FileWriter(file));
+			output.write("<indexs>\n");
+		    output.write("</indexs>");
+			output.close();
+		}
+		catch(IOException e)
+		{
+			System.out.println(e.getMessage());
+		}
+		
 		// create a blank block and insert it into buffer and file
 		long blockID = Utility.combine(id, 0);
 		Block block = new Block(blockID, "".getBytes());
@@ -395,10 +461,10 @@ public class Main implements QueryEngine
 			 * 4. combine into blockID
 			 */ 
 
-	public boolean insertQuery(String table_name, String [][] query)
+	public boolean insertQuery(String tablename, String [][] query)
 	{
 		
-		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(table_name);
+		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(tablename);
 		if (relObj == null) {
 		    System.out.println("ERROR: Table does not exist");
 		    return false;
@@ -510,7 +576,7 @@ public class Main implements QueryEngine
 	            }
 	            // get key to insert into Index
 	            int key = Integer.parseInt(query[1][ind]);
-	            relObj.getIndexInfo().getIndex().put(key, lastOffset);
+	            relObj.getIndexInfos().put(key, lastOffset);
 	            // write it to file.
 	            String filename = indexName + "_index.txt";
 	            String line = key + "\t" + lastOffset + "\n";
@@ -524,15 +590,16 @@ public class Main implements QueryEngine
 	
 	/**
 	 * Creates a new index (index_name) on a field (field_name) of a relation
-	 * (table_name)
+	 * (tablename)
 	 * @param index_name: name of the index to be created
-	 * @param table_name: name of table
+	 * @param tablename: name of table
 	 * @param field_name: the name of the field we're creating an index on
 	 */
-	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean duplicates) 
+	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean isDuplicate) 
 	{
 		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
-		relInfo.setIndexInfo(attName + "_index", attName, tableName);
+		IndexInfo indexInfo = new IndexInfo(indexName, attName, isDuplicate);
+		relInfo.getIndexInfos().put(attName, indexInfo);
 		// update index info
 		relInfo.setColsIndexed(attName);
 		// create a blank index file
@@ -550,13 +617,12 @@ public class Main implements QueryEngine
 	
 	/**
 	 * Performs a selection on an index
-	 * @param table_name the table
+	 * @param tableName the table
 	 * @param index_name the index
 	 */
-	public boolean selectIndexQuery(String table_name, String index_name) 
+	public boolean selectIndexQuery(String tableName, String index_name) 
 	{
 		return false;
-		
 	}
 	
 	/**
@@ -590,10 +656,10 @@ public class Main implements QueryEngine
 		return true;
 	}
 	
-	public boolean selectQuery(String[] table_names, String [] fields, String [][] where)
+	public boolean selectQuery(String[] tableNames, String [] fields, String [][] where)
 	{
 		
-		OpTree ot = new OpTree(this.syscat, table_names, fields, where);
+		OpTree ot = new OpTree(this.syscat, tableNames, fields, where);
 		
 		int opNumber = ot.getNumOps();
 		// optable: hashtable to store all temporary relations
@@ -713,13 +779,13 @@ public class Main implements QueryEngine
 	
 	/**
 	 * select database that user want to work on
-	 * @param db_name
+	 * @param dbname
 	 */
-	public void useDatabase(String db_name)
+	public void useDatabase(String dbname)
 	{
-		syscat = new SystemCatalog(db_name); 
-		this.readDBRelations(db_name);
-		bufman.setDBName(db_name);
+		syscat = new SystemCatalog(dbname); 
+		this.readDBRelations(dbname);
+		bufman.setDBName(dbname);
 		bufman.getTableNames(syscat.getRelationCatalog());
 	}
 	
@@ -769,21 +835,21 @@ public class Main implements QueryEngine
 	public static void main(String[] args) throws IOException
 	{
 		Main mydb = new Main();
-		String db_name = "db1";
+		String dbName = "db1";
 		System.out.println("create database db1");
-		mydb.createDB(db_name);
+		mydb.createDB(dbName);
 		System.out.println("Use db1");
-		mydb.useDatabase(db_name);
+		mydb.useDatabase(dbName);
 		System.out.println("***********************************************");
 		System.out.println("create table student");
 		String [][] student_attributes = {{"first_name", "string", "20", "no", "0", "0"},
                 					     {"last_name",   "string", "20", "no", "1", "0"},
                 					     {"dob",         "string", "10", "no", "2", "2"}};
-		mydb.createTable(db_name, "student", student_attributes, false);
+		mydb.createTable(dbName, "student", student_attributes, false);
 		String [][] course_attributes = {{"course_name",   "string", "20", "no", "0", "0"},
                 					{"course_number", "string", "10", "no", "1", "0"},
                 					{"location",      "string", "10", "no", "2", "2"}};
-		mydb.createTable(db_name, "course", course_attributes, false);
+		mydb.createTable(dbName, "course", course_attributes, false);
 		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
 									  {"john", "smith", "01/01/2000"}};
 		String [][] insert_student1 = {{"first_name", "last_name"},
