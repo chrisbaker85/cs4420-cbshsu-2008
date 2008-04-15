@@ -63,7 +63,7 @@ public class Main implements QueryEngine
 	private Hashtable readIndexs(String tableName)
 	{
 		Hashtable<String, IndexInfo> indexInfos = new Hashtable<String, IndexInfo>();
-		String filename = syscat.getDBName() + "_" + tableName + "_index.txt";
+		String filename = syscat.getDBName() + "_" + tableName + "_index.xml";
 		try {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -258,7 +258,7 @@ public class Main implements QueryEngine
 					String numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					
 					Hashtable attributes = readAttributes(tableName);
-					RelationInfo relation = new RelationInfo(tableName, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, tableName + "_" + syscat.getDBName() + "index.dat", numBlock, attributes);
+					RelationInfo relation = new RelationInfo(tableName, dateCreated, dateModified, numTuple, Integer.parseInt(id), Integer.parseInt(colsIndexed), tableName + "_" + syscat.getDBName() + "index.dat", numBlock, attributes);
 					// test to see if there is index for that relation, set indexinfo
 					if (!colsIndexed.equals("0"))
 					{
@@ -401,7 +401,7 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		RelationInfo relObj = new RelationInfo(tableName, cur_date, cur_date, "0", id, "-1", "", "1", atts);
+		RelationInfo relObj = new RelationInfo(tableName, cur_date, cur_date, "0", id, 0, "", "1", atts);
 		
 		if (!isTempRelation) this.syscat.addRelationCatalog(tableName, relObj);
 		else this.syscat.addTempRelation(tableName, relObj);
@@ -421,7 +421,7 @@ public class Main implements QueryEngine
 	    
 		// create a blank index xml file
 		try {
-			File file = new File(syscat.getDBName() + "_" + tableName + "_index.txt");
+			File file = new File(syscat.getDBName() + "_" + tableName + "_index.xml");
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			output.write("<indexs>\n");
 		    output.write("</indexs>");
@@ -554,6 +554,7 @@ public class Main implements QueryEngine
 			relObj.updateBlockNumber(1);
 		}
 		
+		/*
 		// extract the key and insert into index in relation info using relObj
 		String[] indexNames = relObj.getColsIndexed().split(",");
 		
@@ -582,6 +583,7 @@ public class Main implements QueryEngine
    
 		    }
 		}
+		*/
 		this.writeSystemCataglog();
 		return true;
 	}
@@ -596,11 +598,23 @@ public class Main implements QueryEngine
 		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
 		IndexInfo indexInfo = new IndexInfo(indexName, attName, isDuplicate);
 		relInfo.getIndexInfos().put(attName, indexInfo);
-		// update index info
-		relInfo.setColsIndexed(attName);
-		// create a blank index file
+		// increment number of index by 1
+		relInfo.updateIndexNumber(1);
+		ArrayList<String> data = new ArrayList<String>();
+		String line;
 		try {	
-			File file = new File(attName + "_index.txt");
+			FileReader fr = new FileReader(this.syscat.getDBName() + "_" + tableName + "_index.xml");
+       		BufferedReader br = new BufferedReader(fr);	// Can also use a Scanner to read the file.
+       		while((line = br.readLine()) != null)
+       		{
+       	 		data.add(line);
+       		}
+       		
+	       	int ind = data.size() - 1;
+	       
+	       	
+	       	// create a blank file to store index
+			File file = new File(tableName + "_" + indexName + "_index.txt");
 		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 		    output.close();
 		}
@@ -777,11 +791,11 @@ public class Main implements QueryEngine
 	 * select database that user want to work on
 	 * @param dbname
 	 */
-	public void useDatabase(String dbname)
+	public void useDatabase(String dbName)
 	{
-		syscat = new SystemCatalog(dbname); 
+		syscat = new SystemCatalog(dbName); 
 		this.readDBRelations();
-		bufman.setDBName(dbname);
+		bufman.setDBName(dbName);
 		bufman.getTableNames(syscat.getRelationCatalog());
 	}
 	
