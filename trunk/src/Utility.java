@@ -89,11 +89,12 @@ public class Utility {
 	 * Analyze the blockID and use the system catalog to obtain the index
 	 * info for the given blockID
 	 */ 
+	/*
 	public IndexInfo getIndexInfo(int blockID)
 	{
 		return new IndexInfo("test", "test", "test");
 	}
-	
+	*/
 	/**
 	 * get length of the tuple given the Hashtable of attributes
 	 * @param atts
