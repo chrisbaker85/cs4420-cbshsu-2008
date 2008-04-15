@@ -10,7 +10,7 @@ public class RelationInfo {
 	private String dateModified;
 	private String numTuples;
 	private int id;
-	private String colsIndexed;
+	private int colsIndexed;
 	private String indexFilename;
 	private String numDataBlocks;
 	private Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
@@ -27,7 +27,7 @@ public class RelationInfo {
 	 * @param filename
 	 * @param numDataBlocks
 	 */
-	public RelationInfo(String name, String dateCreated, String dateModified, String numTuples, int id, String colsIndexed, String filename, String numDataBlocks, Hashtable attributes)
+	public RelationInfo(String name, String dateCreated, String dateModified, String numTuples, int id, int colsIndexed, String filename, String numDataBlocks, Hashtable attributes)
 	{
 		this.name = name;
 		this.dateCreated = dateCreated;
@@ -103,16 +103,14 @@ public class RelationInfo {
 		
 	}
 	
-	void setColsIndexed(String colsIndexed) {
+	void setColsIndexed(int colsIndexed) {
 		
 		this.colsIndexed = colsIndexed;
 		
 	}
 	
-	String getColsIndexed() {
-		
+	int getColsIndexed() {
 		return this.colsIndexed;
-		
 	}
 	
 	void setFilenames(String iFilename) {
@@ -136,6 +134,11 @@ public class RelationInfo {
 		
 		return this.numDataBlocks;
 		
+	}
+	
+	public void updateIndexNumber(int i)
+	{
+		this.colsIndexed += i;
 	}
 	
 	public void setIndexInfos(Hashtable indexinfos)
