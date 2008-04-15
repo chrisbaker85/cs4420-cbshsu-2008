@@ -14,7 +14,7 @@ public class RelationInfo {
 	private String indexFilename;
 	private String numDataBlocks;
 	private Hashtable<String, Attribute> attributes = new Hashtable<String, Attribute>();
-	private IndexInfo indexinfo;
+	private Hashtable<String, IndexInfo> indexInfos = new Hashtable<String, IndexInfo>();;
 	
 	/**
 	 * This is the constructor
@@ -138,15 +138,22 @@ public class RelationInfo {
 		
 	}
 	
-	public IndexInfo getIndexInfo()
+	public void setIndexInfos(Hashtable indexinfos)
 	{
-		return this.indexinfo;
+		this.indexInfos = indexinfos;
 	}
 	
-	public void setIndexInfo(String indexName, String attName, String tableName)
+	public Hashtable getIndexInfos()
 	{
-		indexinfo = new IndexInfo(indexName, attName, tableName);
+		return this.indexInfos;
 	}
+	/*
+	public void setIndexInfo(String indexName, String attName, boolean isDuplicate)
+	{
+		IndexInfo indexinfo = new IndexInfo(indexName, attName, isDuplicate);
+		indexinfos.put(attName, indexinfo);
+	}
+	*/
 	
 	/**
 	 * Adds an attribute to this relation
@@ -176,7 +183,6 @@ public class RelationInfo {
 	public boolean hasAttribute(String att) {
 		
 		if (this.attributes.containsKey(att)) return true;
-		
 		return false;
 		
 	}
