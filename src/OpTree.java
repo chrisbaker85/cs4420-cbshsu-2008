@@ -456,6 +456,15 @@ public class OpTree {
 	}
 	
 	/**
+	 * Resets the op cursor so that the query plan can be accessed again
+	 */
+	public void resetOpList() {
+		
+		this.opCursor = -1;
+		
+	}
+	
+	/**
 	 * Generates a query plan (order of operations)
 	 * 0) Start at the tree-root
 	 * 1) Climb down the tree until an OpTree is reached
