@@ -225,7 +225,7 @@ public class Main implements QueryEngine
 					NodeList node = firstRelationElement.getElementsByTagName("name");
 					Element firstNameElement = (Element)node.item(0);
 					NodeList textFNList = firstNameElement.getChildNodes();
-					String tablename = (String)((Node)textFNList.item(0)).getNodeValue().trim();
+					String tableName = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 
 					node = firstRelationElement.getElementsByTagName("date_created");
 					firstNameElement = (Element)node.item(0);
@@ -257,15 +257,15 @@ public class Main implements QueryEngine
 					textFNList = firstNameElement.getChildNodes();
 					String numBlock = (String)((Node)textFNList.item(0)).getNodeValue().trim();
 					
-					Hashtable attributes = readAttributes(tablename);
-					RelationInfo relation = new RelationInfo(tablename, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, tablename + "_" + syscat.getDBName() + "index.dat", numBlock, attributes);
+					Hashtable attributes = readAttributes(tableName);
+					RelationInfo relation = new RelationInfo(tableName, dateCreated, dateModified, numTuple, Integer.parseInt(id), colsIndexed, tableName + "_" + syscat.getDBName() + "index.dat", numBlock, attributes);
 					// test to see if there is index for that relation, set indexinfo
 					if (!colsIndexed.equals("0"))
 					{
-						Hashtable indexInfos = this.readIndexs(tablename);
+						Hashtable indexInfos = this.readIndexs(tableName);
 						relation.setIndexInfos(indexInfos);
 					}
-					this.syscat.addRelationCatalog(tablename, relation);
+					this.syscat.addRelationCatalog(tableName, relation);
 				}
 			}
         }
@@ -290,10 +290,10 @@ public class Main implements QueryEngine
 	 * create a blank file for relation info
 	 * @param dbname
 	 */
-	public void createDB(String dbname)
+	public void createDB(String dbName)
 	{
 		try {	
-		File file = new File(dbname+"_relations.xml");
+		File file = new File(dbName + "_relations.xml");
 	    BufferedWriter output = new BufferedWriter(new FileWriter(file));
 	    output.write("<relations>\n");
 	    output.write("</relations>");
@@ -303,7 +303,7 @@ public class Main implements QueryEngine
 		{
 			System.out.println(e.getMessage());
 		}
-		this.useDatabase(dbname);
+		this.useDatabase(dbName);
 	}
 	
 	/**
