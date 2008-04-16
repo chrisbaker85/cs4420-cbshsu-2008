@@ -67,7 +67,7 @@ public class Join implements IteratorInterface{
 			atts[i+j][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
+		main.createTable(tempTableName, atts, true);
 		
 		IteratorInterface iterator1 = new TableScan(main, R1);
 		for (int j = 0; j < Integer.parseInt(R1.getNumTuples().trim()); j++)

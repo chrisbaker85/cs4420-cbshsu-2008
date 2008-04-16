@@ -26,6 +26,30 @@ public class OpCrossProduct extends Op {
 	}
 	
 	/**
+	 * Relations (OpTable) should be removed from an OpCrossProduct if they're
+	 * being added to a join op.
+	 * @param rem the Op array of relations (OpTable) to remove
+	 * @return the amended list of relations (OpTable)
+	 */
+	public void removeChildren(Op[] rem) {
+		
+		Op[] red = new Op[this.children.length - rem.length];
+		Op[] ext = new Op[rem.length];
+		   
+		for (int i = 0; i < this.children.length; i++) {
+			
+			if (this.children[i]) {
+				
+				
+			}
+			
+		}
+		
+		this.children = red;
+		
+	}
+	
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {

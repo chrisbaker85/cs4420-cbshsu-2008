@@ -24,8 +24,11 @@ public class UI {
 	FileReader fr;
 	String filename;
 	SQLCommandProcessor proc = new SQLCommandProcessor();
+	Debug db;
 	
 	public UI() {
+		
+		this.db = Debug.get();
 		
 		System.out.println("/////////////////////////////////////////////\n          WELCOME TO OUR DATABASE");
 		System.out.println("      a project for Databases 4420 by");
@@ -33,9 +36,10 @@ public class UI {
 		System.out.println("\nStart with SELECT * FROM CATALOG\ntype \"exit\" to exit.");
 	}
 	
-	public UI(String filename) {
+	public UI(String filename, boolean debug) {
 		
 		this();
+		db.setDebug(debug);
 		this.filename = filename;
 		
 	}
@@ -201,14 +205,25 @@ public class UI {
 		
 		// File that holds queries, one per line
 		String filename = null;
+		boolean debug = false;
 		
-		if (args.length == 1) {
+		if (args.length > 0 && args[0].contains(".")) {
 			
 			filename = args[0];
 			
 		}
 		
-		UI ui = new UI(filename);
+		for (int i = 0; i < args.length; i++) {
+
+			if (args[i].equals("-d")) {
+				
+				debug = true;
+				
+			}
+			
+		}
+		
+		UI ui = new UI(filename, debug);
 		System.out.println("Reading from file..." + filename);
 		ui.run();
 	}

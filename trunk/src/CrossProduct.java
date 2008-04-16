@@ -66,7 +66,7 @@ public class CrossProduct implements IteratorInterface{
 			atts[i+j][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
+		main.createTable(tempTableName, atts, true);
 		
 		//IteratorInterface iterator1 = new TableScan(main, R1);
 		System.out.println("R1 name " + R1.getName());

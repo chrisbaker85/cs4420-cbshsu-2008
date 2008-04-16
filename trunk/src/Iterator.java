@@ -94,11 +94,16 @@ public class Iterator {
 		int x = this.current_block.getRecordNumber();
 		this.num_tuples_in_block = x;
 		
-		System.out.println("INFO blockid:" + blockOffset + "(" + ri.getId() + "/" + blockOffset + ")");
-		System.out.println("INFO: tuples in block: " + this.num_tuples_in_block);
-		System.out.println("INFO: current tuple " + this.current_tuple_num);
-		System.out.println("INFO: block " + this.current_block_num);
-		if (this.current_block == null) System.out.println("INFO: block null");
+		if (Debug.get().debug()) {
+			
+			System.out.println("INFO blockid:" + blockOffset + "(" + ri.getId() + "/" + blockOffset + ")");
+
+			System.out.println("INFO: tuples in block: " + this.num_tuples_in_block);
+			System.out.println("INFO: current tuple " + this.current_tuple_num);
+			System.out.println("INFO: block " + this.current_block_num);
+			if (this.current_block == null) System.out.println("INFO: block null");
+		
+		}
 		
 	}
 	
@@ -112,7 +117,7 @@ public class Iterator {
 		this.current_tuple_num++;
 		this.abs_record_number++;
 		
-		System.out.println("INFO: tuple: " + this.current_tuple_num + "/" + this.num_tuples_in_block);
+		if (Debug.get().debug()) System.out.println("INFO: tuple: " + this.current_tuple_num + "/" + this.num_tuples_in_block);
 		
 		// The iterator is crossing a block boundary, so get the next block
 		if ((this.current_tuple_num + 1) >= this.num_tuples_in_block && (this.abs_record_number < this.records_in_relation)) {
@@ -121,7 +126,7 @@ public class Iterator {
 			
 			// Increment to get the next block
 			this.current_block_num++;
-			System.out.println("INFO: current_block_number incremented");
+			if (Debug.get().debug()) System.out.println("INFO: current_block_number incremented");
 			
 			// Get next block from the BufferManager
 			int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
@@ -145,12 +150,12 @@ public class Iterator {
 		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE;
 		if (this.current_block == null) {
 
-			System.out.println("INFO: iterator over; return null");
+			if (Debug.get().debug()) System.out.println("INFO: iterator over; return null");
 			return null;
 			
 		}
 		
-		System.out.println("INFO: tuple offset:" + offset + "/block offset:" + Utility.split(this.current_block.blockID)[1] + "/relationinfo:" + this.ri);
+		if (Debug.get().debug()) System.out.println("INFO: tuple offset:" + offset + "/block offset:" + Utility.split(this.current_block.blockID)[1] + "/relationinfo:" + this.ri);
 		
 		return new Tuple(offset, this.current_block, this.ri);
 		
