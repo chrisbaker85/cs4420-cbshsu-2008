@@ -495,6 +495,30 @@ public class Main implements QueryEngine
 			}
 		}
 		
+		// Before insert record, we need to test if there is index and we need to verify duplicate constraints
+		if (relObj.getColsIndexed() > 0)
+		{
+			// get index info hashtable
+			Hashtable indexInfos = relObj.getIndexInfos();
+		
+			// loop through all the inserted attributes and search if they are indexes
+			for (int i = 0; i < query[0].length; i++)
+			{
+				if (indexInfos.containsKey(query[0][i]))
+				{
+					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
+					TreeMap index = indexInfo.getIndex();
+					int key = Integer.parseInt(query[1][i]);
+					if (index.containsKey(key))
+					{
+						System.out.println(key + " already exists in index. Duplicate is not allowed");
+						return false;
+					}
+				}
+			}
+		}
+		
+		
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
@@ -554,7 +578,7 @@ public class Main implements QueryEngine
 			relObj.updateBlockNumber(1);
 		}
 		
-		// test if there is index
+		// test if there is index, insert index
 		if (relObj.getColsIndexed() > 0)
 		{
 			// get index info hashtable
@@ -567,11 +591,18 @@ public class Main implements QueryEngine
 				{
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
-					// insert key and values into 
-					 int key = Integer.parseInt(query[1][i]);
-				     index.put(key, lastOffset);
+					int key = Integer.parseInt(query[1][i]);
+					// insert key and values into index
+				    index.put(key, lastOffset);
 				}
 			}
+		}
+		
+		// update distinct values for each inserted attributes
+		for(int i = 0; i < atts.size(); i++)
+		{
+			Attribute att = (Attribute)relObj.getAttributes().get(query[0][i]);
+			att.updateDistinctValues(query[1][i]);
 		}
 		
 		this.writeSystemCataglog();
