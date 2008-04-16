@@ -36,7 +36,7 @@ public class IndexScan implements IteratorInterface {
 			atts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
+		main.createTable(tempTableName, atts, true);
 		
 		// get index position
 		int indPos = -1;

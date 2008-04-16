@@ -80,7 +80,7 @@ public class SQLCommandProcessor {
 			attributes[i] = meta;
 		}
 		
-		if (qe.createTable(db_name, table_name, attributes, false) == false) System.out.println("ERROR: create table failed");
+		if (qe.createTable(table_name, attributes, false) == false) System.out.println("ERROR: create table failed");
 		return "";
 		
 	}

@@ -75,6 +75,7 @@ public class OpTree {
 		this.createBaseTree(table_names, fields, where);
 		
 		// TODO: identify joins
+		makeJoins();
 		
 		// Verify that all relations used in the query are valid
 		if (this.validateRelationNames(table_names)) this.valid = true;
@@ -85,7 +86,7 @@ public class OpTree {
 		
 		if (this.validateAttributes(table_names)) this.state = 0;
 		
-		if (this.state > -1) System.out.println(this.toString());
+		if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
 		//this.nextOp();
 		
@@ -140,6 +141,46 @@ public class OpTree {
 			}
 			
 		}
+		
+	}
+	
+	/**
+	 * Convert cross products to joins if there exists an
+	 * appropriate condition
+	 * This function assumes that there is one cross product
+	 * operator in the tree, if one exists at all.
+	 */
+	private void makeJoins() {
+		
+		// Loop through all the operator nodes
+	    for (int i = 0; i < this.opList.size(); i++) {
+
+	        Op xprod;
+	        Op[] tables;
+	        Op sel = this.opList.get(i);
+	        
+	        // If this node is a select operator, find any conditions
+	        // that create a join and remove them, putting them in the proper join op
+	        if ((sel instanceof OpSelect) && (xprod = crossProductExistsWith((String[])sel.contents)) != null) {
+	            
+	        	/**
+	        	 * Making the following assumptions here:
+	        	 * 1) A select operator will never be the root of the tree
+	        	 *    (i.e. it will always have a non-null parent)
+	        	 * 2) A select operator will never be a "sibling"
+	        	 *    (i.e it will never share a parent with another operator)
+	        	 * 3) A select operator will only have one child
+	        	 */ 
+	        	
+	        	sel.parent.children[0] = sel.children[0];
+	        	
+	        	//this.opList.get(i).contents = ((OpCrossProduct)xprod).removeCondition((String[])this.opList.get(i).contents);
+	            //tables = xprod.removeChildren((String[])this.opList.get(i).contents);
+	            
+	        }
+	        
+	    }
+		
 		
 	}
 	
@@ -387,18 +428,6 @@ public class OpTree {
 		
 		// TODO: write optimization algorithm
 	    
-	    for (int i = 0; i < this.opList.size(); i++) {
-
-	        Op xprod;
-	        Op[] tables;
-	        
-	        if ((this.opList.get(i) instanceof OpSelect) && (xprod = crossProductExistsWith((String[])this.opList.get(i).contents)) != null) {
-	            
-	            //tables = xprod.removeChildren((String[])this.opList.get(i).contents);
-	            
-	        }
-	        
-	    }
 		
 	}
 	
@@ -438,7 +467,6 @@ public class OpTree {
 	public Op nextOp() {
 		
 		if (this.queryList == null) this.queryList = this.generateQueryPlan(this.tree_root);
-		//System.out.println("size: " + this.queryList.size());
 
 		// Increment the cursor
 		opCursor++;
@@ -487,8 +515,6 @@ public class OpTree {
 				
 				temp.use();
 				list.add(temp);
-				
-				//System.out.println("USED>>" + temp.getType());
 				
 				counter++;
 				temp = temp.parent;
@@ -548,8 +574,6 @@ public class OpTree {
 			
 			Op op = this.opList.get(i);
 			
-//			if (op instanceof OpCrossProduct || op instanceof OpJoin || op instanceof OpIndexBasedJoin || op instanceof OpJoin || op instanceof OpSortBasedJoin) {
-				
 			if (op.children != null) {
 				
 				for (int j = 0; j < op.children.length; j++) {
@@ -557,7 +581,7 @@ public class OpTree {
 					if (op.children[j] != null && (op.children[j] instanceof OpTable)) {
 					
 						op.children[j].info = (RelationInfo)this.sc.getRelationCatalog().get((String)op.children[j].contents); 
-						System.out.println("INFO: info object: " + op.children[j].info);
+						if (Debug.get().debug()) System.out.println("INFO: info object: " + op.children[j].info);
 						
 					}
 					

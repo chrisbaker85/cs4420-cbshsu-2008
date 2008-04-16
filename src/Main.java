@@ -685,7 +685,7 @@ public class Main implements QueryEngine
 			{
 				// call select class here
 				// RelationInfo R = op.getInfo();
-				System.out.println("INFO: In select");
+				if (Debug.get().debug()) System.out.println("INFO: In select");
 				RelationInfo R = op.left().getInfo();
 				String [] conditions = (String [])op.getContents();
 				// figure out if it's index or not
@@ -705,11 +705,11 @@ public class Main implements QueryEngine
 			}
 			else if (op instanceof OpProject)
 			{
-				System.out.println("INFO: entered project");
+				if (Debug.get().debug()) System.out.println("INFO: entered project");
 				
 				// RelationInfo R = op.getInfo();
 				RelationInfo R = op.left().getInfo();
-				System.out.println("TYPE: " + op.getType() + "/CHILDTYPE" + op.left().getType() + "/INFO" + op.left().getInfo());
+				if (Debug.get().debug()) System.out.println("TYPE: " + op.getType() + "/CHILDTYPE" + op.left().getType() + "/INFO" + op.left().getInfo());
 				String [] attList = (String [])op.getContents();
 				
 				// call project class here
@@ -739,7 +739,7 @@ public class Main implements QueryEngine
 		}
 		// print out results in currentOp here
 
-		System.out.println("INFO: printing out results");
+		if (Debug.get().debug()) System.out.println("INFO: printing out results");
 		RelationInfo relObj = currentOp.getInfo();
 		Hashtable atts = relObj.getAttribute();
 		int tupleSize = Utility.getTotalLength(atts);
@@ -768,11 +768,11 @@ public class Main implements QueryEngine
 //			
 //		}
 		
-		System.out.println("INFO: (main) tuples: " + Integer.parseInt(relObj.getNumTuples().trim()));
+		if (Debug.get().debug()) System.out.println("INFO: (main) tuples: " + Integer.parseInt(relObj.getNumTuples().trim()));
 		
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
 		{
-			System.out.println("INFO: index " + i);
+			if (Debug.get().debug()) System.out.println("INFO: index " + i);
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();

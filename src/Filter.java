@@ -45,7 +45,7 @@ public class Filter implements IteratorInterface {
 			atts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation
-		main.createTable(main.getBm().getDBName(), tempTableName, atts, true);
+		main.createTable(tempTableName, atts, true);
 		
 		// find out which condition is indexed
 		

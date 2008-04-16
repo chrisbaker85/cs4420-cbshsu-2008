@@ -39,7 +39,7 @@ public class Project implements IteratorInterface {
 			newatts[i][3] = att.getIsNullable();
 		}
 		// create a temporary relation or table
-		main.createTable(main.getBm().getDBName(), tempTableName, newatts, true);
+		main.createTable(tempTableName, newatts, true);
 		
 		/**
 		 * use TableScan to scan tuple by tuple. Then form the values to be inserted
