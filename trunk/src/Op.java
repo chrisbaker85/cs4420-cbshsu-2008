@@ -209,6 +209,12 @@ public abstract class Op {
         
     }
    
+   public void swapChildren(Op oldChild, Op newChild) {
+	   
+	   // TODO: Implement Me...accidently erased!
+	   
+   }
+   
    public Op[] removeChildren(String[] table) {
        
        if (this instanceof OpCrossProduct) {
