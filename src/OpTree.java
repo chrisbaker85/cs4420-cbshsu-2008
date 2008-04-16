@@ -75,7 +75,9 @@ public class OpTree {
 		this.createBaseTree(table_names, fields, where);
 		
 		// TODO: identify joins
-		makeJoins();
+		//makeJoins();
+		
+		pushDownSelects();
 		
 		// Verify that all relations used in the query are valid
 		if (this.validateRelationNames(table_names)) this.valid = true;
@@ -144,6 +146,71 @@ public class OpTree {
 		
 	}
 	
+	private void pushDownSelects() {
+		
+		for (int i = 0; i < this.opList.size(); i++) {
+			
+			Op sel = this.opList.get(i);
+			
+			if (sel instanceof OpSelect) {
+				
+//				if (Debug.get().debug()) System.out.println("INFO: found a select");
+				
+				String tableName = Utility.getTable((String)(((String[])sel.contents)[0]));
+				
+				OpTable opt = this.getTable(tableName);
+				
+//				if (Debug.get().debug()) System.out.println("INFO: found table: " + opt);
+				
+				// Insert the select above the table
+				if (opt != null) {
+					
+					Op tableParent = opt.parent;
+					sel.parent.swapChildren(sel, sel.children[0]);
+					
+					if (Debug.get().debug()) System.out.println("INFO: select removed from tree");
+					
+					sel.children[0] = opt;
+					sel.parent = tableParent;
+					
+					opt.parent = sel;
+					
+					tableParent.swapChildren(opt, sel);
+					
+					if (Debug.get().debug()) System.out.println("INFO: select inserted into tree");
+					
+				}
+				
+			}
+			
+		}
+		
+	}
+	
+	public OpTable getTable(String tableName) {
+		
+		for (int i = 0; i < this.opList.size(); i++) {
+			
+			if ((this.opList.get(i) instanceof OpCrossProduct)) {
+			
+				for (int j = 0; j < this.opList.get(i).children.length; j++) {
+					
+					if ((this.opList.get(i).children[j] instanceof OpTable)) {
+						
+						return (OpTable)(this.opList.get(i).children[j]);
+						
+					}
+					
+				}
+				
+			}
+			
+		}
+		
+		return null;
+		
+	}
+	
 	/**
 	 * Convert cross products to joins if there exists an
 	 * appropriate condition
@@ -161,7 +228,7 @@ public class OpTree {
 	        
 	        // If this node is a select operator, find any conditions
 	        // that create a join and remove them, putting them in the proper join op
-	        if ((sel instanceof OpSelect) && (xprod = crossProductExistsWith((String[])sel.contents)) != null) {
+	        if ((sel instanceof OpSelect) && (xprod = this.crossProductExistsWith((String[])sel.contents)) != null) {
 	            
 	        	/**
 	        	 * Making the following assumptions here:
@@ -173,6 +240,8 @@ public class OpTree {
 	        	 */ 
 	        	
 	        	sel.parent.children[0] = sel.children[0];
+	        	
+	        	((OpCrossProduct)xprod).addJoin((String[])sel.contents);
 	        	
 	        	//this.opList.get(i).contents = ((OpCrossProduct)xprod).removeCondition((String[])this.opList.get(i).contents);
 	            //tables = xprod.removeChildren((String[])this.opList.get(i).contents);
@@ -303,7 +372,7 @@ public class OpTree {
 		if (attr.contains(".")) {
 			
 			// Get the table name from the F.Q. attribute					
-			table_name = getTableNameFromFQAttribute(attr);
+			table_name = Utility.getTable(attr);
 			
 			// Check to make sure the table specified contains the attribute
 			if (!((RelationInfo)this.sc.getRelationCatalog().get(table_name)).hasAttribute(attr.substring(attr.indexOf("."), attr.length()))) error = true; 
@@ -326,11 +395,6 @@ public class OpTree {
 		
 	}
 	
-	public static String getTableNameFromFQAttribute(String attr) {
-	
-		return attr.substring(0, attr.indexOf("."));
-		
-	}
 	
 	
 	/**
