@@ -12,7 +12,7 @@ public class IndexScan implements IteratorInterface {
 	Iterator iterator;
 	RelationInfo R;
 	Main main;
-	String [][] where;
+	String [] where;
 	
 	public IndexScan(Main main, RelationInfo R, String [] where)
 	{
@@ -49,8 +49,10 @@ public class IndexScan implements IteratorInterface {
 				break;
 			}
 		}
-		// get index information
-		TreeMap index = R.getIndexInfo().getIndex();
+		
+		// get index info
+		IndexInfo indexInfo = (IndexInfo)R.getIndexInfos().get(where[0]);
+		TreeMap index = indexInfo.getIndex();
 		// check the type of operation ( >, < or =)
 		if (where[2].equals(">"))
 		{
