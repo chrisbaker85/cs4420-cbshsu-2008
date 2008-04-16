@@ -48,7 +48,7 @@ public class Filter implements IteratorInterface {
 		main.createTable(tempTableName, atts, true);
 		
 		// find out which condition is indexed
-		
+		/*
 		int indexPos = -1;
 		for (int i = 0; i < where.length; i++)
 		{
@@ -60,8 +60,9 @@ public class Filter implements IteratorInterface {
 		}
 		// set index exists false right now
 		indexPos = -1;
-		if (indexPos == -1)
-		{
+		*/
+		//if (indexPos == -1)
+		//{
 			// get the position of condition in the array of attributes
 			int [] pos = new int[where.length];
 			int ind = 0; 
@@ -121,25 +122,25 @@ public class Filter implements IteratorInterface {
 					}
 				}
 			}
-		}
+		//}
+		/*
 		else
 		{
-			/**
-			 * 1. get all the keys that meet the condition of that index
-			 * 2. in each tuple that meet the condition, compare with the rest of conditions
-			 * 3. insert the tuple that meet all the condition 
-			 */
+			
+			// 1. get all the keys that meet the condition of that index
+			// 2. in each tuple that meet the condition, compare with the rest of conditions
+			// 3. insert the tuple that meet all the condition 
 			
 			TreeMap index = R.getIndexInfo().getIndex();
 			if (where[1].equals(">"))
 			{
 				// get the sorted key larder than specified value 
 				SortedMap sortedmap = index.tailMap(where[2]);
-				/**
-				 * 1. get the offsets
-				 * 2. get the tuple using the offset
-				 * 3. insert tuple into tempRelation using main.insertQuery()
-				 */
+				
+				// 1. get the offsets
+				// 2. get the tuple using the offset
+				// 3. insert tuple into tempRelation using main.insertQuery()
+				 
 				
 				TreeMap tempTree = new TreeMap(sortedmap);
 				
@@ -169,11 +170,11 @@ public class Filter implements IteratorInterface {
 			} 
 			if (where[1].equals("="))
 			{
-				/**
-				 * 1. get the offset using TreeMap.get()
-				 * 2. convert it to tuple 
-				 * 3. insert tuple into tempRelation using main.insertQuery()
-				 */
+				
+				// 1. get the offset using TreeMap.get()
+				// 2. convert it to tuple 
+				// 3. insert tuple into tempRelation using main.insertQuery()
+				
 				Integer offset = (Integer)index.get(where[2]);
 				if (offset != null)
 				{
@@ -199,11 +200,10 @@ public class Filter implements IteratorInterface {
 			}
 			if (where[1].equals("<"))
 			{
-				/**
-				 * 1. get the offsets
-				 * 2. get the tuple using the offset
-				 * 3. insert tuple into tempRelation using main.insertQuery()
-				 */
+			
+			    // 1. get the offsets
+				// 2. get the tuple using the offset
+				// 3. insert tuple into tempRelation using main.insertQuery()
 				
 				// get the sorted key larder than specified value 
 				SortedMap sortedmap = index.headMap(where[2]);
@@ -234,6 +234,7 @@ public class Filter implements IteratorInterface {
 				}
 			}
 		}
+		*/
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		//RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
 		//iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
