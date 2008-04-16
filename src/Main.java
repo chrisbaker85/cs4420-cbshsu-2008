@@ -174,7 +174,7 @@ public class Main implements QueryEngine
 					nodeList = firstElement.getChildNodes();
 					String num_values = (String)((Node)nodeList.item(0)).getNodeValue().trim();
 					
-					Attribute attObj = new Attribute(name, type, length, isnullable, tableName, id, num_values);
+					Attribute attObj = new Attribute(name, type, length, isnullable, tableName, id, Integer.parseInt(num_values));
 					attributes.put(name, attObj);
 				}
 			}
@@ -381,7 +381,7 @@ public class Main implements QueryEngine
 					output.write("<num_values>0</num_values>\n");
 					output.write("</attribute>\n");
 					// how to get attribute id for the relation
-					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tableName, Integer.toString(i), "0");
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tableName, Integer.toString(i), 0);
 					atts.put(attributes[i][0], attObj);
 				}
 				output.write("</attributes>");
@@ -392,7 +392,7 @@ public class Main implements QueryEngine
 			{
 				for (int i = 0; i < attributes.length; i++)
 				{
-					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tableName, Integer.toString(i), "0");
+					Attribute attObj = new Attribute(attributes[i][0], attributes[i][1], attributes[i][2], attributes[i][3], tableName, Integer.toString(i), 0);
 					atts.put(attributes[i][0], attObj);
 				}
 			}
@@ -847,10 +847,41 @@ public class Main implements QueryEngine
 		System.exit(0);
 	}
 	
-	public void writeSystemCataglog()
+	void writeAttribute(RelationInfo relInfo)
+	{
+		Enumeration e = relInfo.getAttributes().elements();
+		try {
+			// write relations xml files
+			File file = new File(syscat.getDBName() + "_" + relInfo.getName() + ".xml");
+			BufferedWriter output = new BufferedWriter(new FileWriter(file));
+			output.write("<attributes>\n");
+			while(e.hasMoreElements())
+			{
+				Attribute att = (Attribute)e.nextElement();
+				output.write("<attribute>\n");
+				output.write("<name>" + att.getName() + "</name>\n");
+				output.write("<type>" + att.getType() + "</type>\n");
+				output.write("<length>" + att.getLength() + "</length>\n");
+				output.write("<isnullable>" + att.getIsNullable() + "</isnullable>\n");
+				output.write("<relation_name>" + relInfo.getName() + "</relation_name>\n");
+				output.write("<id>" + att.getId() + "</id>\n");
+				output.write("<num_values>" + att.getNumValues() + "</num_values>\n");
+	      		output.write("</attribute>\n");
+			}
+			output.write("</attributes>");
+			output.close();
+		}
+		catch(IOException err)
+		{
+			System.out.print(err.getMessage());
+		}
+	}
+	
+	void writeSystemCataglog()
 	{
 		Enumeration e = syscat.getRelationCatalog().elements();
 		try {
+			// write relations xml files
 			File file = new File(syscat.getDBName() + "_relations.xml");
 			BufferedWriter output = new BufferedWriter(new FileWriter(file));
 			output.write("<relations>\n");
@@ -866,6 +897,9 @@ public class Main implements QueryEngine
 				output.write("<cols_indexed>" + relObj.getColsIndexed() + "</cols_indexed>\n");
 				output.write("<num_block>" + relObj.getNumDataBlocks() + "</num_block>\n");
 	      		output.write("</relation>\n");
+	      		
+	      		// write attribute to file to update number of distinct values
+	      		this.writeAttribute(relObj);
 			}
 			output.write("</relations>");
 			output.close();
