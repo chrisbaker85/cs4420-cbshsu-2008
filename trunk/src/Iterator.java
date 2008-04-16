@@ -114,50 +114,129 @@ public class Iterator {
 	 */
 	public Tuple getNext() {
 		
-		this.current_tuple_num++;
-		this.abs_record_number++;
-		
-		if (Debug.get().debug()) System.out.println("INFO: tuple: " + this.current_tuple_num + "/" + this.num_tuples_in_block);
-		
-		// The iterator is crossing a block boundary, so get the next block
-		if ((this.current_tuple_num + 1) >= this.num_tuples_in_block && (this.abs_record_number < this.records_in_relation)) {
-		
-			this.current_tuple_num = 0;
-			
-			// Increment to get the next block
-			this.current_block_num++;
-			if (Debug.get().debug()) System.out.println("INFO: current_block_number incremented");
-			
-			// Get next block from the BufferManager
-			int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
-			//System.out.println("INFO: blockOffset: " + blockOffset);
-			this.current_block = bm.getBlock(Utility.combine(this.relation_id, blockOffset));
+        // Includes the tuple header
+
+        int tuple_size = len;
+
+        int offset;
 
 
-			// If there is not another block, return null
-			if (this.current_block != null) {
-				
-				// Set num_tuples from the Block we've just gotten
-				this.num_tuples_in_block = this.current_block.getRecordNumber();
-				
-			}
-			
-		}
-		
-		// Includes the tuple header
-		int tuple_size = len;
-		
-		int offset = (tuple_size * this.current_tuple_num) + Parameters.BLOCK_HEADER_SIZE;
-		if (this.current_block == null) {
 
-			if (Debug.get().debug()) System.out.println("INFO: iterator over; return null");
-			return null;
-			
-		}
-		
-		if (Debug.get().debug()) System.out.println("INFO: tuple offset:" + offset + "/block offset:" + Utility.split(this.current_block.blockID)[1] + "/relationinfo:" + this.ri);
-		
-		return new Tuple(offset, this.current_block, this.ri);
+        // The iterator is crossing a block boundary, so get the next block
+
+        if (this.current_tuple_num >= this.num_tuples_in_block
+
+                    && this.abs_record_number <
+this.records_in_relation) {
+
+
+
+              // Reset current tuple number
+
+              this.current_tuple_num = 0;
+
+
+
+              // Increment to get the next block
+
+              this.current_block_num++;
+
+
+
+              if (Debug.get().debug())
+
+                    System.out.println("INFO: current_block_number incremented");
+
+              if (Debug.get().debug())
+
+                    System.out.println("INFO: current_tuple_number: "
+
+                                + this.current_tuple_num);
+
+
+
+              // Get next block from the BufferManager
+
+              int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
+
+              // System.out.println("INFO: blockOffset: " + blockOffset);
+
+              this.current_block =
+bm.getBlock(Utility.combine(this.relation_id,
+
+                          blockOffset));
+
+
+
+              // If there is not another block, return null
+
+              if (this.current_block != null) {
+
+
+
+                    // Set num_tuples from the Block we've just gotten
+
+                    this.num_tuples_in_block =
+this.current_block.getRecordNumber();
+
+
+
+              }
+
+
+
+        }
+
+
+
+        if (Debug.get().debug())
+
+              System.out.println("INFO: tuple: " +
+(this.current_tuple_num + 1)
+
+                          + "/" + this.num_tuples_in_block);
+
+
+
+        offset = (tuple_size * this.current_tuple_num)
+
+                    + Parameters.BLOCK_HEADER_SIZE;
+
+        this.current_tuple_num++;
+
+        this.abs_record_number++;
+
+
+
+        if (this.current_block == null) {
+
+
+
+              if (Debug.get().debug())
+
+                    System.out.println("INFO: iterator over; return null");
+
+              return null;
+
+
+
+        }
+
+
+
+        if (Debug.get().debug())
+
+              System.out.println("INFO: tuple offset:" + offset
+
+                          + "/block offset:"
+
+                          + Utility.split(this.current_block.blockID)[1]
+
+                          + "/relationinfo:" + this.ri);
+
+
+
+        return new Tuple(offset, this.current_block, this.ri);
 		
 	}
 	
