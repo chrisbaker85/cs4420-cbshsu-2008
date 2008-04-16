@@ -8,10 +8,10 @@ public class Attribute {
 	private String isNullable;
 	private String relationName;
 	private String id;
-	private String numValues;
-	private Hashtable<String, Integer> distinctValues= new Hashtable<String, Integer>();
+	private int numValues;
+	private Hashtable<String, Integer> distinctValues = new Hashtable<String, Integer>();;
 	
-	public Attribute(String name, String type, String length, String nullable, String relation, String id, String numValues)
+	public Attribute(String name, String type, String length, String nullable, String relation, String id, int numValues)
 	{
 		this.name = name;
 		this.type = type;
@@ -101,13 +101,13 @@ public class Attribute {
 		
 	}
 	
-	void setNumValues(String numValues) {
+	void setNumValues(int numValues) {
 		
 		this.numValues = numValues;
 		
 	}
 	
-	String getNumValues() {
+	int getNumValues() {
 		
 		return this.numValues;
 		
@@ -115,7 +115,7 @@ public class Attribute {
 	
 	int getDistinctValues()
 	{
-		return this.distinctValues.size();
+		return this.numValues;
 	}
 	
 	int getDuplicateNumber(String key)
@@ -134,8 +134,8 @@ public class Attribute {
 		else
 		{
 			distinctValues.put(key, 1);
+			this.numValues++;
 		}
-			
 	}
 	
 	/**
