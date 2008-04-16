@@ -554,36 +554,26 @@ public class Main implements QueryEngine
 			relObj.updateBlockNumber(1);
 		}
 		
-		/*
-		// extract the key and insert into index in relation info using relObj
-		String[] indexNames = relObj.getColsIndexed().split(",");
+		// test if there is index
+		if (relObj.getColsIndexed() > 0)
+		{
+			// get index info hashtable
+			Hashtable indexInfos = relObj.getIndexInfos();
 		
-		//if (!indexName.equals("-1")) {
-		if (indexNames.length > 0 && !indexNames[0].equals("-1")) {
-
-		    for (int i = 0; i < indexNames.length; i++) {
-		                
-		        String indexName = indexNames[i];
-		        
-		        System.out.println("INFO: indexName " + indexName);
-		        
-		        // search in array for the key
-	            int ind;
-	            for (ind = 0; ind < query[0].length; ind++)
-	            {
-	                if (query[0][ind].equals(indexName)) break;
-	            }
-	            // get key to insert into Index
-	            int key = Integer.parseInt(query[1][ind]);
-	            relObj.getIndexInfos().put(key, lastOffset);
-	            // write it to file.
-	            String filename = indexName + "_index.txt";
-	            String line = key + "\t" + lastOffset + "\n";
-	            Utility.appendToFile(filename, line);
-   
-		    }
+			// loop through all the inserted attributes and search if they are indexes
+			for (int i = 0; i < query[0].length; i++)
+			{
+				if (indexInfos.containsKey(query[0][i]))
+				{
+					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
+					TreeMap index = indexInfo.getIndex();
+					// insert key and values into 
+					 int key = Integer.parseInt(query[1][i]);
+				     index.put(key, lastOffset);
+				}
+			}
 		}
-		*/
+		
 		this.writeSystemCataglog();
 		return true;
 	}
@@ -612,11 +602,27 @@ public class Main implements QueryEngine
        		
 	       	int ind = data.size() - 1;
 	       
+	       	data.add(ind++, "<index>");
+	       	data.add(ind++, indexName);
+	       	data.add(ind++, attName);
+	       	if (isDuplicate) data.add(ind, "yes");
+	       	else data.add(ind++, "no");
+	       	data.add(ind++, "</index>");
+	       	data.add(ind++, "</indexs>");
 	       	
-	       	// create a blank file to store index
-			File file = new File(tableName + "_" + indexName + "_index.txt");
+	       	File file = new File(this.syscat.getDBName() + "_" + tableName + "_index.xml");
 		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
+		    
+		    for (int i = 0; i < data.size(); i++)
+		    {
+		    	output.write(data.get(i));
+		    }
 		    output.close();
+		    
+	       	// create a blank file to store index
+			File blank_file = new File(tableName + "_" + indexName + "_index.txt");
+		    BufferedWriter blank_output = new BufferedWriter(new FileWriter(blank_file));
+		    blank_output.close();
 		}
 		catch(IOException e)
 		{
