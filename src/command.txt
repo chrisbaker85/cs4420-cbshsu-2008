@@ -1,5 +1,5 @@
-create table students (id int 4 no, name string 15 no, department string 3 yes)
-select * from catalog
+create table students (id int 40 no, name string 15 no, department string 30 yes)
+//select * from catalog
 insert into students (id, name, department) values (1, sovandy, d1)
 insert into students (id, name, department) values (2, chris, d1)
 insert into students (id, name, department) values (3, sami, d2)
@@ -35,6 +35,7 @@ insert into students (id, name, department) values (31, Nina, d16)
 insert into students (id, name, department) values (32, Oliver, d16)
 insert into students (id, name, department) values (33, Orlando, d17)
 select * from catalog
-select * from students where name = Oliver
-select * from students where department = d10
-select * from students
+//select * from students where name = Oliver
+//select * from students where department = d10
+//select * from students
+select name from students
