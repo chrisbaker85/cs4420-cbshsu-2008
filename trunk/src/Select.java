@@ -28,7 +28,7 @@ public class Select implements IteratorInterface {
 	// public void open(RelationInfo R, String [] where, Index idx)
 	public RelationInfo open()
 	{
-		String tempTableName = R.getName() + "_selected";
+		String tempTableName = R.getName() + "_select";
 		Hashtable attHash = R.getAttribute();
 		String [] attNames = Utility.getAttributeNames(attHash);
 		String [][] atts = new String[attNames.length][4];
@@ -79,9 +79,9 @@ public class Select implements IteratorInterface {
 						main.insertQuery(tempTableName, query);
 					}
 				}
-				if (where[1].equals("="))
+				if (where[2].equals("="))
 				{
-					// TODO check type to see if it's int or string. Then, compare the two
+					// check type to see if it's int or string. Then, compare the two
 					Attribute a = (Attribute)attHash.get(attNames[ind]);
 					// if it's integer
 					if(a.getType().equals("int"))
@@ -124,8 +124,10 @@ public class Select implements IteratorInterface {
 		else
 		{
 			System.out.println("In case there is index");
-			// get index information
-			TreeMap index = R.getIndexInfo().getIndex();
+			// 
+			
+			IndexInfo indexInfo = (IndexInfo)R.getIndexInfos().get(where[0]);
+			TreeMap index = indexInfo.getIndex();
 			int indPos = -1;
 			// find the postion of index in atttribute array
 			for (int i = 0; i < attNames.length; i++)
