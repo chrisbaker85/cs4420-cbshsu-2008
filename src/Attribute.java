@@ -1,3 +1,4 @@
+import java.util.Hashtable;
 
 public class Attribute {
 
@@ -8,6 +9,7 @@ public class Attribute {
 	private String relationName;
 	private String id;
 	private String numValues;
+	private Hashtable<String, Integer> distinctValues= new Hashtable<String, Integer>();
 	
 	public Attribute(String name, String type, String length, String nullable, String relation, String id, String numValues)
 	{
@@ -109,6 +111,31 @@ public class Attribute {
 		
 		return this.numValues;
 		
+	}
+	
+	int getDistinctValues()
+	{
+		return this.distinctValues.size();
+	}
+	
+	int getDuplicateNumber(String key)
+	{
+		return (Integer)distinctValues.get(key);
+	}
+	
+	void updateDistinctValues(String key)
+	{
+		if (distinctValues.containsKey(key))
+		{
+			int num = (Integer)distinctValues.get(key);
+			num++;
+			distinctValues.put(key, num);
+		}
+		else
+		{
+			distinctValues.put(key, 1);
+		}
+			
 	}
 	
 	/**
