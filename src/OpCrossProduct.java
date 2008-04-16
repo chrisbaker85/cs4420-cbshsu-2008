@@ -38,10 +38,10 @@ public class OpCrossProduct extends Op {
 		   
 		for (int i = 0; i < this.children.length; i++) {
 			
-			if (this.children[i]) {
-				
-				
-			}
+//			if (this.children[i]) {
+//				
+//				
+//			}
 			
 		}
 		
