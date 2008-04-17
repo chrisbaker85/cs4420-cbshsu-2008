@@ -751,12 +751,8 @@ public class Main implements QueryEngine
 	
 	public boolean selectQuery(String[] tableNames, String [] fields, String [][] where)
 	{
-		
 		OpTree ot = new OpTree(this.syscat, tableNames, fields, where);
-		
 		int opNumber = ot.getNumOps();
-		// optable: hashtable to store all temporary relations
-		//Hashtable<Integer, Op> optable = new Hashtable<Integer, Op>();
 		Op op = ot.nextOp();
 		Op currentOp = op; 
 		int lastIndex;
@@ -770,19 +766,52 @@ public class Main implements QueryEngine
 				// RelationInfo R = op.getInfo();
 				if (Debug.get().debug()) System.out.println("INFO: In select");
 				RelationInfo R = op.left().getInfo();
-				String [] conditions = (String [])op.getContents();
+				String [][] conditions = (String [][])op.getContents();
+				
 				// figure out if it's index or not
 				boolean hasIndex = false;
-				for (int i = 0; i < conditions.length; i++)
+				int indexPos = 0;
+				RelationInfo result = null;
+				if (R.getColsIndexed() > 0)
 				{
-					if (conditions[i].equals(R.getColsIndexed())) 
+					for (int i = 0; i < conditions.length; i++)
 					{
-						hasIndex = true;
-						break;
+						// loop through indexes to find the match
+						if (R.getIndexInfos().containsKey(conditions[i][0])) 
+						{
+							indexPos = i;
+							hasIndex = true;
+							break;
+						}
 					}
 				}
-				Select myselect = new Select(this, R, conditions, false);
-				RelationInfo result = myselect.open();
+				if (hasIndex && conditions.length > 1)
+				{
+					System.out.println("It's indexe-based select and sort-based filter");
+					Select myselect = new Select(this, R, conditions[indexPos], true);
+					RelationInfo temp = myselect.open();
+					conditions[indexPos] = null;
+					Filter myfilter = new Filter(this, temp, conditions);
+					result = myfilter.open();
+				}
+				else if (hasIndex && conditions.length == 1)
+				{
+					System.out.println("It's sort-based select");
+					Select myselect = new Select(this, R, conditions[0], true);
+					result = myselect.open();
+				}
+				else if (!hasIndex && conditions.length > 1)
+				{
+					System.out.println("It's sort-based filter");
+					Filter myfilter = new Filter(this, R, conditions);
+					result = myfilter.open();
+				}
+				else if (!hasIndex && conditions.length == 1)
+				{
+					System.out.println("It's sort-based select");
+					Select myselect = new Select(this, R, conditions[0], true);
+					result = myselect.open();
+				}
 				op.info = result;
 				//optable.put(new Integer(op.getID()), op);
 			}
@@ -809,6 +838,7 @@ public class Main implements QueryEngine
 				RelationInfo leftR = leftOp.getInfo();
 				Op rightOp = op.right();
 				RelationInfo rightR = rightOp.getInfo();
+				// TODO find out which one is inner loop, and outer loop, which one has index, number of distinct value
 				CrossProduct mycp = new CrossProduct(this, leftR, rightR);
 				RelationInfo result = mycp.open();
 				op.info = result;
