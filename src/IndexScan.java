@@ -39,13 +39,13 @@ public class IndexScan implements IteratorInterface {
 		main.createTable(tempTableName, atts, true);
 		
 		// get index position
-		int indPos = -1;
+		int indexPos = -1;
 		// find the postion of index in atttribute array
 		for (int i = 0; i < attNames.length; i++)
 		{
 			if (attNames[i].equals(R.getColsIndexed()))
 			{
-				indPos = i;
+				indexPos = i;
 				break;
 			}
 		}
@@ -68,19 +68,21 @@ public class IndexScan implements IteratorInterface {
 			
 			for (int i = 0; i < tempTree.size(); i++)
 			{
+				// get first key and value
 				int firstkey = (Integer)tempTree.firstKey();
 				int offset = (Integer)index.get(firstkey); // offset in reference to the table
 				tempTree.remove(firstkey);
-				int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
+				
+				// start scanning
 				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
 				// get the block that the tuple is in
-				Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
 				int tupleOffset = 3;
-				for (int j = 0; j < tupleNumPerBlock; j++)
+				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
 				{
-					byte [] data = current_block.getTupleContent(offset, tupleSize);
+					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indPos].equals(where[1])) 
+					if (results[indexPos].equals(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -99,17 +101,15 @@ public class IndexScan implements IteratorInterface {
 			Integer offset = (Integer)index.get(where[1]);
 			if (offset != null)
 			{
-				// scan through block to find the tuple
-				int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
 				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
 				// get the block that the tuple is in
-				Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
 				int tupleOffset = 3;
-				for (int j = 0; j < tupleNumPerBlock; j++)
+				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
 				{
-					byte [] data = current_block.getTupleContent(offset, tupleSize);
+					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indPos].equals(where[1])) 
+					if (results[indexPos].equals(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
@@ -135,16 +135,16 @@ public class IndexScan implements IteratorInterface {
 				int firstkey = (Integer)tempTree.firstKey();
 				int offset = (Integer)index.get(firstkey); // offset in reference to the table
 				tempTree.remove(firstkey);
-				int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
+				
 				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
 				// get the block that the tuple is in
-				Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
 				int tupleOffset = 3;
-				for (int j = 0; j < tupleNumPerBlock; j++)
+				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
 				{
-					byte [] data = current_block.getTupleContent(offset, tupleSize);
+					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indPos].equals(where[1])) 
+					if (results[indexPos].equals(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
