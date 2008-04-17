@@ -83,7 +83,9 @@ public class UI {
 			        e.printStackTrace();
 			      }
 			      
-			      running = false;
+			      // Set the filename to null to return to prompt-mode 
+			      filename = null;
+			      //running = false;
 				
 			} else {
 				
@@ -194,7 +196,7 @@ public class UI {
 		
 		this.proc.exit();
 		
-		System.out.println("/////////////////////////////////////////////\nThe database has been closed.\n/////////////////////////////////////////////\n");
+		System.out.println("\n\n/////////////////////////////////////////////\nThe database has been closed.\n/////////////////////////////////////////////\n");
 		
 	}
 	
