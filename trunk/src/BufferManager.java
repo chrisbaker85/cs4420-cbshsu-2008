@@ -130,9 +130,13 @@ public class BufferManager {
 	 */
 	public Block getBlock(long blockID) {
 		
+	    System.out.println("INFO: getBlock entered");
+	    
 		if (!this.lookupTable.containsKey(blockID))
 			readBlock(blockID);
-
+		
+		System.out.println("INFO: readBlock success");
+		
 		int slot_num = ((Integer)lookupTable.get(blockID)).intValue();
 
 		return buffer[slot_num];
@@ -149,6 +153,8 @@ public class BufferManager {
 	 */
 	private int nextSlot() {
 
+	    System.out.println("INFO: nextSlot entered");
+	    
 		int i = 0;
 		Block temp = null;
 
@@ -159,6 +165,8 @@ public class BufferManager {
 			}
 			i++;
 		}
+		
+		System.out.println("INFO: no empty blocks found");
 
 		i = 0;
 
@@ -179,8 +187,11 @@ public class BufferManager {
 					return i;
 				}
 			}
+			i++;
 		}
 
+		System.out.println("INFO: no dirty && unpinned blocks found");
+		
 		i = 0;
 
 		// Find any block that is not pinned
@@ -211,6 +222,8 @@ public class BufferManager {
 	 */
 	public void readBlock(long blockID) {
 
+	    System.out.println("INFO: readBlock entered");
+	    
 		// Get the next available space in the buffer
 		int slot_num = nextSlot();
 
@@ -221,6 +234,7 @@ public class BufferManager {
 //		System.out.println("Reading Block with offset " + Utility.split(blockID)[1]);
 		
 		// As long as we have an available slot...
+		System.out.println("INFO: slotnum:" + slot_num);
 		if (slot_num != -1)
 		{
 			try 
@@ -236,6 +250,8 @@ public class BufferManager {
 						FileChannel.MapMode.READ_WRITE, 0, fileIn.length());
 				fileChannel.read(tempBuffer);
 
+				
+				
 				// Make a new byte array the size of a block
 				byte[] temp = new byte[Parameters.BLOCK_SIZE];
 
@@ -257,8 +273,10 @@ public class BufferManager {
 				fileIn.close();
 				
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				System.out.println("INFO: FileNotFoundException");
+			    e.printStackTrace();
 			} catch (IOException e) {
+			    System.out.println("INFO: IOException");
 				e.printStackTrace();
 			}
 		}
