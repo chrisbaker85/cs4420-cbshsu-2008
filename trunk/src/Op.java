@@ -107,13 +107,13 @@ public abstract class Op {
 		
 	}
 	
-	public String toString() {
+	public String getString() {
 		
 		String output = null;
 		String contents = "";
-		int children = ((this.children == null)?(0):(this.children.length));
+		String children = "";
 		
-		output = "|op:" + this.opType.name() + "\n|info: " + this.info + "\n|contents: ";
+		output = "|op: (" + this + ")\n|info: " + this.info + "\n|contents: ";
 		
 		if (!(this.getContents() == null)) {
 		
@@ -126,6 +126,14 @@ public abstract class Op {
 						
 				
 			} else if (this instanceof OpProject) {
+				
+				for (int i = 0; i < ((String[])this.getContents()).length; i++) {
+					
+					output += "(" + ((String[])this.getContents())[i] + ")";
+					
+				}
+				
+			} else if (this instanceof OpJoin) {
 				
 				for (int i = 0; i < ((String[])this.getContents()).length; i++) {
 					
@@ -146,6 +154,17 @@ public abstract class Op {
 			output += "\n|relationinfo set";
 			
 		}
+
+		if (this.children != null) {
+		
+			for (int i = 0; i < this.children.length; i++) {
+				
+				children += "(" + this.children[i] + ")";
+				
+			}
+			
+		}
+		
 		
 		output += "\n|children:" + children + "\n\n";
 		
@@ -153,7 +172,7 @@ public abstract class Op {
 		if (this.children != null) {
 		for (int i = 0; i < this.children.length; i++) {
 
-			output += this.children[i].toString();
+			output += this.children[i].getString();
 			
 		}
 		}
@@ -208,10 +227,27 @@ public abstract class Op {
         return (e1 && e2);
         
     }
-   
+
+   /**
+    * Swaps out an operator for another
+    * Useful when pushing operators up and down
+    * @param oldChild the old operator to be replaced
+    * @param newChild the new operator to replace the old
+    */
    public void swapChildren(Op oldChild, Op newChild) {
 	   
-	   // TODO: Implement Me...accidently erased!
+	   for (int i = 0; i < this.children.length; i++) {
+		   
+		   if (this.children[i] == oldChild) {
+			   
+			   this.children[i] = newChild;
+			   
+			   if (Debug.get().debug()) System.out.println("INFO: swapped [" + oldChild.getType() + "] with [" + newChild.getType() + "]");
+			   
+		   }
+		   
+	   }
+	   
 	   
    }
    
@@ -260,6 +296,22 @@ public abstract class Op {
 	public int getID() {
 		
 		return this.id;
+		
+	}
+	
+	public void addChild(Op newChild) {
+		
+		Op[] children = new Op[this.children.length + 1];
+		
+		for (int i = 0; i < this.children.length; i++) {
+			
+			children[i] = this.children[i];
+			
+		}
+		
+		children[children.length - 1] = newChild;
+		
+		this.children = children;
 		
 	}
 	
