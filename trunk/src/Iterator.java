@@ -117,7 +117,7 @@ public class Iterator {
 	 */
 	public Tuple getNext() {
 
-	    System.out.println("INFO: getNext()");
+	    if (Debug.get().debug()) System.out.println("INFO: getNext()");
 	    
 		// Includes the tuple header
 		int tuple_size = len;
@@ -137,10 +137,10 @@ public class Iterator {
 
 			// Get next block from the BufferManager
 			int blockOffset = this.current_block_num * Parameters.BLOCK_SIZE;
-			System.out.println("INFO: blockOffset: " + blockOffset);
+			if (Debug.get().debug()) System.out.println("INFO: blockOffset: " + blockOffset);
 
 			this.current_block = bm.getBlock(Utility.combine(this.relation_id, blockOffset));
-			System.out.println("INFO: block retrieved");
+			if (Debug.get().debug()) System.out.println("INFO: block retrieved");
 
 			// If there is not another block, return null
 			if (this.current_block != null) {
