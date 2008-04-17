@@ -73,11 +73,11 @@ public class IndexScan implements IteratorInterface {
 				int offset = (Integer)index.get(firstkey); // offset in reference to the table
 				tempTree.remove(firstkey);
 				
-				// start scanning
 				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
 				// get the block that the tuple is in
 				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
 				int tupleOffset = 3;
+				
 				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
 				{
 					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
