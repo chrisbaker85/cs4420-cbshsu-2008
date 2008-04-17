@@ -724,13 +724,13 @@ public class Main implements QueryEngine
 		while(e.hasMoreElements())
 		{
 			RelationInfo relObj = (RelationInfo)e.nextElement();
-			System.out.println("====================================================");
+			System.out.println("=====================================================");
 			System.out.println("Relation name:\t\t" + relObj.getName());
 			System.out.println("Date created:\t\t" + relObj.getDateCreated());
 			System.out.println("Date modified:\t\t" + relObj.getDateModified());
 			System.out.println("Tuple numbers:\t\t" + relObj.getNumTuples());
 			System.out.println("Block numbers:\t\t" + relObj.getNumDataBlocks());
-			System.out.println("====================================================");
+			System.out.println("=====================================================");
 	
 			Enumeration e1 = relObj.getAttribute().elements();
 			System.out.println("*************** Attribute Information ***************");
