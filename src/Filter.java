@@ -47,194 +47,79 @@ public class Filter implements IteratorInterface {
 		// create a temporary relation
 		main.createTable(tempTableName, atts, true);
 		
-		// find out which condition is indexed
-		/*
-		int indexPos = -1;
-		for (int i = 0; i < where.length; i++)
+		
+		// get the position of condition in the array of attributes
+		int [] pos = new int[where.length];
+		int ind = 0; 
+		for (int i = 0; i < attNames.length; i++)
 		{
-			if (R.getColsIndexed().equals(where[i]))
+			if (attNames[i].equals(where[0]))
 			{
-				indexPos = i;
-				break;
+				pos[ind++] = i;
 			}
 		}
-		// set index exists false right now
-		indexPos = -1;
-		*/
-		//if (indexPos == -1)
-		//{
-			// get the position of condition in the array of attributes
-			int [] pos = new int[where.length];
-			int ind = 0; 
-			for (int i = 0; i < attNames.length; i++)
-			{
-				if (attNames[i].equals(where[0]))
-				{
-					pos[ind++] = i;
-				}
-			}
-			// use tablescan to iterate through relation
-			//IteratorInterface iterator = new TableScan(main, R);
-			Iterator iterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks())); 
-
-			Tuple tuple;
-			
-			
-			for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
-			{
-				tuple = iterator.getNext();
-				Block block = tuple.getBlock();
-				int offset = tuple.getOffset();
-				byte [] content = block.getTupleContent(offset, tupleSize);
-				String [] results = Utility.convertTupleToArray(attHash, content);
-				// compare it result with condition
-				boolean allOp = true;
-				for (int j = 0; j < where.length; j++)
-				{
-					if (where[1].equals(">"))
-					{
-						if (Integer.parseInt(results[ind]) <= Integer.parseInt(where[j][2]))
-						{
-							allOp = false;
-							break;
-						}
-					}
-					if (where[1].equals("="))
-					{
-						if (Integer.parseInt(results[ind]) != Integer.parseInt(where[j][2]))
-						{
-							allOp = false;
-							break;
-						}	
-					}
-					if (where[1].equals("<"))
-					{
-						if (Integer.parseInt(results[ind]) >= Integer.parseInt(where[j][2]))
-						{
-							allOp = false;
-							break;
-						}
-					}
-					if (allOp)
-					{
-						// insert tuple into tempTableName by calling main.insertQuery()
-						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
-					}
-				}
-			}
-		//}
-		/*
-		else
+		// use tablescan to iterate through relation
+		Iterator iterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks())); 
+		Tuple tuple;
+		
+		// TODO figure out the order of condition based on the number of distinct values, small should be done first?
+		
+		for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
 		{
-			
-			// 1. get all the keys that meet the condition of that index
-			// 2. in each tuple that meet the condition, compare with the rest of conditions
-			// 3. insert the tuple that meet all the condition 
-			
-			TreeMap index = R.getIndexInfo().getIndex();
-			if (where[1].equals(">"))
+			tuple = iterator.getNext();
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] content = block.getTupleContent(offset, tupleSize);
+			String [] results = Utility.convertTupleToArray(attHash, content);
+			// compare it result with condition
+			boolean allOp = true;
+			for (int j = 0; j < where.length; j++)
 			{
-				// get the sorted key larder than specified value 
-				SortedMap sortedmap = index.tailMap(where[2]);
-				
-				// 1. get the offsets
-				// 2. get the tuple using the offset
-				// 3. insert tuple into tempRelation using main.insertQuery()
-				 
-				
-				TreeMap tempTree = new TreeMap(sortedmap);
-				
-				for (int i = 0; i < tempTree.size(); i++)
+				if (where[j] != null && where[j][2].equals(">"))
 				{
-					int firstkey = (Integer)tempTree.firstKey();
-					int offset = (Integer)index.get(firstkey); // offset in reference to the table
-					tempTree.remove(firstkey);
-					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
-					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
-					// get the block that the tuple is in
-					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
-					int tupleOffset = 3;
-					for (int j = 0; j < tupleNumPerBlock; j++)
+					if (Integer.parseInt(results[ind]) <= Integer.parseInt(where[j][2]))
 					{
-						byte [] data = current_block.getTupleContent(offset, tupleSize);
-						String [] results = Utility.convertTupleToArray(attHash, data);
-						if (results[indexPos].equals(where[2])) 
+						allOp = false;
+						break;
+					}
+				}
+				if (where[j] != null && where[j][2].equals("="))
+				{
+					// test the attribute type
+					Attribute att = (Attribute)attHash.get(where[j][0]);
+					if (att.getType().equals("string"))
+					{	
+						if (!results[ind].startsWith(where[j][1]))
 						{
-							// TODO: compare with other conditions
-							// insert the tuple into temporary table 
-							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
+							allOp = false;
+							break;
+						}
+					}
+					else 
+					{
+						if (Integer.parseInt(results[ind]) != Integer.parseInt(where[j][1]))
+						{
+							allOp = false;
 							break;
 						}
 					}
 				}
-			} 
-			if (where[1].equals("="))
-			{
-				
-				// 1. get the offset using TreeMap.get()
-				// 2. convert it to tuple 
-				// 3. insert tuple into tempRelation using main.insertQuery()
-				
-				Integer offset = (Integer)index.get(where[2]);
-				if (offset != null)
+				if (where[j] != null && where[j][2].equals("<"))
 				{
-					// scan through block to find the tuple
-					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
-					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
-					// get the block that the tuple is in
-					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
-					int tupleOffset = 3;
-					for (int j = 0; j < tupleNumPerBlock; j++)
+					if (Integer.parseInt(results[ind]) >= Integer.parseInt(where[j][2]))
 					{
-						byte [] data = current_block.getTupleContent(offset, tupleSize);
-						String [] results = Utility.convertTupleToArray(attHash, data);
-						if (results[indexPos].equals(where[2])) 
-						{
-							// TODO: compare with other conditions
-							// insert the tuple into temporary table 
-							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
-							break;
-						}
+						allOp = false;
+						break;
 					}
 				}
-			}
-			if (where[1].equals("<"))
-			{
-			
-			    // 1. get the offsets
-				// 2. get the tuple using the offset
-				// 3. insert tuple into tempRelation using main.insertQuery()
-				
-				// get the sorted key larder than specified value 
-				SortedMap sortedmap = index.headMap(where[2]);
-				
-				TreeMap tempTree = new TreeMap(sortedmap);
-				for (int i = 0; i < tempTree.size(); i++)
+				if (allOp)
 				{
-					int firstkey = (Integer)tempTree.firstKey();
-					int offset = (Integer)index.get(firstkey); // offset in reference to the table
-					tempTree.remove(firstkey);
-					int tupleNumPerBlock = Parameters.BLOCK_SIZE / tupleSize;
-					RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
-					// get the block that the tuple is in
-					Block current_block = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
-					int tupleOffset = 3;
-					for (int j = 0; j < tupleNumPerBlock; j++)
-					{
-						byte [] data = current_block.getTupleContent(offset, tupleSize);
-						String [] results = Utility.convertTupleToArray(attHash, data);
-						if (results[indexPos].equals(where[2])) 
-						{
-							// TODO: compare with other condition
-							// insert the tuple into temporary table 
-							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
-							break;
-						}
-					}
+					// insert tuple into tempTableName by calling main.insertQuery()
+					main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 				}
 			}
 		}
-		*/
+		
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		//RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
 		//iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
