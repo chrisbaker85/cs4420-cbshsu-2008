@@ -531,8 +531,7 @@ public class OpTree {
 		
 		if (this.opCursor + 1 < this.queryList.size()) {
 			
-			
-			System.out.println("INFO: LIST SIZE: " + this.opList.size() + "/CURSOR: " + this.opCursor);
+		    if (Debug.get().debug()) System.out.println("INFO: LIST SIZE: " + this.opList.size() + "/CURSOR: " + this.opCursor + " is a: " + this.queryList.get(this.opCursor).getType());
 			return this.queryList.get(this.opCursor);
 			
 		}
