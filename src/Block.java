@@ -182,7 +182,7 @@ public class Block {
 		// We only increment the tuple count if we're simply inserting a record
 		// We DON'T want to increment if we're simply creating a new Block object
 		if (data.length < Parameters.BLOCK_SIZE && data.length > 0) this.updateRecordNumber(1);
-		System.out.println("INFO: WRITING " + data.length + "bytes (" + this.getRecordNumber() + ") tuples");
+		if (Debug.get().debug()) System.out.println("INFO: WRITING " + data.length + "bytes (" + this.getRecordNumber() + ") tuples");
 		this.isPinned = false;
 	}
 	
