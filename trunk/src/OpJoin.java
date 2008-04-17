@@ -19,6 +19,17 @@ public class OpJoin extends Op {
 		
 	}
 	
+	OpJoin(OpJoin leftChild, String table2, String[] comp, Op parent) {
+		
+		this.parent = parent;
+		this.setType(this.opType.JOIN);
+		this.contents = comp;
+		this.children = new Op[2];
+		this.children[0] = leftChild;
+		this.children[1] = new OpTable(table2, this);
+		
+	}
+	
 	/**
 	 * Helps assembly of joins from cross product
 	 * @param relationName the relation to look for in the join
