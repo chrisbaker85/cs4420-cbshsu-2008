@@ -47,7 +47,7 @@ public class Utility {
 	 */
 	public static final int makeIntFromByte4(byte[] b) {
 		
-		return b[0]<<24 | (b[1]&0xff)<<16 | (b[2]&0xff)<<8 | (b[3]&0xff);
+		return (b[0]&0xff)<<24 | (b[1]&0xff)<<16 | (b[2]&0xff)<<8 | (b[3]&0xff);
 		
 	}
 	
@@ -59,7 +59,7 @@ public class Utility {
 	 */
 	public static final byte[] makeByte4FromInt(int i) {
 		
-		return new byte[] { (byte)(i>>24), (byte)(i>>16), (byte)(i>>8), (byte)i };
+		return new byte[] { (byte)((i>>24)&0xff), (byte)((i>>16)&0xff), (byte)((i>>8)&0xff), (byte)(i&0xff) };
 		
 	}
 	
@@ -347,6 +347,13 @@ public class Utility {
 //	    System.out.println("i2: " + Integer.toBinaryString(i2));
 //	    System.out.println(" l: " + Long.toBinaryString(l));
 //	    System.out.println(temp[0] + ", " + temp[1]);
+	    
+	    int a = 11;
+	    int b;
+	    byte[] temp = Utility.makeByte4FromInt(a);
+	    b = Utility.makeIntFromByte4(temp);
+	    System.out.println(b);
+	    
 
 	}
 
