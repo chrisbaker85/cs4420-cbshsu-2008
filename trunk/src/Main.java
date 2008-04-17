@@ -617,6 +617,14 @@ public class Main implements QueryEngine
 	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean isDuplicate) 
 	{
 		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
+		
+		// check if index already exists
+		if (relInfo.getIndexInfos().containsKey(attName))
+		{
+			System.out.println("Index for field " + attName + " already exists.");
+			return false;
+		}
+		
 		IndexInfo indexInfo = new IndexInfo(indexName, attName, isDuplicate);
 		relInfo.getIndexInfos().put(attName, indexInfo);
 		// increment number of index by 1
@@ -633,12 +641,12 @@ public class Main implements QueryEngine
        		
 	       	int ind = data.size() - 1;
 	       
-	       	data.add(ind++, "<index>");
-	       	data.add(ind++, indexName);
-	       	data.add(ind++, attName);
-	       	if (isDuplicate) data.add(ind, "yes");
+	       	data.add(ind++, "<index>\n");
+	       	data.add(ind++, "<index_name>" + indexName + "</index_name>\n");
+	       	data.add(ind++, "<att_name>" + attName + "</att_name>\n");
+	       	if (isDuplicate) data.add(ind, "<is_duplicate>yes</is_duplicate>\n");
 	       	else data.add(ind++, "no");
-	       	data.add(ind++, "</index>");
+	       	data.add(ind++, "<is_duplicate>no</is_duplicate>\n");
 	       	data.add(ind++, "</indexs>");
 	       	
 	       	File file = new File(this.syscat.getDBName() + "_" + tableName + "_index.xml");
