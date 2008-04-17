@@ -69,11 +69,11 @@ public class Block {
 		byteArray[1] = this.content[1];
 		byteArray[2] = this.content[2];
 		byteArray[3] = this.content[3];
-		if (Debug.get().debug())System.out.println ("getRecordNumber");
-		if (Debug.get().debug())System.out.println ("byteArray[0]: " + byteArray[0]);
-		if (Debug.get().debug())System.out.println ("byteArray[1]: " + byteArray[1]);
-		if (Debug.get().debug())System.out.println ("byteArray[2]: " + byteArray[2]);
-		if (Debug.get().debug())System.out.println ("byteArray[3]: " + byteArray[3]);
+//		if (Debug.get().debug())System.out.println ("getRecordNumber");
+//		if (Debug.get().debug())System.out.println ("byteArray[0]: " + byteArray[0]);
+//		if (Debug.get().debug())System.out.println ("byteArray[1]: " + byteArray[1]);
+//		if (Debug.get().debug())System.out.println ("byteArray[2]: " + byteArray[2]);
+//		if (Debug.get().debug())System.out.println ("byteArray[3]: " + byteArray[3]);
 		return Utility.makeIntFromByte4(byteArray);
 	}
 	
@@ -88,11 +88,11 @@ public class Block {
 		byteArray[1] = this.content[1];
 		byteArray[2] = this.content[2];
 		byteArray[3] = this.content[3];
-		if (Debug.get().debug())System.out.println ("updateRecordNumber");
-		if (Debug.get().debug())System.out.println ("byteArray[0]: " + byteArray[0]);
-		if (Debug.get().debug())System.out.println ("byteArray[1]: " + byteArray[1]);
-		if (Debug.get().debug())System.out.println ("byteArray[2]: " + byteArray[2]);
-		if (Debug.get().debug())System.out.println ("byteArray[3]: " + byteArray[3]);
+//		if (Debug.get().debug())System.out.println ("updateRecordNumber");
+//		if (Debug.get().debug())System.out.println ("byteArray[0]: " + byteArray[0]);
+//		if (Debug.get().debug())System.out.println ("byteArray[1]: " + byteArray[1]);
+//		if (Debug.get().debug())System.out.println ("byteArray[2]: " + byteArray[2]);
+//		if (Debug.get().debug())System.out.println ("byteArray[3]: " + byteArray[3]);
 		int recNum = Utility.makeIntFromByte4(byteArray);
 		if (Debug.get().debug())if (Debug.get().debug())System.out.println ("recNum: " + recNum);
 		
@@ -100,10 +100,10 @@ public class Block {
 		recNum = recNum + numRecords;
 		if (Debug.get().debug())if (Debug.get().debug())System.out.println ("recNum: " + recNum);
 		byteArray = Utility.makeByte4FromInt(recNum);
-		if (Debug.get().debug())System.out.println ("byteArray[0]: " + byteArray[0]);
-		if (Debug.get().debug())System.out.println ("byteArray[1]: " + byteArray[1]);
-		if (Debug.get().debug())System.out.println ("byteArray[2]: " + byteArray[2]);
-		if (Debug.get().debug())System.out.println ("byteArray[3]: " + byteArray[3]);
+//		if (Debug.get().debug())System.out.println ("byteArray[0]: " + byteArray[0]);
+//		if (Debug.get().debug())System.out.println ("byteArray[1]: " + byteArray[1]);
+//		if (Debug.get().debug())System.out.println ("byteArray[2]: " + byteArray[2]);
+//		if (Debug.get().debug())System.out.println ("byteArray[3]: " + byteArray[3]);
 		
 		// Set the new number back
 		content[0] = byteArray[0];
@@ -179,8 +179,10 @@ public class Block {
 			this.content[appendPos+i] = data[i];
 		}
 		
-		if (data.length < Parameters.BLOCK_SIZE) this.updateRecordNumber(1);
-		//System.out.println(this.getRecordNumber());
+		// We only increment the tuple count if we're simply inserting a record
+		// We DON'T want to increment if we're simply creating a new Block object
+		if (data.length < Parameters.BLOCK_SIZE && data.length > 0) this.updateRecordNumber(1);
+		System.out.println("INFO: WRITING " + data.length + "bytes (" + this.getRecordNumber() + ") tuples");
 		this.isPinned = false;
 	}
 	
