@@ -647,7 +647,7 @@ public class Main implements QueryEngine
 	       	if (isDuplicate) data.add(ind++, "<is_duplicate>yes</is_duplicate>\n");
 	       	else data.add(ind++, "<is_duplicate>no</is_duplicate>\n");
 	       	data.add(ind++, "</index>\n");
-	       	data.add(ind++, "</indexs>");
+	       	// data.add(ind++, "</indexs>");
 	       	
 	       	File file = new File(this.syscat.getDBName() + "_" + tableName + "_index.xml");
 		    BufferedWriter output = new BufferedWriter(new FileWriter(file));
@@ -656,6 +656,7 @@ public class Main implements QueryEngine
 		    {
 		    	output.write(data.get(i));
 		    }
+		    //output.write("</indexs>");
 		    output.close();
 		    
 	       	// create a blank file to store index
