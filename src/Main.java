@@ -842,6 +842,7 @@ public class Main implements QueryEngine
 			}
 			else if (op instanceof OpCrossProduct)
 			{
+			    System.out.println("INFO: xprod ri: " + op.getInfo());
 				// call  class CrossProduct here
 				Op leftOp = op.left();
 				RelationInfo leftR = leftOp.getInfo();
@@ -894,7 +895,7 @@ public class Main implements QueryEngine
 		
 		for (int i = 0; i < Integer.parseInt(relObj.getNumTuples().trim()); i++)
 		{
-			if (Debug.get().debug()) System.out.println("INFO: index " + i);
+			if (Debug.get().debug()) System.out.println("INFO: (main) index " + i);
 			tuple = iterator.getNext();
 			Block block = tuple.getBlock();
 			int offset = tuple.getOffset();
@@ -929,7 +930,7 @@ public class Main implements QueryEngine
 	public void exit()
 	{
 		this.writeSystemCataglog();
-		System.exit(0);
+		//System.exit(0);
 	}
 	
 	void writeAttribute(RelationInfo relInfo)
