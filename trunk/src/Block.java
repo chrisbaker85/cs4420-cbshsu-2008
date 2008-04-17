@@ -179,7 +179,7 @@ public class Block {
 			this.content[appendPos+i] = data[i];
 		}
 		
-		if (data.length > 0) this.updateRecordNumber(1);
+		if (data.length < Parameters.BLOCK_SIZE) this.updateRecordNumber(1);
 		//System.out.println(this.getRecordNumber());
 		this.isPinned = false;
 	}
