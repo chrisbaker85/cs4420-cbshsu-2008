@@ -646,7 +646,7 @@ public class Main implements QueryEngine
 	       	data.add(ind++, "<att_name>" + attName + "</att_name>\n");
 	       	if (isDuplicate) data.add(ind++, "<is_duplicate>yes</is_duplicate>\n");
 	       	else data.add(ind++, "<is_duplicate>no</is_duplicate>\n");
-	       	data.add(ind++, "</index>");
+	       	data.add(ind++, "</index>\n");
 	       	data.add(ind++, "</indexs>");
 	       	
 	       	File file = new File(this.syscat.getDBName() + "_" + tableName + "_index.xml");
