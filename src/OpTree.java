@@ -75,9 +75,9 @@ public class OpTree {
 		this.createBaseTree(table_names, fields, where);
 		
 		// TODO: identify joins
-		//makeJoins();
+		makeJoins();
 		
-		pushDownSelects();
+		//pushDownSelects();
 		
 		// Verify that all relations used in the query are valid
 		if (this.validateRelationNames(table_names)) this.valid = true;
@@ -228,7 +228,7 @@ public class OpTree {
 	        
 	        // If this node is a select operator, find any conditions
 	        // that create a join and remove them, putting them in the proper join op
-	        if ((sel instanceof OpSelect) && (xprod = this.crossProductExistsWith((String[])sel.contents)) != null) {
+	        if ((sel instanceof OpSelect) && ((String[])sel.contents)[1].contains(".") && (xprod = this.crossProductExistsWith((String[])sel.contents)) != null) {
 	            
 	        	/**
 	        	 * Making the following assumptions here:
@@ -286,6 +286,7 @@ public class OpTree {
 			
 			Op op = this.opList.get(i);
 			
+			// Only need to check for select and project operators
 			if (op instanceof OpSelect) {
 				
 				// contents is an 2-D array of relation names
@@ -340,13 +341,6 @@ public class OpTree {
 					}
 					
 				}
-
-				
-			} else if (op instanceof OpIndexBasedJoin || op instanceof OpJoin || op instanceof OpSortBasedJoin) {
-				
-				// TODO: NEED MORE HERE!!!!!
-				// TODO: FINISH THE METHOD!!
-				// TODO: AHHHHHHHHHHHHHHH!!!
 
 				
 			}
@@ -610,7 +604,7 @@ public class OpTree {
 	
 	public String toString() {
 		
-		String output = this.tree_root.toString();
+		String output = this.tree_root.getString();
 		
 		return output;
 		
