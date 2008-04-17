@@ -667,9 +667,42 @@ public class Main implements QueryEngine
 	 * @param tableName the table
 	 * @param index_name the index
 	 */
-	public boolean selectIndexQuery(String tableName, String index_name) 
+	public boolean selectIndexQuery(String tableName, String indexName) 
 	{
-		return false;
+		System.out.println("Printing index " + indexName + " for table " + tableName);
+		RelationInfo rel = (RelationInfo)syscat.getRelationCatalog().get(tableName);
+		Hashtable indexInfos = rel.getIndexInfos();
+		TreeMap index = null;
+		Enumeration e = indexInfos.elements();
+		while (e.hasMoreElements())
+		{
+			IndexInfo indexInfo = (IndexInfo)e.nextElement();
+			if (indexInfo.getIdexName().equals(indexName))
+			{
+				index = indexInfo.getIndex();
+			}
+		}
+		if (index == null) 
+		{
+			System.out.println("Index named " + indexName + " doesn't exists.");
+			return false;
+		}
+		
+		int lastKey = (Integer)index.lastKey();
+		SortedMap sm = index.headMap(lastKey);
+		System.out.println("Number of key " + sm.size());
+		System.out.println();
+		System.out.println("Key\t\tBlock offset");
+		System.out.println("===========================================");
+		
+		for (int i = 0; i < sm.size(); i++)
+		{
+			int key = (Integer)sm.firstKey();
+			int value = (Integer)sm.get(key);
+			System.out.println(key + "\t\t" + value);
+			sm.remove(key);
+		}
+		return true;
 	}
 	
 	/**
@@ -682,14 +715,16 @@ public class Main implements QueryEngine
 		while(e.hasMoreElements())
 		{
 			RelationInfo relObj = (RelationInfo)e.nextElement();
-			System.out.println("===============================================");
+			System.out.println("====================================================");
 			System.out.println("Relation name:\t\t" + relObj.getName());
 			System.out.println("Date created:\t\t" + relObj.getDateCreated());
 			System.out.println("Date modified:\t\t" + relObj.getDateModified());
 			System.out.println("Tuple numbers:\t\t" + relObj.getNumTuples());
 			System.out.println("Block numbers:\t\t" + relObj.getNumDataBlocks());
-			System.out.println("===============================================");
+			System.out.println("====================================================");
+	
 			Enumeration e1 = relObj.getAttribute().elements();
+			System.out.println("*************** Attribute Information ***************");
 			while (e1.hasMoreElements())
 			{
 				System.out.println("");
@@ -698,6 +733,17 @@ public class Main implements QueryEngine
 				System.out.println("Type:\t\t" + att.getType());
 				System.out.println("Length:\t\t" + att.getLength());
 				System.out.println("Nullable:\t" + att.getIsNullable());
+			}
+			Enumeration e2 = relObj.getIndexInfos().elements();
+			System.out.println("**************** Index Information *****************");
+			while (e2.hasMoreElements())
+			{
+				System.out.println("");
+				IndexInfo index = (IndexInfo)e2.nextElement();
+				System.out.println("Index name:\t\t" + index.getIdexName());
+				System.out.println("Attriute name:\t\t" + index.getAttName());
+				if (index.getIsDuplicate()) System.out.println("Duplicate:\t\tYes");
+				else System.out.println("Duplicate:\t\tNo");
 			}
 		}
 		return true;
