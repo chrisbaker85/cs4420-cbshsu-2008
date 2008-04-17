@@ -83,7 +83,7 @@ public class Iterator {
 	 */
 	public void open() {
 
-		this.current_block_num = 1;
+		this.current_block_num = 0;
 		this.current_tuple_num = 0;
 		this.records_in_relation = Integer.parseInt(ri.getNumTuples().trim());
 		this.abs_record_number = 0;
@@ -93,23 +93,18 @@ public class Iterator {
 		// Calculate the total length of a tuple
 		len = Utility.getTotalLength(atts);
 
-		int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
-		this.current_block = bm.getBlock(Utility.combine(ri.getId(),
-				blockOffset));
+		int blockOffset = this.current_block_num * Parameters.BLOCK_SIZE;
+		this.current_block = bm.getBlock(Utility.combine(ri.getId(), blockOffset));
 		int x = this.current_block.getRecordNumber();
 		this.num_tuples_in_block = x;
 
 		if (Debug.get().debug()) {
 
-			System.out.println("INFO blockid:" + blockOffset + "(" + ri.getId()
-					+ "/" + blockOffset + ")");
-
-			System.out.println("INFO: tuples in block: "
-					+ this.num_tuples_in_block);
+			System.out.println("INFO blockid:" + blockOffset + "(" + ri.getId() + "/" + blockOffset + ")");
+			System.out.println("INFO: tuples in block: " + this.num_tuples_in_block);
 			System.out.println("INFO: current tuple " + this.current_tuple_num);
 			System.out.println("INFO: block " + this.current_block_num);
-			if (this.current_block == null)
-				System.out.println("INFO: block null");
+			if (this.current_block == null) System.out.println("INFO: block null");
 
 		}
 
@@ -122,6 +117,8 @@ public class Iterator {
 	 */
 	public Tuple getNext() {
 
+	    System.out.println("INFO: getNext()");
+	    
 		// Includes the tuple header
 		int tuple_size = len;
 		int offset;
@@ -139,10 +136,11 @@ public class Iterator {
 			if (Debug.get().debug())System.out.println("INFO: current_tuple_number: " + this.current_tuple_num);
 
 			// Get next block from the BufferManager
-			int blockOffset = ((this.current_block_num - 1) * Parameters.BLOCK_SIZE);
+			int blockOffset = this.current_block_num * Parameters.BLOCK_SIZE;
+			System.out.println("INFO: blockOffset: " + blockOffset);
 
-			// System.out.println("INFO: blockOffset: " + blockOffset);
 			this.current_block = bm.getBlock(Utility.combine(this.relation_id, blockOffset));
+			System.out.println("INFO: block retrieved");
 
 			// If there is not another block, return null
 			if (this.current_block != null) {
