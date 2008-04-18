@@ -19,14 +19,14 @@ public class OpJoin extends Op {
 		
 	}
 	
-	OpJoin(OpJoin leftChild, String table2, String[] comp, Op parent) {
+	OpJoin(OpJoin leftChild, Op table2, String[] comp, Op parent) {
 		
 		this.parent = parent;
 		this.setType(this.opType.JOIN);
 		this.contents = comp;
 		this.children = new Op[2];
 		this.children[0] = leftChild;
-		this.children[1] = new OpTable(table2, this);
+		this.children[1] = table2;
 		
 	}
 	
