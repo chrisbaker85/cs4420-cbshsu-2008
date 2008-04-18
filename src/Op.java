@@ -120,7 +120,7 @@ public abstract class Op {
 		String parent;
 		
 		if (this.parent == null) parent = null;
-		else parent = (new Integer(this.parent.id)).toString();
+		else parent = this + (new Integer(this.parent.id)).toString();
 		
 		
 		output = "|op: (" + this.id + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
@@ -286,6 +286,7 @@ public abstract class Op {
 			   newChild.parent = this;
 			   
 			   if (Debug.get().debug()) System.out.println("INFO: swapped [" + oldChild + "(" + oldChild.getType() + ")] with [" + newChild + "(" + newChild.getType() + ")]");
+			   //ot.opList.remove(oldChild);
 			   
 		   }
 		   
