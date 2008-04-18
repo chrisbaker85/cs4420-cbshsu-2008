@@ -42,6 +42,11 @@ public abstract class Op {
 	private boolean used = false;
 	
 	/**
+	 * A reference to the OpTree for adding/removing operations
+	 */
+	protected OpTree ot = null;
+	
+	/**
 	 * In a logical query plan, the op can contain more than 2 children so that
 	 * it is easier to perform the tree transformation during the optimization process.
 	 * However, in a physical query plan, there are only two children.
@@ -113,7 +118,7 @@ public abstract class Op {
 		String contents = "";
 		String children = "";
 		
-		output = "|op: (" + this + ")\n|info: " + this.info + "\n|contents: ";
+		output = "|op: (" + this + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
 		
 		if (!(this.getContents() == null)) {
 		
@@ -240,7 +245,7 @@ public abstract class Op {
 	   // Base case, this is the table we're looking for
 	   if (this instanceof OpTable
 			   && ((String)this.contents).equals(table_name)) {
-		   System.out.println("INFO: table " + table_name + "found");
+		   if (Debug.get().debug()) System.out.println("INFO: table " + table_name + "found");
 		   return 1;
 		   
 	   }
@@ -281,6 +286,30 @@ public abstract class Op {
 		   
 	   }
 	   
+	   
+   }
+   
+   /**
+    * Inject newChild and push down oldChild
+    * @param newChild
+    * @param oldChild
+    */
+   public void injectAboveChild(Op newChild, Op oldChild) {
+	   
+	   for (int i = 0; i < this.children.length; i++) {
+		   
+		   if (this.children[i] == oldChild) {
+			   
+			   this.swapChildren(oldChild, newChild);
+			   
+			   newChild.children[0] = oldChild;
+			   oldChild.parent = newChild;
+			   
+			   break;
+			   
+		   }
+		   
+	   }
 	   
    }
    
