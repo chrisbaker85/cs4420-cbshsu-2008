@@ -19,7 +19,7 @@ public class IndexInfo
 		//this.attName = tableName;
 		this.attName = attName;
 		this.isDuplicate = isDuplicate;
-		index = new TreeMap();
+		index = new TreeMap<Integer, ArrayList<Integer>>();
 	}
 	
 	public String getIdexName()
