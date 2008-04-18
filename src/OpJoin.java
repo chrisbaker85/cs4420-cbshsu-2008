@@ -15,8 +15,8 @@ public class OpJoin extends Op {
 		this.setType(this.opType.JOIN);
 		this.contents = comparison;
 		this.children = new Op[2];
-		this.children[0] = new OpTable(table1, this, ot);
-		this.children[1] = new OpTable(table2, this, ot);
+		this.children[0] = ot.addOp(new OpTable(table1, this, ot));
+		this.children[1] = ot.addOp(new OpTable(table2, this, ot));
 		ot.opList.add(this.children[0]);
 		ot.opList.add(this.children[1]);
 		
@@ -31,6 +31,8 @@ public class OpJoin extends Op {
 		this.children = new Op[2];
 		this.children[0] = leftChild;
 		this.children[1] = table2;
+		table2.parent = this;
+		leftChild.parent = this;
 		
 	}
 	
