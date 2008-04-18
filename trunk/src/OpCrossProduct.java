@@ -42,10 +42,21 @@ public class OpCrossProduct extends Op {
 		rem[0] = Utility.getTable(cond[0]);
 		rem[1] = Utility.getTable(cond[1]);
 		
-		System.out.println("INFO: tables to remove from xprod: " + rem[0] + "/" + rem[1]);
+		if (Debug.get().debug()) System.out.println("INFO: tables to remove from xprod: " + rem[0] + "/" + rem[1]);
 		// Remove the operations that have been marked
 		tables = this.removeChildren(rem);
-		System.out.println("INFO: Removed " + tables.length + " table(s)");
+		
+		String t = "";
+		
+		for (int i = 0; i < tables.length; i++) {
+			
+			t += "/" + tables[i].contents;
+			
+		}
+		
+		if (Debug.get().debug()) System.out.println("INFO: removed " + t);
+		
+		if (Debug.get().debug()) System.out.println("INFO: Removed " + tables.length + " table(s)");
 		
 		
 		
@@ -54,10 +65,11 @@ public class OpCrossProduct extends Op {
 		if (tables.length == 1) {
 			
 			// IF ONLY ONE TABLE IS REMOVED, CREATE A JOIN TO CHAIN
-			newJoin = new OpJoin((OpJoin)this.children[0], rem[0], cond, this);
+			newJoin = new OpJoin((OpJoin)this.children[0], tables[0], cond, this);
 
-			// TODO: CHAIN THE JOIN
-			
+			// CHAIN THE JOIN
+			this.children[0].parent = newJoin;
+			this.swapChildren(this.children[0], newJoin);
 			
 		} else if (tables.length == 2) {
 			
@@ -87,9 +99,30 @@ public class OpCrossProduct extends Op {
 	 */
 	public Op[] removeChildren(String[] rem) {
 		
-		Op[] reduced = new Op[this.children.length - rem.length];
+		if (Debug.get().debug()) System.out.println("INFO: inside removeChildren.  Removing " + rem[0] + " and " + rem[1]);
+		
+		int num_to_remove = 0;
+		
+		// Find out how many tables to be removed are actual children
+		// of the xprod
+		for (int i = 0; i < this.children.length; i++) {
+			
+			for (int j = 0; j < rem.length; j++) {
+				
+				if (this.children[i] instanceof OpTable
+						&& ((String)(this.children[i].contents)).equals(rem[j])) {
+					
+					num_to_remove++;
+					
+				}
+				
+			}
+			
+		}
+		
+		Op[] reduced = new Op[this.children.length - num_to_remove];
 		int reduced_idx = 0;
-		Op[] extract = new Op[rem.length];
+		Op[] extract = new Op[num_to_remove];
 		int extract_idx = 0;
 		
 		// go through each child and extract those given in parameter
@@ -97,7 +130,8 @@ public class OpCrossProduct extends Op {
 			
 			for (int j = 0; j < rem.length; j++) {
 				
-				if (((OpTable)(this.children[i])).contents.equals(rem[j])) {
+				if ((this.children[i] instanceof OpTable)
+						&& ((OpTable)(this.children[i])).contents.equals(rem[j])) {
 					
 					System.out.println("INFO: " + ((OpTable)(this.children[i])).contents + " == " + rem[j]);
 					System.out.println("INFO: extracted size: " + extract.length + "/index:" + extract_idx);
