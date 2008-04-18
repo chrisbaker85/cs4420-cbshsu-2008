@@ -23,6 +23,11 @@ public class Select implements IteratorInterface {
 		this.R = R;
 		this.condition = condition;
 		this.index = index;
+		System.out.println("--------------------------------------");
+		System.out.println("Relation name in select " + R.getName());
+		System.out.println("Field name is " + condition[0]);
+		System.out.println("Number of tuple " + R.getNumTuples());
+		System.out.println("--------------------------------------");
 	}
 	
 	// public void open(RelationInfo R, String [] where, Index idx)
@@ -51,11 +56,21 @@ public class Select implements IteratorInterface {
 			int ind;
 			for (ind = 0; ind < attNames.length; ind++)
 			{
-				if (attNames[ind].equals(Utility.getField(condition[0]))) break;
+				
+				if (attNames[ind].equals(Utility.getField(condition[0]))) 
+				{
+					System.out.println("Field name found " + Utility.getField(condition[0]));
+					break;
+				}
+			}
+			if (ind == attNames.length) 
+			{
+				System.out.println("Couldn't find " + Utility.getField(condition[0]));
 			}
 			System.out.println("Match fields " + Utility.getField(condition[0]) + " " + attNames[ind]);
 			// use tablescan to interate through relation
 			IteratorInterface iterator = new TableScan(main, R);
+			iterator.open();
 			Tuple tuple;
 			
 			String [][] query = new String[2][attNames.length];
@@ -70,6 +85,7 @@ public class Select implements IteratorInterface {
 				// compare it result with condition
 				if (condition[2].equals(">"))
 				{
+					System.out.println("Verifying >");
 					if (Integer.parseInt(results[ind]) > Integer.parseInt(condition[1]))
 					{
 						System.out.println("Match :" + Integer.parseInt(results[ind]) + " > " + Integer.parseInt(condition[1]));
@@ -81,6 +97,7 @@ public class Select implements IteratorInterface {
 				}
 				if (condition[2].equals("="))
 				{
+					System.out.println("Verifying =");
 					// check type to see if it's int or string. Then, compare the two
 					Attribute a = (Attribute)attHash.get(attNames[ind]);
 					// if it's integer
@@ -109,6 +126,7 @@ public class Select implements IteratorInterface {
 				}
 				if (condition[2].equals("<"))
 				{
+					System.out.println("Verifying <");
 					if (Integer.parseInt(results[ind]) < Integer.parseInt(condition[1]))
 					{
 						System.out.println("Match :" + Integer.parseInt(results[ind]) + " < " + Integer.parseInt(condition[1]));
