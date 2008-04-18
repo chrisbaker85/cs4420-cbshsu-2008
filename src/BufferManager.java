@@ -244,11 +244,6 @@ public class BufferManager {
 				String filename = db_name + "_" + tableNames.get(split[0]) + "_data.dat";
 				
 				int offSet = split[1];
-				
-				if (offSet >= Parameters.BLOCK_SIZE)
-				{
-					offSet = offSet % Parameters.BLOCK_SIZE;
-				}
 
 				RandomAccessFile fileIn = new RandomAccessFile(filename, "rw");
 				FileChannel fileChannel = fileIn.getChannel();
