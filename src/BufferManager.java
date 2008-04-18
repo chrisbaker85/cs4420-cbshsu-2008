@@ -242,7 +242,13 @@ public class BufferManager {
 				int[] split = Utility.split(blockID);
 				// String fileNameID = "" + split[0];
 				String filename = db_name + "_" + tableNames.get(split[0]) + "_data.dat";
+				
 				int offSet = split[1];
+				
+				if (offSet >= Parameters.BLOCK_SIZE)
+				{
+					offSet = offSet % Parameters.BLOCK_SIZE;
+				}
 
 				RandomAccessFile fileIn = new RandomAccessFile(filename, "rw");
 				FileChannel fileChannel = fileIn.getChannel();
@@ -257,6 +263,7 @@ public class BufferManager {
 
 				// Copy the bytes from the file to the byte array
 				for (int i = 0; i < Parameters.BLOCK_SIZE - 1; i++) {
+					
 					temp[i] = tempBuffer.get(i + offSet);
 				}
 
