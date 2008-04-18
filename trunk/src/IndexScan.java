@@ -1,6 +1,7 @@
 import java.util.Hashtable;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.ArrayList;
 
 
 public class IndexScan implements IteratorInterface {
@@ -43,7 +44,7 @@ public class IndexScan implements IteratorInterface {
 		// find the postion of index in atttribute array
 		for (int i = 0; i < attNames.length; i++)
 		{
-			if (attNames[i].equals(R.getColsIndexed()))
+			if (attNames[i].equals(where[0]))
 			{
 				indexPos = i;
 				break;
@@ -52,6 +53,9 @@ public class IndexScan implements IteratorInterface {
 		
 		// get index info
 		IndexInfo indexInfo = (IndexInfo)R.getIndexInfos().get(where[0]);
+		
+		this.main.createIndexQuery(indexInfo.getIdexName(), tempTableName, where[0], indexInfo.getIsDuplicate());
+		
 		TreeMap index = indexInfo.getIndex();
 		// check the type of operation ( >, < or =)
 		if (where[2].equals(">"))
@@ -70,23 +74,27 @@ public class IndexScan implements IteratorInterface {
 			{
 				// get first key and value
 				int firstkey = (Integer)tempTree.firstKey();
-				int offset = (Integer)index.get(firstkey); // offset in reference to the table
+				ArrayList<Integer> offsets = (ArrayList)index.get(firstkey); // offset in reference to the table
 				tempTree.remove(firstkey);
 				
 				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
-				// get the block that the tuple is in
-				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
-				int tupleOffset = 3;
 				
-				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
+				for (int j = 0; j < offsets.size(); j++)
 				{
-					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
-					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indexPos].equals(where[1])) 
+					Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offsets.get(j)));
+					int tupleOffset = 3;
+					
+					for (int k = 0; k < currentBlock.getRecordNumber(); k++)
 					{
-						// insert the tuple into temporary table 
-						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
-						break;
+						byte [] data = currentBlock.getTupleContent(tupleOffset, tupleSize);
+						String [] results = Utility.convertTupleToArray(attHash, data);
+						if (Integer.parseInt(results[indexPos]) > Integer.parseInt(where[1])) 
+						{
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
+							break;
+						}
+						tupleOffset += tupleSize;
 					}
 				}
 			}
@@ -98,23 +106,26 @@ public class IndexScan implements IteratorInterface {
 			 * 2. convert it to tuple 
 			 * 3. insert tuple into tempRelation using main.insertQuery()
 			 */
-			Integer offset = (Integer)index.get(where[1]);
-			if (offset != null)
+			ArrayList<Integer> offsets = (ArrayList)index.get(where[1]); // offset in reference to the table
+			
+			RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
+			
+			for (int j = 0; j < offsets.size(); j++)
 			{
-				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
-				// get the block that the tuple is in
-				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
+				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offsets.get(j)));
 				int tupleOffset = 3;
-				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
+				
+				for (int k = 0; k < currentBlock.getRecordNumber(); k++)
 				{
-					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
+					byte [] data = currentBlock.getTupleContent(tupleOffset, tupleSize);
 					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indexPos].equals(where[1])) 
+					if (Integer.parseInt(results[indexPos]) == Integer.parseInt(where[1])) 
 					{
 						// insert the tuple into temporary table 
 						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 						break;
 					}
+					tupleOffset += tupleSize;
 				}
 			}
 		}
@@ -132,23 +143,29 @@ public class IndexScan implements IteratorInterface {
 			TreeMap tempTree = new TreeMap(sortedmap);
 			for (int i = 0; i < tempTree.size(); i++)
 			{
+				// get first key and value
 				int firstkey = (Integer)tempTree.firstKey();
-				int offset = (Integer)index.get(firstkey); // offset in reference to the table
+				ArrayList<Integer> offsets = (ArrayList)index.get(firstkey); // offset in reference to the table
 				tempTree.remove(firstkey);
 				
 				RelationInfo relInfo = (RelationInfo)main.getSysCat().getTempRelation().get(tempTableName);
-				// get the block that the tuple is in
-				Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offset));
-				int tupleOffset = 3;
-				for (int j = 0; j < currentBlock.getRecordNumber(); j++)
+				
+				for (int j = 0; j < offsets.size(); j++)
 				{
-					byte [] data = currentBlock.getTupleContent(offset, tupleSize);
-					String [] results = Utility.convertTupleToArray(attHash, data);
-					if (results[indexPos].equals(where[1])) 
+					Block currentBlock = main.getBm().getBlock(Utility.combine(relInfo.getId(), offsets.get(j)));
+					int tupleOffset = 3;
+					
+					for (int k = 0; k < currentBlock.getRecordNumber(); k++)
 					{
-						// insert the tuple into temporary table 
-						main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
-						break;
+						byte [] data = currentBlock.getTupleContent(tupleOffset, tupleSize);
+						String [] results = Utility.convertTupleToArray(attHash, data);
+						if (Integer.parseInt(results[indexPos]) < Integer.parseInt(where[1])) 
+						{
+							// insert the tuple into temporary table 
+							main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
+							break;
+						}
+						tupleOffset += tupleSize;
 					}
 				}
 			}
