@@ -867,21 +867,85 @@ public class Main implements QueryEngine
 			}
 			else if (op instanceof OpCrossProduct)
 			{
+				/**
+				 * Optimization plan: figure out the order of loop
+				 * 1. Check the numbers of tuples in both relations
+				 * 2. Outer loop: relation    
+				 */
 			    System.out.println("INFO: xprod ri: " + op.getInfo());
-				// call  class CrossProduct here
+			    // get relations R and S
 				Op leftOp = op.left();
 				RelationInfo leftR = leftOp.getInfo();
 				Op rightOp = op.right();
 				RelationInfo rightR = rightOp.getInfo();
-				// TODO find out which one is inner loop, and outer loop, which one has index, number of distinct value
-				CrossProduct mycp = new CrossProduct(this, leftR, rightR);
+				// find out which one is inner loop, and outer loop, which one has index, number of distinct value
+				CrossProduct mycp = null;
+				if (Integer.parseInt(leftR.getNumTuples()) > Integer.parseInt(rightR.getNumTuples()))
+				{
+					mycp = new CrossProduct(this, leftR, rightR);
+				}
+				else 
+				{
+					mycp = new CrossProduct(this, rightR, leftR);
+				}
 				RelationInfo result = mycp.open();
 				op.info = result;
-				//optable.put(new Integer(op.getID()), op);
+				
 			}
 			else if (op instanceof OpJoin)
 			{
-				// call join class here
+				/**
+				 * check to see if there is index
+				 * 1. if one of them has index, it's inner loop
+				 * 2. if both has index, one
+				 * 3. If both don't have index
+				 */
+				// get relations R and S
+				Op leftOp = op.left();
+				RelationInfo leftR = leftOp.getInfo();
+				Op rightOp = op.right();
+				RelationInfo rightR = rightOp.getInfo();
+				String [] condition = (String [])op.getContents();
+				// find out which one is inner loop, and outer loop, which one has index, number of distinct value
+				Join myjoin = null;
+				// they both have indexes
+				if (leftR.getIndexInfos().containsKey(Utility.getField(condition[0])) && rightR.getIndexInfos().containsKey(Utility.getField(condition[1])))
+				{
+					// check the number of tuple in each relation
+					if (Integer.parseInt(leftR.getNumTuples()) > Integer.parseInt(rightR.getNumTuples()))
+					{
+						myjoin = new Join(this, leftR, rightR, condition, true, 1);
+					}
+					else
+					{
+						myjoin = new Join(this, rightR, leftR, condition, true, 1);
+					}
+				}
+				// if left has index
+				else if (leftR.getIndexInfos().containsKey(Utility.getField(condition[0])))
+				{
+					myjoin = new Join(this, rightR, leftR, condition, true, 1);
+				}
+				// if right has index
+				else if (rightR.getIndexInfos().containsKey(Utility.getField(condition[1])))
+				{
+					myjoin = new Join(this, leftR, rightR, condition, true, 1);
+				}
+				// if both has no index
+				else 
+				{
+					// check the number of tuple in each relation
+					if (Integer.parseInt(leftR.getNumTuples()) > Integer.parseInt(rightR.getNumTuples()))
+					{
+						myjoin = new Join(this, leftR, rightR, condition, false, 1);
+					}
+					else
+					{
+						myjoin = new Join(this, rightR, leftR, condition, false, 1);
+					}
+				}
+				RelationInfo result = myjoin.open();
+				op.info = result;
 			}
 			op = ot.nextOp();
 		}
