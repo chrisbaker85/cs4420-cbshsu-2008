@@ -98,6 +98,7 @@ public class OpTree {
 		if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
 		printOperatorList();
+		this.resetOpList();
 		
 		
 	}
