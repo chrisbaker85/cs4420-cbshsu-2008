@@ -80,12 +80,12 @@ public class OpTree {
 		// Verify that all attributes used are valid
 		if (this.validateAttributes(table_names)) this.state = 0;
 		
-		//if (Debug.get().debug()) System.out.println(this.toString());
+		if (Debug.get().debug()) System.out.println(this.toString());
 		
 		// identify joins
 		makeJoins();
 		
-		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
+		if (Debug.get().debug()) System.out.println(this.toString());
 		
 		// Push down select operators to just above their respective tables
 		pushDownSelects();
@@ -180,9 +180,9 @@ public class OpTree {
 				// Insert the select above the table
 				if (opt != null) {
 					
-					opt.parent.swapChildren(sel, sel.children[0]);
+					//opt.parent.swapChildren(sel, sel.children[0]);
 					System.out.println("INFO: injecting " + sel + " above " + opt);
-					opt.parent.injectAboveChild(sel, opt);
+					//opt.parent.injectAboveChild(sel, opt);
 					
 //					Op tableParent = opt.parent;
 //					sel.parent.swapChildren(sel, sel.children[0]);
@@ -246,6 +246,9 @@ public class OpTree {
 	 */
 	private void makeJoins() {
 		
+		System.out.println("INFO: inside make Joins");
+		System.out.println("opList size: " + this.opList.size());
+		
 		// Loop through all the operator nodes
 	    for (int i = 0; i < this.opList.size(); i++) {
 
@@ -276,7 +279,7 @@ public class OpTree {
 	        		if (Debug.get().debug()) System.out.println("INFO: handling Join with: " + ((String[])(sel.contents))[0] + "/" + ((String[])(sel.contents))[1] + "/" + ((String[])(sel.contents))[2]);
 		        	((OpCrossProduct)xprod).addJoin((String[])sel.contents);
 		        	
-		        	if (Debug.get().debug()) System.out.println("INFO: Removing " + sel);
+//		        	if (Debug.get().debug()) System.out.println("INFO: Removing " + sel);
 //		        	this.opList.remove(sel);
 		        	
 	        	}
