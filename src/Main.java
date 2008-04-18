@@ -343,7 +343,7 @@ public class Main implements QueryEngine
 			// if it's not temporary relation, write to XML files
 			if (!isTempRelation)
 			{
-				
+				// System.out.println();
 	       		int ind = data.size() - 1;
 				data.add(ind++, "<relation>\n");
 				data.add(ind++, "<name>" + tableName + "</name>\n");
@@ -354,7 +354,7 @@ public class Main implements QueryEngine
 				data.add(ind++, "<cols_indexed>0</cols_indexed>\n");
 				data.add(ind++, "<num_block>1</num_block>\n");
 	      		data.add(ind++, "</relation>\n");
-	      		data.add(ind++, "</relations>");
+	      		//data.add(ind++, "</relations>");
 	      		
 				File file = new File(syscat.getDBName() + "_relations.xml");
 			    BufferedWriter output = new BufferedWriter(new FileWriter(file));
@@ -461,8 +461,13 @@ public class Main implements QueryEngine
 
 	public boolean insertQuery(String tablename, String [][] query)
 	{
+		RelationInfo relObj;
+		if (syscat.getRelationCatalog().containsKey(tablename))
+		{
+			relObj = (RelationInfo)syscat.getRelationCatalog().get(tablename);
+		}
+		else relObj = (RelationInfo)syscat.getTempRelation().get(tablename);
 		
-		RelationInfo relObj = (RelationInfo)syscat.getRelationCatalog().get(tablename);
 		if (relObj == null) {
 		    System.out.println("ERROR: Table does not exist");
 		    return false;
@@ -477,7 +482,7 @@ public class Main implements QueryEngine
 			// verify fields name against attribute list
 			if (!atts.containsKey(query[0][i])) 
 			{
-				System.out.println("Attribute " + query[1][i] + " doesn't exist");
+				System.out.println("Attribute " + query[0][i] + " doesn't exist");
 				return false;
 			}
 			// verify the length of string
@@ -580,6 +585,7 @@ public class Main implements QueryEngine
 		}
 		
 		// test if there is index, insert index
+		System.out.println("Searching for index in table");
 		if (relObj.getColsIndexed() > 0)
 		{
 			// get index info hashtable
@@ -590,11 +596,13 @@ public class Main implements QueryEngine
 			{
 				if (indexInfos.containsKey(query[0][i]))
 				{
+					System.out.println("Found index " + query[0][i]);
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
 					int key = Integer.parseInt(query[1][i]);
 					if (index.containsKey(key))
 					{
+						System.out.println("Key exists and append to array list " + key);
 						// add to array list of offset
 						ArrayList<Integer> offsets = (ArrayList)index.get(key);
 						// update array list of offset for that key
@@ -602,11 +610,16 @@ public class Main implements QueryEngine
 					}
 					else
 					{
+						System.out.println("Key doesn't exist " + key);
 						ArrayList<Integer> offset = new ArrayList<Integer>();
 						offset.add(lastOffset);
 						// insert key and values into index
 					    index.put(key, offset);
 					}
+				}
+				else
+				{
+					System.out.println("Inserted field is not in index " + query[0][i]);
 				}
 			}
 		}
@@ -629,6 +642,7 @@ public class Main implements QueryEngine
 	 */
 	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean isDuplicate) 
 	{
+		// boolean
 		RelationInfo relInfo = null;
 		if (syscat.getRelationCatalog().containsKey(tableName))
 		{
@@ -800,7 +814,7 @@ public class Main implements QueryEngine
 				// RelationInfo R = op.getInfo();
 				if (Debug.get().debug()) System.out.println("INFO: In select");
 				RelationInfo R = op.left().getInfo();
-				String [][] conditions = (String [][])op.getContents();
+				String [] conditions = (String [])op.getContents();
 				
 				// figure out if it's index or not
 				boolean hasIndex = false;
@@ -808,26 +822,35 @@ public class Main implements QueryEngine
 				RelationInfo result = null;
 				if (R.getColsIndexed() > 0)
 				{
-					for (int i = 0; i < conditions.length; i++)
-					{
+					//for (int i = 0; i < conditions.length; i++)
+					//{
 						// loop through indexes to find the match
-						if (R.getIndexInfos().containsKey(conditions[i][0])) 
+						if (R.getIndexInfos().containsKey(conditions[0])) 
 						{
-							indexPos = i;
+							//indexPos = i;
 							hasIndex = true;
 							break;
 						}
-					}
+					//}
 				}
-				if (hasIndex && conditions.length > 1)
+				if (hasIndex)
 				{
 					System.out.println("It's indexe-based select and sort-based filter");
-					Select myselect = new Select(this, R, conditions[indexPos], true);
-					RelationInfo temp = myselect.open();
-					conditions[indexPos] = null;
-					Filter myfilter = new Filter(this, temp, conditions);
-					result = myfilter.open();
+					Select myselect = new Select(this, R, conditions, true);
+					//RelationInfo temp = myselect.open();
+					//conditions[indexPos] = null;
+					// Filter myfilter = new Filter(this, temp, conditions);
+					result = myselect.open();
 				}
+				else
+				{
+					Select myselect = new Select(this, R, conditions, false);
+					//RelationInfo temp = myselect.open();
+					//conditions[indexPos] = null;
+					// Filter myfilter = new Filter(this, temp, conditions);
+					result = myselect.open();
+				}
+				/*
 				else if (hasIndex && conditions.length == 1)
 				{
 					System.out.println("It's sort-based select");
@@ -846,6 +869,7 @@ public class Main implements QueryEngine
 					Select myselect = new Select(this, R, conditions[0], true);
 					result = myselect.open();
 				}
+				*/
 				op.info = result;
 				//optable.put(new Integer(op.getID()), op);
 			}
@@ -953,6 +977,12 @@ public class Main implements QueryEngine
 
 		if (Debug.get().debug()) System.out.println("INFO: printing out results");
 		RelationInfo relObj = currentOp.getInfo();
+		
+		System.out.println("--------------------------------------");
+		System.out.println("Relation name in select " + relObj.getName());
+		System.out.println("Number of tuple " + relObj.getNumTuples());
+		System.out.println("--------------------------------------");
+		
 		Hashtable atts = relObj.getAttribute();
 		int tupleSize = Utility.getTotalLength(atts);
 		Iterator iterator = new Iterator(bufman, relObj, Integer.parseInt(relObj.getNumDataBlocks().trim()));
@@ -960,7 +990,7 @@ public class Main implements QueryEngine
 		String [] attNames = Utility.getAttributeNames(atts);
 		for (int j = 0; j < attNames.length; j++)
 		{
-			System.out.print(attNames[j] + "\t\t");
+			System.out.print(attNames[j] + "\t");
 		}
 		System.out.println("");
 		System.out.println("==============================================");
@@ -992,7 +1022,7 @@ public class Main implements QueryEngine
 			String [] results = Utility.convertTupleToArray(atts, data);
 			for (int j = 0; j < attNames.length; j++)
 			{
-				System.out.print(">>" + results[j]);
+				System.out.print(results[j] + "\t");
 			}
 			System.out.println("");
 		}
