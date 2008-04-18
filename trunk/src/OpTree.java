@@ -83,7 +83,7 @@ public class OpTree {
 		//if (Debug.get().debug()) System.out.println(this.toString());
 		
 		// identify joins
-		//makeJoins();
+		makeJoins();
 		
 		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
@@ -343,6 +343,10 @@ public class OpTree {
 					} else {
 						att[1] = (table_name + "." + att[1]);
 					}
+					
+				} else {
+					
+					att[1] = att[1].substring(1, att[1].length() - 1);
 					
 				}
 					
