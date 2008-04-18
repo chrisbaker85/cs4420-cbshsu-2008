@@ -73,6 +73,9 @@ public class Project implements IteratorInterface {
 		
 		int tupleSize = Utility.getTotalLength(R.getAttribute());
 		
+		System.out.println("Relation name " + R.getName());
+		System.out.println("The number of of tuple " + R.getNumTuples());
+		
 		for (int i = 0; i < Integer.parseInt(R.getNumTuples()); i++)
 		{
 			Tuple tuple = tempIterator.getNext();
