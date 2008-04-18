@@ -8,8 +8,9 @@
  */
 public class OpCrossProduct extends Op {
 
-	OpCrossProduct(String[] table_names, Op parent) {
+	OpCrossProduct(String[] table_names, Op parent, OpTree ot) {
 		
+		this.ot = ot;
 		this.parent = parent;
 		this.setType(this.opType.CROSSPRODUCT);
 		
@@ -19,7 +20,7 @@ public class OpCrossProduct extends Op {
 		// Set the children relations
 		for (int i = 0; i < table_names.length; i++) {
 		
-			this.children[i] = new OpTable(table_names[i], this);
+			this.children[i] = new OpTable(table_names[i], this, ot);
 			
 		}
 		
@@ -31,7 +32,6 @@ public class OpCrossProduct extends Op {
 	 * @param cond a String[] containing the join table condition
 	 */
 	public void addJoin(String[] cond) {
-		
 
 		// STEP ONE: FIND THE TABLES AND REMOVE THEM FROM THE XPROD
 		
@@ -65,7 +65,8 @@ public class OpCrossProduct extends Op {
 		if (tables.length == 1) {
 			
 			// IF ONLY ONE TABLE IS REMOVED, CREATE A JOIN TO CHAIN
-			newJoin = new OpJoin((OpJoin)this.children[0], tables[0], cond, this);
+			newJoin = new OpJoin((OpJoin)this.children[0], tables[0], cond, this, this.ot);
+			this.ot.addOp(newJoin);
 
 			// CHAIN THE JOIN
 			this.children[0].parent = newJoin;
@@ -74,7 +75,8 @@ public class OpCrossProduct extends Op {
 		} else if (tables.length == 2) {
 			
 			// ELSE, CREATE A NEW JOIN
-			newJoin = new OpJoin(rem[0], rem[1], cond, this);
+			newJoin = new OpJoin(rem[0], rem[1], cond, this, this.ot);
+			this.ot.addOp(newJoin);
 			// JUST ADD THE JOIN TO THE XPROD, CAN'T CHAIN
 			this.addChild(newJoin);
 			
@@ -133,8 +135,8 @@ public class OpCrossProduct extends Op {
 				if ((this.children[i] instanceof OpTable)
 						&& ((OpTable)(this.children[i])).contents.equals(rem[j])) {
 					
-					System.out.println("INFO: " + ((OpTable)(this.children[i])).contents + " == " + rem[j]);
-					System.out.println("INFO: extracted size: " + extract.length + "/index:" + extract_idx);
+					if (Debug.get().debug()) System.out.println("INFO: " + ((OpTable)(this.children[i])).contents + " == " + rem[j]);
+					if (Debug.get().debug()) System.out.println("INFO: extracted size: " + extract.length + "/index:" + extract_idx);
 					
 					// Add to the "extracted" array
 					extract[extract_idx] = this.children[i];
@@ -155,7 +157,7 @@ public class OpCrossProduct extends Op {
 			
 			if (this.children[i] != null) {
 				
-				System.out.println("INFO: reduced size: " + reduced.length + "/index:" + reduced_idx);
+				if (Debug.get().debug()) System.out.println("INFO: reduced size: " + reduced.length + "/index:" + reduced_idx);
 				
 				reduced[reduced_idx] = this.children[i];
 				reduced_idx++;

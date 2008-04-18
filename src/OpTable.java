@@ -8,8 +8,9 @@
  */
 public class OpTable extends Op {
 
-	OpTable (String tablename, Op parent) {
+	OpTable (String tablename, Op parent, OpTree ot) {
 		
+		this.ot = ot;
 		this.parent = parent;
 		this.setType(this.opType.TABLE);
 		this.setContents(tablename);

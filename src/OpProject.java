@@ -10,8 +10,9 @@ import java.util.ArrayList;
  */
 public class OpProject extends Op {
 
-	OpProject (String[] attributes, Op parent) {
+	OpProject (String[] attributes, Op parent, OpTree ot) {
 		
+		this.ot = ot;
 		this.parent = parent;
 		this.setType(this.opType.PROJECT);
 		this.setContents(attributes);

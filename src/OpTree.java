@@ -30,7 +30,7 @@ public class OpTree {
 	 * Holds the collection of operation object references
 	 * for easy looping 
 	 */
-	private ArrayList<Op> opList = new ArrayList<Op>();
+	protected ArrayList<Op> opList = new ArrayList<Op>();
 	
 	/**
 	 * The system catalog to use in verifying and optimizing
@@ -73,24 +73,30 @@ public class OpTree {
 		
 		// Create a basic tree for the query
 		this.createBaseTree(table_names, fields, where);
-		
-		// TODO: identify joins
-		makeJoins();
-		
-		//pushDownSelects();
-		
+
 		// Verify that all relations used in the query are valid
 		if (this.validateRelationNames(table_names)) this.valid = true;
 		
-		//System.out.println(this.toString());
-
-		bindRelationInfos();
-		
+		// Verify that all attributes used are valid
 		if (this.validateAttributes(table_names)) this.state = 0;
+		
+		//if (Debug.get().debug()) System.out.println(this.toString());
+		
+		// identify joins
+		//makeJoins();
+		
+		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
+		
+		// Push down select operators to just above their respective tables
+//		pushDownSelects();
+
+		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
+		
+		// Give all the leaf nodes (tables) their corresponding RelationInfo
+		bindRelationInfos();
 		
 		if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
-		//this.nextOp();
 		
 	}
 	
@@ -99,7 +105,7 @@ public class OpTree {
 		Op curr;
 		
 		// Set the root, a project operation
-		this.tree_root = this.addOp(new OpProject(fields, null));
+		this.tree_root = this.addOp(new OpProject(fields, null, this));
 		curr = this.tree_root;
 		
 		if (where != null && where.length > 0) {
@@ -108,7 +114,7 @@ public class OpTree {
 			for (int i = 0; i < where.length; i++) {
 			
 				// Set the "second" level, a select operation
-				curr.children[0] = this.addOp(new OpSelect(where[i], curr));
+				curr.children[0] = this.addOp(new OpSelect(where[i], curr, this));
 				curr = curr.children[0];
 				
 			}
@@ -118,12 +124,12 @@ public class OpTree {
 			//System.out.println(table_names.length);
 			if (table_names.length > 1) {
 		
-				curr.children[0] = this.addOp(new OpCrossProduct(table_names, curr));
+				curr.children[0] = this.addOp(new OpCrossProduct(table_names, curr, this));
 				curr = curr.children[0];
 				
 			} else {
 				
-				curr.children[0] = this.addOp(new OpTable(table_names[0], curr));
+				curr.children[0] = this.addOp(new OpTable(table_names[0], curr, this));
 				curr = curr.children[0];
 			}
 			
@@ -135,47 +141,57 @@ public class OpTree {
 			
 			if (table_names.length > 1) {
 				
-				this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names, this.tree_root));
+				this.tree_root.children[0] = this.addOp(new OpCrossProduct(table_names, this.tree_root, this));
 				
 			} else {
 				
-				this.tree_root.children[0] = this.addOp(new OpTable(table_names[0], this.tree_root));
+				this.tree_root.children[0] = this.addOp(new OpTable(table_names[0], this.tree_root, this));
 			}
 			
 		}
 		
 	}
 	
+	/**
+	 * Pushes down the select operators
+	 * Assuming that all the selects are data conditions
+	 * and all table conditions (for joins) are already removed
+	 */
 	private void pushDownSelects() {
+		
+		if (Debug.get().debug()) System.out.println("INFO: inside pushDownSelects");
 		
 		for (int i = 0; i < this.opList.size(); i++) {
 			
 			Op sel = this.opList.get(i);
 			
-			if (sel instanceof OpSelect) {
+			if (sel instanceof OpSelect && (true || !((String[])(sel.contents))[1].contains("."))) {
 				
-//				if (Debug.get().debug()) System.out.println("INFO: found a select");
+				if (Debug.get().debug()) System.out.println("INFO: found a select to push down");
 				
 				String tableName = Utility.getTable((String)(((String[])sel.contents)[0]));
-				
 				OpTable opt = this.getTable(tableName);
 				
-//				if (Debug.get().debug()) System.out.println("INFO: found table: " + opt);
+				if (Debug.get().debug()) System.out.println("INFO: found corresponding table: " + opt);
 				
 				// Insert the select above the table
 				if (opt != null) {
 					
-					Op tableParent = opt.parent;
-					sel.parent.swapChildren(sel, sel.children[0]);
+					opt.parent.swapChildren(sel, sel.children[0]);
+					System.out.println("INFO: injecting " + sel + " above " + opt);
+					opt.parent.injectAboveChild(sel, opt);
 					
-					if (Debug.get().debug()) System.out.println("INFO: select removed from tree");
-					
-					sel.children[0] = opt;
-					sel.parent = tableParent;
-					
-					opt.parent = sel;
-					
-					tableParent.swapChildren(opt, sel);
+//					Op tableParent = opt.parent;
+//					sel.parent.swapChildren(sel, sel.children[0]);
+//					
+//					if (Debug.get().debug()) System.out.println("INFO: select removed from tree");
+//					
+//					sel.children[0] = opt;
+//					sel.parent = tableParent;
+//					
+//					opt.parent = sel;
+//					
+//					tableParent.swapChildren(opt, sel);
 					
 					if (Debug.get().debug()) System.out.println("INFO: select inserted into tree");
 					
@@ -190,8 +206,16 @@ public class OpTree {
 	public OpTable getTable(String tableName) {
 		
 		for (int i = 0; i < this.opList.size(); i++) {
+//			
+			if (Debug.get().debug()) System.out.println("INFO: is " + tableName + " in " + this.opList.get(i) + "?"); 
+//			if (Debug.get().debug()) System.out.println("INFO: found a select to push down");
+//			if ((this.opList.get(i) instanceof OpTable) && ((String)(this.opList.get(i).contents)).equals(tableName)) {
+//				
+//				return (OpTable)(this.opList.get(i));
+//				
+//			}
 			
-			if ((this.opList.get(i) instanceof OpCrossProduct)) {
+			if ((this.opList.get(i) instanceof OpCrossProduct) || (this.opList.get(i) instanceof OpJoin)) {
 			
 				for (int j = 0; j < this.opList.get(i).children.length; j++) {
 					
@@ -248,6 +272,9 @@ public class OpTree {
 	        		if (Debug.get().debug()) System.out.println("INFO: Effectively removed sel from top of table");
 	        		if (Debug.get().debug()) System.out.println("INFO: handling Join with: " + ((String[])(sel.contents))[0] + "/" + ((String[])(sel.contents))[1] + "/" + ((String[])(sel.contents))[2]);
 		        	((OpCrossProduct)xprod).addJoin((String[])sel.contents);
+		        	
+		        	if (Debug.get().debug()) System.out.println("INFO: Removing " + sel);
+//		        	this.opList.remove(sel);
 		        	
 	        	}
 
@@ -518,7 +545,7 @@ public class OpTree {
 	 * @param op Op[eration] object
 	 * @return the same op object passed in
 	 */
-	private Op addOp(Op op) {
+	protected Op addOp(Op op) {
 		
 		op.setID(this.currOpID);
 		this.currOpID++;
@@ -645,9 +672,9 @@ public class OpTree {
 				for (int j = 0; j < op.children.length; j++) {
 
 					if (op.children[j] != null && (op.children[j] instanceof OpTable)) {
-					
-						op.children[j].info = (RelationInfo)this.sc.getRelationCatalog().get((String)op.children[j].contents); 
-						if (Debug.get().debug()) System.out.println("INFO: info object: " + op.children[j].info);
+						
+						op.children[j].info = (RelationInfo)this.sc.getRelationCatalog().get((String)op.children[j].contents);
+						if (Debug.get().debug()) System.out.println("INFO: RelationInfo set for " + op.children[j]);
 						
 					}
 					
