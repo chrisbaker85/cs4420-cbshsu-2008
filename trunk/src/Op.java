@@ -227,6 +227,37 @@ public abstract class Op {
         return (e1 && e2);
         
     }
+   
+   /**
+    * Check to see if this operator's subtree contains the given table
+    * @param table_name the table name we're looking for
+    * @return an int >= 0
+    */
+   public int containsTable(String table_name) {
+	   
+	   int retVal = 0;
+	   
+	   // Base case, this is the table we're looking for
+	   if (this instanceof OpTable
+			   && ((String)this.contents).equals(table_name)) {
+		   System.out.println("INFO: table " + table_name + "found");
+		   return 1;
+		   
+	   }
+	   
+	   if (this.children != null) {
+		   // Loop through every child
+		   for (int i = 0; i < this.children.length; i++) {
+			   
+			   retVal += this.children[i].containsTable(table_name);
+			   
+		   }
+	   }
+
+	   
+	   return retVal;
+	   
+   }
 
    /**
     * Swaps out an operator for another
@@ -242,7 +273,9 @@ public abstract class Op {
 			   
 			   this.children[i] = newChild;
 			   
-			   if (Debug.get().debug()) System.out.println("INFO: swapped [" + oldChild.getType() + "] with [" + newChild.getType() + "]");
+			   newChild.parent = this;
+			   
+			   if (Debug.get().debug()) System.out.println("INFO: swapped [" + oldChild + "(" + oldChild.getType() + ")] with [" + newChild + "(" + newChild.getType() + ")]");
 			   
 		   }
 		   
