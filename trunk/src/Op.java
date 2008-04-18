@@ -120,7 +120,7 @@ public abstract class Op {
 		String parent;
 		
 		if (this.parent == null) parent = null;
-		else parent = this + (new Integer(this.parent.id)).toString();
+		else parent = this.toString() + (new Integer(this.parent.id)).toString();
 		
 		
 		output = "|op: (" + this.id + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
@@ -169,7 +169,7 @@ public abstract class Op {
 		
 			for (int i = 0; i < this.children.length; i++) {
 				
-				children += "(" + this.children[i] + ")";
+				children += this.children[i].getID() + " (" + this.children[i] + ")";
 				
 			}
 			
