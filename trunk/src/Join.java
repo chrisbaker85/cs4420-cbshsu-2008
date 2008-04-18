@@ -15,15 +15,16 @@ public class Join implements IteratorInterface{
 	RelationInfo R2;
 	boolean index;
 	int passNumber;
-	String [] conditions;
+	String [] condition;
 	
-	public Join(Main main, RelationInfo R1, RelationInfo R2, String [] conditions, boolean index, int passNumber)
+	public Join(Main main, RelationInfo R1, RelationInfo R2, String [] condition, boolean index, int passNumber)
 	{
-		main = main;
-		R1 = R1;
-		R2 = R2;
-		index = index;
-		passNumber = passNumber;
+		this.main = main;
+		this.R1 = R1;
+		this.R2 = R2;
+		this.index = index;
+		this.passNumber = passNumber;
+		this.condition = condition;
 	}
 	
 	public RelationInfo open()
