@@ -596,13 +596,13 @@ public class Main implements QueryEngine
 			{
 				if (indexInfos.containsKey(query[0][i]))
 				{
-					System.out.println("Found index " + query[0][i]);
+					if (Debug.get().debug()) System.out.println("Found index " + query[0][i]);
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
 					int key = Integer.parseInt(query[1][i]);
 					if (index.containsKey(key))
 					{
-						System.out.println("Key exists and append to array list " + key);
+						if (Debug.get().debug()) System.out.println("Key exists and append to array list " + key);
 						// add to array list of offset
 						ArrayList<Integer> offsets = (ArrayList)index.get(key);
 						// update array list of offset for that key
@@ -610,7 +610,7 @@ public class Main implements QueryEngine
 					}
 					else
 					{
-						System.out.println("Key doesn't exist " + key);
+						if (Debug.get().debug()) System.out.println("Key doesn't exist " + key);
 						ArrayList<Integer> offset = new ArrayList<Integer>();
 						offset.add(lastOffset);
 						// insert key and values into index
@@ -804,12 +804,15 @@ public class Main implements QueryEngine
 		Op op = ot.nextOp();
 		Op currentOp = op; 
 		int lastIndex;
+		if (op == null) System.out.println("Tree is null");
 		while(op != null)
 		{
 			currentOp = op;
 			lastIndex = op.getID();
 			if (op instanceof OpSelect)
 			{
+				if (Debug.get().debug()) System.out.println("Calling select");
+				
 				// call select class here
 				// RelationInfo R = op.getInfo();
 				if (Debug.get().debug()) System.out.println("INFO: In select");
@@ -850,31 +853,61 @@ public class Main implements QueryEngine
 					// Filter myfilter = new Filter(this, temp, conditions);
 					result = myselect.open();
 				}
-				/*
-				else if (hasIndex && conditions.length == 1)
-				{
-					System.out.println("It's sort-based select");
-					Select myselect = new Select(this, R, conditions[0], true);
-					result = myselect.open();
-				}
-				else if (!hasIndex && conditions.length > 1)
-				{
-					System.out.println("It's sort-based filter");
-					Filter myfilter = new Filter(this, R, conditions);
-					result = myfilter.open();
-				}
-				else if (!hasIndex && conditions.length == 1)
-				{
-					System.out.println("It's sort-based select");
-					Select myselect = new Select(this, R, conditions[0], true);
-					result = myselect.open();
-				}
-				*/
+				
+//				else if (hasIndex && conditions.length == 1)
+//				{
+//					System.out.println("It's sort-based select");
+//					Select myselect = new Select(this, R, conditions[0], true);
+//					result = myselect.open();
+//				}
+//				else if (!hasIndex && conditions.length > 1)
+//				{
+//					System.out.println("It's sort-based filter");
+//					Filter myfilter = new Filter(this, R, conditions);
+//					result = myfilter.open();
+//				}
+//				else if (!hasIndex && conditions.length == 1)
+//				{
+//					System.out.println("It's sort-based select");
+//					Select myselect = new Select(this, R, conditions[0], true);
+//					result = myselect.open();
+//				}
+				
 				op.info = result;
 				//optable.put(new Integer(op.getID()), op);
+				
+				Iterator iterator = new Iterator(bufman, result, Integer.parseInt(result.getNumDataBlocks().trim()));
+				Hashtable atts = result.getAttributes();
+				int tupleSize = Utility.getTotalLength(atts);
+				Tuple tuple;
+				String [] attNames = Utility.getAttributeNames(atts);
+				for (int j = 0; j < attNames.length; j++)
+				{
+					System.out.print(attNames[j] + "\t");
+				}
+				System.out.println("");
+				System.out.println("==============================================");
+				
+				for (int i = 0; i < Integer.parseInt(result.getNumTuples().trim()); i++)
+				{
+					if (Debug.get().debug()) System.out.println("INFO: (main) index " + i);
+					tuple = iterator.getNext();
+					Block block = tuple.getBlock();
+					int offset = tuple.getOffset();
+					byte [] data = block.getTupleContent(offset, tupleSize);
+					String [] results = Utility.convertTupleToArray(atts, data);
+					for (int j = 0; j < attNames.length; j++)
+					{
+						System.out.print(results[j] + "\t");
+					}
+					System.out.println("");
+				}
+				 
 			}
 			else if (op instanceof OpProject)
 			{
+				if (Debug.get().debug()) System.out.println("Calling project");
+				
 				if (Debug.get().debug()) System.out.println("INFO: entered project");
 				
 				// RelationInfo R = op.getInfo();
@@ -882,12 +915,42 @@ public class Main implements QueryEngine
 				if (Debug.get().debug()) System.out.println("TYPE: " + op.getType() + "/CHILDTYPE" + op.left().getType() + "/INFO" + op.left().getInfo());
 				String [] attList = (String [])op.getContents();
 				
+				Iterator iterator = new Iterator(bufman, R, Integer.parseInt(R.getNumDataBlocks().trim()));
+				Hashtable atts = R.getAttributes();
+				int tupleSize = Utility.getTotalLength(atts);
+				Tuple tuple;
+				String [] attNames = Utility.getAttributeNames(atts);
+				for (int j = 0; j < attNames.length; j++)
+				{
+					System.out.print(attNames[j] + "\t");
+				}
+				System.out.println("");
+				System.out.println("==============================================");
+				
+				for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
+				{
+					if (Debug.get().debug()) System.out.println("INFO: (main) index " + i);
+					tuple = iterator.getNext();
+					Block block = tuple.getBlock();
+					int offset = tuple.getOffset();
+					byte [] data = block.getTupleContent(offset, tupleSize);
+					String [] results = Utility.convertTupleToArray(atts, data);
+					for (int j = 0; j < attNames.length; j++)
+					{
+						System.out.print(results[j] + "\t");
+					}
+					System.out.println("");
+				}
+				
+				
 				// call project class here
 				Project myproject = new Project(this, R, attList);
 				RelationInfo result = myproject.open();
 				op.info = result;
 				
 				//optable.put(new Integer(op.getID()), op);
+				 
+				 
 			}
 			else if (op instanceof OpCrossProduct)
 			{
@@ -975,11 +1038,12 @@ public class Main implements QueryEngine
 		}
 		// print out results in currentOp here
 
+		
 		if (Debug.get().debug()) System.out.println("INFO: printing out results");
 		RelationInfo relObj = currentOp.getInfo();
 		
 		System.out.println("--------------------------------------");
-		System.out.println("Relation name in select " + relObj.getName());
+		System.out.println("Printing out relation " + relObj.getName());
 		System.out.println("Number of tuple " + relObj.getNumTuples());
 		System.out.println("--------------------------------------");
 		
@@ -1029,6 +1093,7 @@ public class Main implements QueryEngine
 		
 		// clear temp relation in system catalog
 		syscat.getTempRelation().clear();
+		
 		return true;
 	}
 	
