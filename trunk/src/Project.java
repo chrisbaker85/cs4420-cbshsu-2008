@@ -21,6 +21,43 @@ public class Project implements IteratorInterface {
 		this.main = main;
 		this.R = R;
 		this.attList = attList;
+		System.out.println("--------------------------------------");
+		System.out.println("Relation name in project " + R.getName());
+		System.out.println("Number of tuple " + R.getNumTuples());
+		for (int i = 0; i < attList.length; i++)
+		{
+			System.out.print(attList[i] + " ");
+		}
+		System.out.println();
+		System.out.println("--------------------------------------");
+		
+		Iterator iterator = new Iterator(this.main.getBm(), R, Integer.parseInt(R.getNumDataBlocks().trim()));
+		Hashtable atts = R.getAttributes();
+		int tupleSize = Utility.getTotalLength(atts);
+		Tuple tuple;
+		String [] attNames = Utility.getAttributeNames(atts);
+		for (int j = 0; j < attNames.length; j++)
+		{
+			System.out.print(attNames[j] + "\t");
+		}
+		System.out.println("");
+		System.out.println("==============================================");
+		
+		for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
+		{
+			if (Debug.get().debug()) System.out.println("INFO: (main) index " + i);
+			tuple = iterator.getNext();
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] data = block.getTupleContent(offset, tupleSize);
+			String [] results = Utility.convertTupleToArray(atts, data);
+			for (int j = 0; j < attNames.length; j++)
+			{
+				System.out.print(results[j] + "\t");
+			}
+			System.out.println("");
+		}
+		
 	}
 	
 	public RelationInfo open()
@@ -44,7 +81,7 @@ public class Project implements IteratorInterface {
 		/**
 		 * use TableScan to scan tuple by tuple. Then form the values to be inserted
 		 */
-		
+		/*
 		String [] attNames = Utility.getAttributeNames(R.getAttribute()); 
 		String [][] query = new String[2][newatts.length];
 		// get position of newatts in attNames
@@ -67,11 +104,14 @@ public class Project implements IteratorInterface {
 				}
 			}
 		}
+		*/
 		
+		/*
 		Iterator tempIterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks()));
 		tempIterator.open();
 		
 		int tupleSize = Utility.getTotalLength(R.getAttribute());
+		System.out.println("Tuple size is " + tupleSize);
 		
 		System.out.println("Relation name " + R.getName());
 		System.out.println("The number of of tuple " + R.getNumTuples());
@@ -87,7 +127,7 @@ public class Project implements IteratorInterface {
 				int offset = tuple.getOffset();
 				byte [] data = block.getTupleContent(offset, tupleSize);
 				String [] results = Utility.convertTupleToArray(attHash, data);
-		
+				
 				for(int j = 0; j < attList.length; j++)
 				{
 					query[0][j] = newatts[j][0];	
@@ -96,10 +136,42 @@ public class Project implements IteratorInterface {
 					System.out.println("Data : " + query[1][j]);
 					// insert the projected tuple into new tempRelation
 				}
+				
 				main.insertQuery(tempTableName, query);
 				//tuple = tempIterator.getNext();
+				 
 			}
 		}
+		
+		*/
+		
+		Iterator iterator = new Iterator(this.main.getBm(), R, Integer.parseInt(R.getNumDataBlocks().trim()));
+		Hashtable atts = R.getAttributes();
+		int tupleSize = Utility.getTotalLength(atts);
+		Tuple tuple;
+		String [] attNames = Utility.getAttributeNames(atts);
+		for (int j = 0; j < attNames.length; j++)
+		{
+			System.out.print(attNames[j] + "\t");
+		}
+		System.out.println("");
+		System.out.println("==============================================");
+		
+		for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
+		{
+			if (Debug.get().debug()) System.out.println("INFO: (main) index " + i);
+			tuple = iterator.getNext();
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] data = block.getTupleContent(offset, tupleSize);
+			String [] results = Utility.convertTupleToArray(atts, data);
+			for (int j = 0; j < attNames.length; j++)
+			{
+				System.out.print(results[j] + "\t");
+			}
+			System.out.println("");
+		}
+		
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		return (RelationInfo)hashTemp.get(tempTableName);
 	}

@@ -51,7 +51,7 @@ public class Select implements IteratorInterface {
 		// if index is not specified
 		if (!index) 
 		{
-			System.out.println("In case there is no index");
+			//System.out.println("In case there is no index");
 			// get the position of condition in the array of attributes
 			int ind;
 			for (ind = 0; ind < attNames.length; ind++)
@@ -97,7 +97,7 @@ public class Select implements IteratorInterface {
 				}
 				if (condition[2].equals("="))
 				{
-					System.out.println("Verifying =");
+					//System.out.println("Verifying =");
 					// check type to see if it's int or string. Then, compare the two
 					Attribute a = (Attribute)attHash.get(attNames[ind]);
 					// if it's integer
@@ -126,7 +126,7 @@ public class Select implements IteratorInterface {
 				}
 				if (condition[2].equals("<"))
 				{
-					System.out.println("Verifying <");
+					//System.out.println("Verifying <");
 					if (Integer.parseInt(results[ind]) < Integer.parseInt(condition[1]))
 					{
 						System.out.println("Match :" + Integer.parseInt(results[ind]) + " < " + Integer.parseInt(condition[1]));
