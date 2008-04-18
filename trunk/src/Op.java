@@ -117,8 +117,13 @@ public abstract class Op {
 		String output = null;
 		String contents = "";
 		String children = "";
+		String parent;
 		
-		output = "|op: (" + this + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
+		if (this.parent == null) parent = null;
+		else parent = (new Integer(this.parent.id)).toString();
+		
+		
+		output = "|op: (" + this.id + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
 		
 		if (!(this.getContents() == null)) {
 		
