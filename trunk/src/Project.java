@@ -13,14 +13,14 @@ public class Project implements IteratorInterface {
 	
 	Iterator iterator;
 	RelationInfo R;
-	String [] atts;
+	String [] attList;
 	Main main;
 	
-	public Project(Main main, RelationInfo R, String [] atts)
+	public Project(Main main, RelationInfo R, String [] attList)
 	{
 		this.main = main;
 		this.R = R;
-		this.atts = atts;
+		this.attList = attList;
 	}
 	
 	public RelationInfo open()
@@ -28,12 +28,12 @@ public class Project implements IteratorInterface {
 		// get the new type for new attributes
 		String tempTableName = R.getName() + "_projected";
 		
-		String [][] newatts = new String[atts.length][4];
+		String [][] newatts = new String[attList.length][4];
 		Hashtable<String, Attribute> attHash = R.getAttributes();
-		for (int i = 0; i < atts.length; i++)
+		for (int i = 0; i < attList.length; i++)
 		{
-			Attribute att = attHash.get(Utility.getField(atts[i]));
-			newatts[i][0] = atts[i];
+			Attribute att = attHash.get(Utility.getField(attList[i]));
+			newatts[i][0] = Utility.getField(attList[i]);
 			newatts[i][1] = att.getType();
 			newatts[i][2] = att.getLength();
 			newatts[i][3] = att.getIsNullable();
@@ -45,25 +45,34 @@ public class Project implements IteratorInterface {
 		 * use TableScan to scan tuple by tuple. Then form the values to be inserted
 		 */
 		
-//		IteratorInterface tempIterator = new TableScan(main, R);
-		Iterator tempIterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks()));
-		tempIterator.open();
 		String [] attNames = Utility.getAttributeNames(R.getAttribute()); 
 		String [][] query = new String[2][newatts.length];
 		// get position of newatts in attNames
-		int [] pos = new int[newatts.length];
+		int [] attPos = new int[newatts.length];
+		// find the position of new attribute in original attributes  
 		for (int i = 0; i < newatts.length; i++)
 		{
+			// search for position of new attribute one by one in original attribute
 			for (int j = 0; j < attNames.length; j++)
 			{
 				if (Utility.getField(newatts[0][i]).equals(attNames[j])) 
 				{
-					pos[i] = j;
+					attPos[i] = j;
+					// check to see if that field is an index in original table
+					if (R.getIndexInfos().containsKey(attNames[j]))
+					{
+						IndexInfo indexInfo = (IndexInfo)R.getIndexInfos().get(attNames[j]);
+						this.main.createIndexQuery(indexInfo.getIdexName(), tempTableName, attNames[j], indexInfo.getIsDuplicate());
+					}
 				}
 			}
 		}
 		
-		int tupleLength = Utility.getTotalLength(R.getAttribute());
+		Iterator tempIterator = new Iterator(main.getBm(), R, Integer.parseInt(R.getNumDataBlocks()));
+		tempIterator.open();
+		
+		int tupleSize = Utility.getTotalLength(R.getAttribute());
+		
 		for (int i = 0; i < Integer.parseInt(R.getNumTuples()); i++)
 		{
 			Tuple tuple = tempIterator.getNext();
@@ -73,14 +82,14 @@ public class Project implements IteratorInterface {
 			
 				Block block = tuple.getBlock();
 				int offset = tuple.getOffset();
-				byte [] data = block.getTupleContent(offset, tupleLength);
+				byte [] data = block.getTupleContent(offset, tupleSize);
 				String [] results = Utility.convertTupleToArray(attHash, data);
 		
-				for(int j = 0; j < atts.length; j++)
+				for(int j = 0; j < attList.length; j++)
 				{
 					query[0][j] = newatts[j][0];	
 					// extract the projected data and insert it into query. Then call insertQuery in main
-					query[1][j] = results[pos[j]];
+					query[1][j] = results[attPos[j]];
 					System.out.println("Data : " + query[1][j]);
 					// insert the projected tuple into new tempRelation
 				}
@@ -90,8 +99,6 @@ public class Project implements IteratorInterface {
 		}
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		return (RelationInfo)hashTemp.get(tempTableName);
-		//RelationInfo newR = (RelationInfo)hashTemp.get(tempTableName);
-		//iterator = new Iterator(main.getBm(), newR, newR.getId(), Integer.parseInt(newR.getNumDataBlocks()));
 	}
 	
 	public Tuple next()
