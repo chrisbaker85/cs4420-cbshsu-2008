@@ -222,30 +222,35 @@ public class OpTree {
 		// Loop through all the operator nodes
 	    for (int i = 0; i < this.opList.size(); i++) {
 
-	        Op xprod;
+	        Op xprod = null;
 	        Op[] tables;
 	        Op sel = this.opList.get(i);
 	        
 	        // If this node is a select operator, find any conditions
 	        // that create a join and remove them, putting them in the proper join op
-	        if ((sel instanceof OpSelect) && ((String[])sel.contents)[1].contains(".") && (xprod = this.crossProductExistsWith((String[])sel.contents)) != null) {
-	            
-	        	/**
-	        	 * Making the following assumptions here:
-	        	 * 1) A select operator will never be the root of the tree
-	        	 *    (i.e. it will always have a non-null parent)
-	        	 * 2) A select operator will never be a "sibling"
-	        	 *    (i.e it will never share a parent with another operator)
-	        	 * 3) A select operator will only have one child
-	        	 */ 
+	        if ((sel instanceof OpSelect)) {
 	        	
-	        	sel.parent.children[0] = sel.children[0];
-	        	
-	        	((OpCrossProduct)xprod).addJoin((String[])sel.contents);
-	        	
-	        	//this.opList.get(i).contents = ((OpCrossProduct)xprod).removeCondition((String[])this.opList.get(i).contents);
-	            //tables = xprod.removeChildren((String[])this.opList.get(i).contents);
-	            
+	        	if (Debug.get().debug()) System.out.println("INFO: found a select: " + sel);
+	        	if (Debug.get().debug()) System.out.println("INFO: finding an xprod with: " + (String[])sel.contents);
+	        	if (((String[])sel.contents)[1].contains(".") && (xprod = this.crossProductExistsWith((String[])sel.contents)) != null) {
+	        		
+		        	/**
+		        	 * Making the following assumptions here:
+		        	 * 1) A select operator will never be the root of the tree
+		        	 *    (i.e. it will always have a non-null parent)
+		        	 * 2) A s
+		        	 * elect operator will never be a "sibling"
+		        	 *    (i.e it will never share a parent with another operator)
+		        	 * 3) A select operator will only have one child
+		        	 */ 
+		        	
+	        		sel.parent.swapChildren(sel, sel.children[0]);
+	        		if (Debug.get().debug()) System.out.println("INFO: Effectively removed sel from top of table");
+	        		if (Debug.get().debug()) System.out.println("INFO: handling Join with: " + ((String[])(sel.contents))[0] + "/" + ((String[])(sel.contents))[1] + "/" + ((String[])(sel.contents))[2]);
+		        	((OpCrossProduct)xprod).addJoin((String[])sel.contents);
+		        	
+	        	}
+
 	        }
 	        
 	    }
@@ -491,11 +496,15 @@ public class OpTree {
 	
 	private Op crossProductExistsWith(String[] x) {
 	    
+		Op op;
+		
 	    for (int i = 0; i < this.opList.size(); i++) {
 	        
-	        if ((this.opList.get(i) instanceof OpCrossProduct) && this.opList.get(i).hasChildren(Utility.getTable(x[0]), Utility.getTable(x[1]))) {
+	    	op = this.opList.get(i);
+	    	if (Debug.get().debug()) System.out.println("INFO: looking for " + Utility.getTable(x[0]) + " and " + Utility.getTable(x[1]) + " in " + op);
+	        if ((op instanceof OpCrossProduct) && (op.containsTable(Utility.getTable(x[0])) > 0) && (op.containsTable(Utility.getTable(x[1])) > 0)) {
 	            
-	            return this.opList.get(i);
+	            return op;
 	            
 	        }
 	        
