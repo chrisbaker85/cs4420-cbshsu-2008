@@ -495,7 +495,7 @@ public class Main implements QueryEngine
 			}
 		}
 		
-		// Before insert record, we need to test if there is index and we need to verify duplicate constraints
+		// Before insert record, we need to check to see if there is index and we need to verify duplicate constraints
 		if (relObj.getColsIndexed() > 0)
 		{
 			// get index info hashtable
@@ -504,12 +504,13 @@ public class Main implements QueryEngine
 			// loop through all the inserted attributes and search if they are indexes
 			for (int i = 0; i < query[0].length; i++)
 			{
+				// if inserted attribute is an index
 				if (indexInfos.containsKey(query[0][i]))
 				{
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
 					int key = Integer.parseInt(query[1][i]);
-					if (index.containsKey(key))
+					if (index.containsKey(key) && !indexInfo.getIsDuplicate())
 					{
 						System.out.println(key + " already exists in index. Duplicate is not allowed");
 						return false;
@@ -592,8 +593,20 @@ public class Main implements QueryEngine
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
 					int key = Integer.parseInt(query[1][i]);
-					// insert key and values into index
-				    index.put(key, lastOffset);
+					if (index.containsKey(key))
+					{
+						// add to array list of offset
+						ArrayList<Integer> offsets = (ArrayList)index.get(key);
+						// update array list of offset for that key
+						offsets.add(lastOffset);
+					}
+					else
+					{
+						ArrayList<Integer> offset = new ArrayList<Integer>();
+						offset.add(lastOffset);
+						// insert key and values into index
+					    index.put(key, offset);
+					}
 				}
 			}
 		}
@@ -616,8 +629,15 @@ public class Main implements QueryEngine
 	 */
 	public boolean createIndexQuery(String indexName, String tableName, String attName, boolean isDuplicate) 
 	{
-		RelationInfo relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
-		
+		RelationInfo relInfo = null;
+		if (syscat.getRelationCatalog().containsKey(tableName))
+		{
+			relInfo = (RelationInfo)syscat.getRelationCatalog().get(tableName);
+		}
+		else
+		{
+			relInfo = (RelationInfo)syscat.getTempRelation().get(tableName);
+		}
 		// check if index already exists
 		if (relInfo.getIndexInfos().containsKey(attName))
 		{
@@ -707,8 +727,11 @@ public class Main implements QueryEngine
 		for (int i = 0; i < sm.size(); i++)
 		{
 			int key = (Integer)sm.firstKey();
-			int value = (Integer)sm.get(key);
-			System.out.println(key + "\t\t" + value);
+			ArrayList<Integer> values = (ArrayList)sm.get(key);
+			for (int j = 0; j < values.size(); j++)
+			{
+				System.out.println(key + "\t\t" + values.get(j));
+			}
 			sm.remove(key);
 		}
 		return true;
@@ -742,6 +765,7 @@ public class Main implements QueryEngine
 				System.out.println("Type:\t\t" + att.getType());
 				System.out.println("Length:\t\t" + att.getLength());
 				System.out.println("Nullable:\t" + att.getIsNullable());
+				System.out.println("Numbe of distinct value " + att.getDistinctValues());
 			}
 			Enumeration e2 = relObj.getIndexInfos().elements();
 			System.out.println("**************** Index Information *****************");
@@ -753,6 +777,7 @@ public class Main implements QueryEngine
 				System.out.println("Attriute name:\t\t" + index.getAttName());
 				if (index.getIsDuplicate()) System.out.println("Duplicate:\t\tYes");
 				else System.out.println("Duplicate:\t\tNo");
+				System.out.println("Number of keys " + index.getIndex().size());
 			}
 		}
 		return true;
@@ -907,6 +932,9 @@ public class Main implements QueryEngine
 			}
 			System.out.println("");
 		}
+		
+		// clear temp relation in system catalog
+		syscat.getTempRelation().clear();
 		return true;
 	}
 	
