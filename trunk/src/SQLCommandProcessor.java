@@ -98,7 +98,7 @@ public class SQLCommandProcessor {
 		String field_name;
 		boolean duplicates;
 		
-		duplicates = temp.endsWith(" [no duplicates]");
+		duplicates = temp.endsWith("[no duplicates]");
 		temp = command.substring(13);
 		index_name = temp.substring(0, temp.indexOf(" "));
 		
