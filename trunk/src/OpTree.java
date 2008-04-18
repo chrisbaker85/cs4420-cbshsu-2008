@@ -97,6 +97,8 @@ public class OpTree {
 		
 		if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
+		printOperatorList();
+		
 		
 	}
 	
@@ -569,7 +571,7 @@ public class OpTree {
 		// Increment the cursor
 		opCursor++;
 		
-		if (this.opCursor + 1 < this.queryList.size()) {
+		if (this.opCursor < this.queryList.size()) {
 			
 		    if (Debug.get().debug()) System.out.println("INFO: LIST SIZE: " + this.opList.size() + "/CURSOR: " + this.opCursor + " is a: " + this.queryList.get(this.opCursor).getType());
 			return this.queryList.get(this.opCursor);
@@ -605,11 +607,16 @@ public class OpTree {
 		ArrayList<Op> list = new ArrayList<Op>();
 		int counter = 0;
 		
+		System.out.println("INFO: opList size: " + this.opList.size());
+		
 		while (counter < this.opList.size()) {
 
+			if (temp == null) return list;
+			
 			// Base cases
 			if (temp instanceof OpTable || !temp.hasUnvisitedChildren()) {
 				
+				System.out.println("INFO: using " + temp);
 				temp.use();
 				list.add(temp);
 				
@@ -646,6 +653,18 @@ public class OpTree {
 		String output = this.tree_root.getString();
 		
 		return output;
+		
+	}
+	
+	public void printOperatorList() {
+		
+		Op op;
+		
+		while((op = this.nextOp()) != null) {
+			
+			if (Debug.get().debug()) System.out.println(op.getType());
+			
+		}
 		
 	}
 	
