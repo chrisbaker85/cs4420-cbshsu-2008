@@ -88,14 +88,14 @@ public class OpTree {
 		if (Debug.get().debug()) System.out.println(this.toString());
 		
 		// Push down select operators to just above their respective tables
-		//pushDownSelects();
+		pushDownSelects();
 
 		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
 		// Give all the leaf nodes (tables) their corresponding RelationInfo
 		bindRelationInfos();
 		
-		if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
+		System.out.println(this.toString());
 		
 		printOperatorList();
 		this.resetOpList();
@@ -168,7 +168,7 @@ public class OpTree {
 			
 			Op sel = this.opList.get(i);
 			
-			if (sel instanceof OpSelect && (true || !((String[])(sel.contents))[1].contains("."))) {
+			if (sel instanceof OpSelect && (!(((String[])(sel.contents))[1].contains(".")))) {
 				
 				if (Debug.get().debug()) System.out.println("INFO: found a select to push down");
 				
@@ -184,17 +184,17 @@ public class OpTree {
 					System.out.println("INFO: injecting " + sel + " above " + opt);
 					//opt.parent.injectAboveChild(sel, opt);
 					
-//					Op tableParent = opt.parent;
-//					sel.parent.swapChildren(sel, sel.children[0]);
-//					
-//					if (Debug.get().debug()) System.out.println("INFO: select removed from tree");
-//					
-//					sel.children[0] = opt;
-//					sel.parent = tableParent;
-//					
-//					opt.parent = sel;
-//					
-//					tableParent.swapChildren(opt, sel);
+					Op tableParent = opt.parent;
+					sel.parent.swapChildren(sel, sel.children[0]);
+					
+					if (Debug.get().debug()) System.out.println("INFO: select removed from tree");
+					
+					sel.children[0] = opt;
+					sel.parent = tableParent;
+					
+					opt.parent = sel;
+					
+					tableParent.swapChildren(opt, sel);
 					
 					if (Debug.get().debug()) System.out.println("INFO: select inserted into tree");
 					
@@ -222,9 +222,13 @@ public class OpTree {
 			
 				for (int j = 0; j < this.opList.get(i).children.length; j++) {
 					
-					if ((this.opList.get(i).children[j] instanceof OpTable)) {
+					if ((this.opList.get(i).children[j] instanceof OpTable && this.opList.get(i).children[j].contents.equals(tableName))) {
 						
 						return (OpTable)(this.opList.get(i).children[j]);
+						
+					} else {
+						
+						return this.opList.get(i).children[j].containsTable(tableName);
 						
 					}
 					
@@ -539,7 +543,7 @@ public class OpTree {
 	        
 	    	op = this.opList.get(i);
 	    	if (Debug.get().debug()) System.out.println("INFO: looking for " + Utility.getTable(x[0]) + " and " + Utility.getTable(x[1]) + " in " + op);
-	        if ((op instanceof OpCrossProduct) && (op.containsTable(Utility.getTable(x[0])) > 0) && (op.containsTable(Utility.getTable(x[1])) > 0)) {
+	        if ((op instanceof OpCrossProduct) && (op.containsTable(Utility.getTable(x[0])) != null) && (op.containsTable(Utility.getTable(x[1])) != null)) {
 	            
 	            return op;
 	            
