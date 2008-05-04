@@ -88,7 +88,7 @@ public class OpTree {
 		if (Debug.get().debug()) System.out.println(this.toString());
 		
 		// Push down select operators to just above their respective tables
-		pushDownSelects();
+		//pushDownSelects();
 
 		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
