@@ -123,7 +123,7 @@ public abstract class Op {
 		else parent = this.toString() + (new Integer(this.parent.id)).toString();
 		
 		
-		output = "|op: " + this.getType() + " (" + this.id + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
+		output = "|op: " + this.getType() + " (" + this.id + "/" + this + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
 		
 		if (!(this.getContents() == null)) {
 		
@@ -243,15 +243,15 @@ public abstract class Op {
     * @param table_name the table name we're looking for
     * @return an int >= 0
     */
-   public int containsTable(String table_name) {
+   public OpTable containsTable(String table_name) {
 	   
-	   int retVal = 0;
+	   OpTable retVal = null;
 	   
 	   // Base case, this is the table we're looking for
 	   if (this instanceof OpTable
 			   && ((String)this.contents).equals(table_name)) {
 		   if (Debug.get().debug()) System.out.println("INFO: table " + table_name + "found");
-		   return 1;
+		   return (OpTable)this;
 		   
 	   }
 	   
@@ -259,7 +259,8 @@ public abstract class Op {
 		   // Loop through every child
 		   for (int i = 0; i < this.children.length; i++) {
 			   
-			   retVal += this.children[i].containsTable(table_name);
+			   retVal = (OpTable)this.children[i].containsTable(table_name);
+			   if (retVal != null) return retVal;
 			   
 		   }
 	   }
