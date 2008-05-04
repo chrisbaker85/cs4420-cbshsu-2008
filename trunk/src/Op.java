@@ -123,7 +123,7 @@ public abstract class Op {
 		else parent = this.toString() + (new Integer(this.parent.id)).toString();
 		
 		
-		output = "|op: (" + this.id + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
+		output = "|op: " + this.getType() + " (" + this.id + ")\n|parent:" + this.parent + "\n|info: " + this.info + "\n|contents: ";
 		
 		if (!(this.getContents() == null)) {
 		
