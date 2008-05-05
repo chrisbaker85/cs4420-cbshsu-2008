@@ -13,13 +13,13 @@ public class Filter implements IteratorInterface {
 	Iterator iterator;
 	Main main;
 	RelationInfo R;
-	String [][] where;
+	String [][] conditions;
 	
-	public Filter(Main main, RelationInfo R, String [][] where)
+	public Filter(Main main, RelationInfo R, String [][] conditions)
 	{
 		this.main = main;
 		this.R = R;
-		this.where = where;
+		this.conditions = conditions;
 	}
 	
 	public RelationInfo open()
@@ -30,6 +30,9 @@ public class Filter implements IteratorInterface {
 		 * 2. Call Select multiple time if it's AND condition (con1 AND con2 AND con3...)
 		 * tempRelation will be used to  
 		 */ 
+		
+		//System.out.println("Operator is " + conditions[0][2]);
+		//System.out.println("Operator is " + conditions[1][2]);
 		
 		String tempTableName = R.getName() + "_filtered";
 		Hashtable attHash = R.getAttribute();
@@ -49,13 +52,16 @@ public class Filter implements IteratorInterface {
 		
 		
 		// get the position of condition in the array of attributes
-		int [] pos = new int[where.length];
+		int [] pos = new int[conditions.length];
 		int ind = 0; 
-		for (int i = 0; i < attNames.length; i++)
+		for (int i = 0; i < conditions.length; i++)
 		{
-			if (attNames[i].equals(where[0]))
+			for (int j = 0; j < attNames.length; j++)
 			{
-				pos[ind++] = i;
+				if (attNames[j].equals(conditions[i][0]))
+				{
+					pos[ind++] = j;
+				}
 			}
 		}
 		// use tablescan to iterate through relation
@@ -73,23 +79,31 @@ public class Filter implements IteratorInterface {
 			String [] results = Utility.convertTupleToArray(attHash, content);
 			// compare it result with condition
 			boolean allOp = true;
-			for (int j = 0; j < where.length; j++)
+			//System.out.println("Length of conditions : " + conditions.length);
+			for (int j = 0; j < conditions.length; j++)
 			{
-				if (where[j] != null && where[j][2].equals(">"))
+				
+				//System.out.println("Operator is " + conditions[j][2] + " and j is " + j);
+				
+				if (conditions[j] != null && conditions[j][2].equals(">"))
 				{
-					if (Integer.parseInt(results[ind]) <= Integer.parseInt(where[j][2]))
+					//System.out.println("In > condition");
+					//System.out.println("comparing " + results[pos[j]] + " > " + conditions[j][1]);
+					System.out.println("comparing " + results[pos[j]] + " > " + conditions[j][1]);
+					if (Integer.parseInt(results[pos[j]]) <= Integer.parseInt(conditions[j][1]))
 					{
 						allOp = false;
 						break;
 					}
 				}
-				if (where[j] != null && where[j][2].equals("="))
+				else if (conditions[j] != null && conditions[j][2].equals("="))
 				{
 					// test the attribute type
-					Attribute att = (Attribute)attHash.get(where[j][0]);
+					Attribute att = (Attribute)attHash.get(conditions[j][0]);
 					if (att.getType().equals("string"))
 					{	
-						if (!results[ind].startsWith(where[j][1]))
+						//System.out.println("In = condition in STRING type");
+						if (!results[pos[j]].startsWith(conditions[j][1]))
 						{
 							allOp = false;
 							break;
@@ -97,26 +111,29 @@ public class Filter implements IteratorInterface {
 					}
 					else 
 					{
-						if (Integer.parseInt(results[ind]) != Integer.parseInt(where[j][1]))
+						//System.out.println("In = condition in INT type");
+						if (Integer.parseInt(results[pos[j]]) != Integer.parseInt(conditions[j][1]))
 						{
 							allOp = false;
 							break;
 						}
 					}
 				}
-				if (where[j] != null && where[j][2].equals("<"))
+				else if (conditions[j] != null && conditions[j][2].equals("<"))
 				{
-					if (Integer.parseInt(results[ind]) >= Integer.parseInt(where[j][2]))
+					//System.out.println("In < condition");
+					System.out.println("comparing " + results[pos[j]] + " < " + conditions[j][1]);
+					if (Integer.parseInt(results[pos[j]]) >= Integer.parseInt(conditions[j][1]))
 					{
 						allOp = false;
 						break;
 					}
 				}
-				if (allOp)
-				{
-					// insert tuple into tempTableName by calling main.insertQuery()
-					main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
-				}
+			}
+			if (allOp)
+			{
+				// insert tuple into tempTableName by calling main.insertQuery()
+				main.insertQuery(tempTableName, Utility.formInsertQuery(attNames, results));
 			}
 		}
 		

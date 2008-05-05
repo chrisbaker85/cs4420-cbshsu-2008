@@ -1369,7 +1369,12 @@ public class Main implements QueryEngine
 		System.out.println("Printing cross product of course and student");
 		mydb.printOutRelation(rel);
 		*/
-		String [] condition = {"first_name", "last_name"};
+		
+		String [][] conditions = {{"course_id", "3", "<"},{"course_number", "3000", ">"}};
+		Filter myfilter = new Filter(mydb, R, conditions);
+		System.out.println("Printing filter course_id and course_name");
+		RelationInfo rel = myfilter.open();
+		mydb.printOutRelation(rel);
 		
 		// select catalog from database db1
 		//mydb.selectCatalogQuery();

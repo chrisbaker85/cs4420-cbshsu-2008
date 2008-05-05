@@ -105,9 +105,10 @@ public class Select implements IteratorInterface {
 					// if it's integer
 					if(a.getType().equals("int"))
 					{
+						System.out.println("Select without index and in INT type");
 						if (Integer.parseInt(results[ind]) == Integer.parseInt(condition[1]))
 						{
-							System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(condition[1]));
+							// System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(condition[1]));
 							// form query to be inserted
 							query = Utility.formInsertQuery(attNames, results);
 							// insert the tuple here by calling main.insertQuery()
@@ -116,9 +117,10 @@ public class Select implements IteratorInterface {
 					}
 					else
 					{
+						System.out.println("Select without index and in STRING type");
 						if (results[ind].startsWith(condition[1]))
 						{
-							System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(condition[1]));
+							//System.out.println("Match :" + Integer.parseInt(results[ind]) + " = " + Integer.parseInt(condition[1]));
 							// form query to be inserted
 							query = Utility.formInsertQuery(attNames, results);
 							// insert the tuple here by calling main.insertQuery()
