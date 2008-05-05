@@ -83,7 +83,7 @@ public class IndexScan implements IteratorInterface {
 			 * 3. insert tuple into tempRelation using main.insertQuery()
 			 */
 			// TODO: fix treemap and set below
-			TreeMap tempTree = new TreeMap(sortedmap);
+			//TreeMap tempTree = new TreeMap(sortedmap);
 			
 			Set s = sortedmap.keySet();
 			java.util.Iterator i = s.iterator();
