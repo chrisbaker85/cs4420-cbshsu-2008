@@ -129,11 +129,13 @@ public abstract class Op {
 		
 			if (this instanceof OpSelect) {
 				
-				String[] comp = ((String[])this.getContents());
+				String[][] comp = ((String[][])this.getContents());
 				
-						
-				output += "(" + comp[0] + " " + comp[1] + " " + comp[2] + ")";						
-						
+				for (int i = 0; i < comp.length; i++) {
+					
+					output += "(" + comp[i][0] + " " + comp[i][1] + " " + comp[i][2] + ")";						
+
+				}
 				
 			} else if (this instanceof OpProject) {
 				
