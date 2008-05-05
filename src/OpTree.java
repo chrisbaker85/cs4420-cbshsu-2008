@@ -80,26 +80,90 @@ public class OpTree {
 		// Verify that all attributes used are valid
 		if (this.validateAttributes(table_names)) this.state = 0;
 		
-		if (Debug.get().debug()) System.out.println(this.toString());
+		System.out.println("\n\nValid Base Tree\n" + this.toString());
 		
 		// identify joins
 		makeJoins();
 		
-		if (Debug.get().debug()) System.out.println(this.toString());
+		System.out.println("\n\nTree with Joins\n" + this.toString());
 		
 		// Push down select operators to just above their respective tables
 		pushDownSelects();
 
+		System.out.println("\n\nTree with sigma push-down\n" + this.toString());
+		
+		// Find select operators that are adjacent and merge them
+		//mergeSelects();
+		
 		//if (this.state > -1  && Debug.get().debug()) System.out.println(this.toString());
 		
 		// Give all the leaf nodes (tables) their corresponding RelationInfo
 		bindRelationInfos();
 		
-		System.out.println(this.toString());
+		// Always print out a copy of the tree
+		System.out.println("\n\nTree with sigma merged\n" + this.toString());
 		
 		printOperatorList();
 		this.resetOpList();
 		
+		
+	}
+	
+	/**
+	 * Merge select operators that are adjacent to each other.
+	 * This allows the processor to use filters
+	 */
+	private void mergeSelects() {
+		
+		OpSelect sel1 = null;
+		
+		// Iterate through the list of ops
+		while ((sel1 = this.findAdjacentSelect()) != null) {
+
+				System.out.println("Found " + sel1 + " with child " + sel1.children[0]);
+			
+				OpSelect sel2 = (OpSelect)sel1.children[0];
+				Op bottom = sel2.children[0];
+				
+				// Move the second select's where condition(s) into the top's array
+				int sel1len = ((String[][])(sel1.contents)).length;
+				int sel2len = ((String[][])(sel2.contents)).length;
+				String[][] temp = new String[sel1len + sel2len][3];
+
+				for (int i = 0; i < sel2len; i++) {
+					
+					temp[temp.length - (sel2len) + i] = ((String[][])(sel2.contents))[i];
+					
+				}
+				
+				sel1.contents = temp;
+				sel1.children[0] = bottom;
+				
+				// Remove the lower select from the tree and the list
+				bottom.parent = sel1;
+				sel1.children[0] = bottom;
+				sel2.children = null;
+				sel2.parent = null;
+				this.opList.remove(sel2);
+			
+		}
+		
+	}
+
+	/**
+	 * Find a Select operator that has another select operator as a child
+	 * @return
+	 */
+	private OpSelect findAdjacentSelect() {
+	
+		for (int i = 0; i < this.opList.size(); i++) {
+			// Find a select operator that meets the condition
+			if (this.opList.get(i) instanceof OpSelect && this.opList.get(i).children[0] instanceof OpSelect) {
+				return (OpSelect)this.opList.get(i);
+			}
+		}
+		
+		return null;
 		
 	}
 	
@@ -116,8 +180,11 @@ public class OpTree {
 			// daisy-chain the select operators
 			for (int i = 0; i < where.length; i++) {
 			
+				String[][] tmp = new String[1][3];
+				tmp[0] = where[i];
+				
 				// Set the "second" level, a select operation
-				curr.children[0] = this.addOp(new OpSelect(where[i], curr, this));
+				curr.children[0] = this.addOp(new OpSelect(tmp, curr, this));
 				curr = curr.children[0];
 				
 			}
@@ -159,6 +226,8 @@ public class OpTree {
 	 * Pushes down the select operators
 	 * Assuming that all the selects are data conditions
 	 * and all table conditions (for joins) are already removed
+	 * Assuming that all select operators have a single condition
+	 * and it can be accessed at index 0.
 	 */
 	private void pushDownSelects() {
 		
@@ -168,11 +237,11 @@ public class OpTree {
 			
 			Op sel = this.opList.get(i);
 			
-			if (sel instanceof OpSelect && (!(((String[])(sel.contents))[1].contains(".")))) {
+			if (sel instanceof OpSelect && (!(((String[][])(sel.contents))[0][1].contains(".")))) {
 				
 				if (Debug.get().debug()) System.out.println("INFO: found a select to push down");
 				
-				String tableName = Utility.getTable((String)(((String[])sel.contents)[0]));
+				String tableName = Utility.getTable((String)(((String[][])sel.contents)[0][0]));
 				OpTable opt = this.getTable(tableName);
 				
 				if (Debug.get().debug()) System.out.println("INFO: found corresponding table: " + opt);
@@ -181,7 +250,7 @@ public class OpTree {
 				if (opt != null) {
 					
 					//opt.parent.swapChildren(sel, sel.children[0]);
-					System.out.println("INFO: injecting " + sel + " above " + opt);
+					if (Debug.get().debug()) System.out.println("INFO: injecting " + sel + " above " + opt);
 					//opt.parent.injectAboveChild(sel, opt);
 					
 					Op tableParent = opt.parent;
@@ -247,11 +316,13 @@ public class OpTree {
 	 * appropriate condition
 	 * This function assumes that there is one cross product
 	 * operator in the tree, if one exists at all.
+	 * This function assumes that all select operators have
+	 * only one condition.  It can be accessed at index 0
 	 */
 	private void makeJoins() {
 		
-		System.out.println("INFO: inside make Joins");
-		System.out.println("opList size: " + this.opList.size());
+		if (Debug.get().debug()) System.out.println("INFO: inside make Joins");
+		if (Debug.get().debug()) System.out.println("opList size: " + this.opList.size());
 		
 		// Loop through all the operator nodes
 	    for (int i = 0; i < this.opList.size(); i++) {
@@ -266,7 +337,7 @@ public class OpTree {
 	        	
 	        	if (Debug.get().debug()) System.out.println("INFO: found a select: " + sel);
 	        	if (Debug.get().debug()) System.out.println("INFO: finding an xprod with: " + (String[])sel.contents);
-	        	if (((String[])sel.contents)[1].contains(".") && (xprod = this.crossProductExistsWith((String[])sel.contents)) != null) {
+	        	if (((String[][])sel.contents)[0][1].contains(".") && (xprod = this.crossProductExistsWith((((String[][])sel.contents))[0])) != null) {
 	        		
 		        	/**
 		        	 * Making the following assumptions here:
@@ -281,7 +352,7 @@ public class OpTree {
 	        		sel.parent.swapChildren(sel, sel.children[0]);
 	        		if (Debug.get().debug()) System.out.println("INFO: Effectively removed sel from top of table");
 	        		if (Debug.get().debug()) System.out.println("INFO: handling Join with: " + ((String[])(sel.contents))[0] + "/" + ((String[])(sel.contents))[1] + "/" + ((String[])(sel.contents))[2]);
-		        	((OpCrossProduct)xprod).addJoin((String[])sel.contents);
+		        	((OpCrossProduct)xprod).addJoin(((String[][])sel.contents)[0]);
 		        	
 //		        	if (Debug.get().debug()) System.out.println("INFO: Removing " + sel);
 //		        	this.opList.remove(sel);
@@ -332,33 +403,39 @@ public class OpTree {
 			if (op instanceof OpSelect) {
 				
 				// contents is an 2-D array of relation names
-				String[] att = ((String[])op.contents);
+				String[][] att = ((String[][])op.contents);
 				
 				// Call method to verify existence of the attribute
-				String table_name = verifyAttribute(att[0], table_names);
-				
-				if (table_name == null) {
-					error = true;
-				} else {
-					att[0] = (table_name + "." + att[0]);
-				}
-				
-				if (!att[1].startsWith("'")) {
+				for (int j = 0; j < att.length ; j++) {
 					
-					// Call method to verify existence of the attribute
-					table_name = verifyAttribute(att[1], table_names);
+					String table_name = verifyAttribute(att[j][0], table_names);
 					
 					if (table_name == null) {
 						error = true;
 					} else {
-						att[1] = (table_name + "." + att[1]);
+						att[j][0] = (table_name + "." + att[j][0]);
 					}
 					
-				} else {
-					
-					att[1] = att[1].substring(1, att[1].length() - 1);
-					
+					if (!att[j][1].startsWith("'")) {
+						
+						// Call method to verify existence of the attribute
+						table_name = verifyAttribute(att[j][1], table_names);
+						
+						if (table_name == null) {
+							error = true;
+						} else {
+							att[j][1] = (table_name + "." + att[j][1]);
+						}
+						
+					} else {
+						
+						att[j][1] = att[j][1].substring(1, att[j][1].length() - 1);
+						
+					}
 				}
+
+				
+
 					
 			} else if (op instanceof OpProject) {
 				
@@ -615,7 +692,7 @@ public class OpTree {
 		ArrayList<Op> list = new ArrayList<Op>();
 		int counter = 0;
 		
-		System.out.println("INFO: opList size: " + this.opList.size());
+		if (Debug.get().debug()) System.out.println("INFO: opList size: " + this.opList.size());
 		
 		while (counter < this.opList.size()) {
 
@@ -624,7 +701,7 @@ public class OpTree {
 			// Base cases
 			if (temp instanceof OpTable || !temp.hasUnvisitedChildren()) {
 				
-				System.out.println("INFO: using " + temp);
+				if (Debug.get().debug()) System.out.println("INFO: using " + temp);
 				temp.use();
 				list.add(temp);
 				
@@ -658,6 +735,8 @@ public class OpTree {
 	
 	public String toString() {
 		
+		System.out.println("\n\nOperator Tree");
+		
 		String output = this.tree_root.getString();
 		
 		return output;
@@ -667,11 +746,11 @@ public class OpTree {
 	public void printOperatorList() {
 		
 		Op op;
-		
+		int counter = 1;
 		while((op = this.nextOp()) != null) {
 			
-			System.out.println("INFO OPLIST " + op.getType());
-			
+			System.out.println("INFO OPLIST " + counter + " " + op.getType());
+			counter ++;
 		}
 		
 	}
