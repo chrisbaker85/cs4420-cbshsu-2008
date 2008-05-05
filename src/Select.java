@@ -23,17 +23,19 @@ public class Select implements IteratorInterface {
 		this.R = R;
 		this.condition = condition;
 		this.index = index;
+		/*
 		System.out.println("--------------------------------------");
 		System.out.println("Relation name in select " + R.getName());
 		System.out.println("Field name is " + condition[0]);
 		System.out.println("Number of tuple " + R.getNumTuples());
 		System.out.println("--------------------------------------");
+		*/
 	}
 	
 	// public void open(RelationInfo R, String [] where, Index idx)
 	public RelationInfo open()
 	{
-		String tempTableName = R.getName() + "_select";
+		String tempTableName = R.getName() + "_selected";
 		Hashtable attHash = R.getAttribute();
 		String [] attNames = Utility.getAttributeNames(attHash);
 		String [][] atts = new String[attNames.length][4];
@@ -56,7 +58,6 @@ public class Select implements IteratorInterface {
 			int ind;
 			for (ind = 0; ind < attNames.length; ind++)
 			{
-				
 				if (attNames[ind].equals(Utility.getField(condition[0]))) 
 				{
 					System.out.println("Field name found " + Utility.getField(condition[0]));
@@ -67,6 +68,7 @@ public class Select implements IteratorInterface {
 			{
 				System.out.println("Couldn't find " + Utility.getField(condition[0]));
 			}
+			
 			System.out.println("Match fields " + Utility.getField(condition[0]) + " " + attNames[ind]);
 			// use tablescan to interate through relation
 			IteratorInterface iterator = new TableScan(main, R);
