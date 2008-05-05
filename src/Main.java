@@ -26,7 +26,7 @@ public class Main implements QueryEngine
 	private SystemCatalog syscat;
 	private BufferManager bufman;
 	private boolean dbUsed = false;
-	
+	private int lastID = 0;
 	
 	public Main()
 	{
@@ -338,7 +338,9 @@ public class Main implements QueryEngine
        		{
        	 		data.add(line);
        		}
-       		id = (data.size() - 2) / 7;
+       		// id = (data.size() - 2) / 7;
+       		id = lastID;
+       		lastID++;
        		
 			// if it's not temporary relation, write to XML files
 			if (!isTempRelation)
@@ -445,19 +447,19 @@ public class Main implements QueryEngine
 	
 	/**
 	 * 1. calculate offset of the last
-		 * 2. combine file_id & offset into long
-		 * 3. get that block (copy it to buffer)
-		 * 4. test if that block has enough room for a tuple
-		 * 5. if yes, writeToBlock()
-		 * 6. else, instantiate Block object
-		 * 7. insert that into BufferManager
-		 * 8. writeToBlock()
-		 * 9. write block to file
-			 * 1. create a new block
-			 * 2. add block to buffer
-			 * 3. calculate offset
-			 * 4. combine into blockID
-			 */ 
+	 * 2. combine file_id & offset into long
+	 * 3. get that block (copy it to buffer)
+	 * 4. test if that block has enough room for a tuple
+	 * 5. if yes, writeToBlock()
+	 * 6. else, instantiate Block object
+	 * 7. insert that into BufferManager
+	 * 8. writeToBlock()
+	 * 9. write block to file
+		 * 1. create a new block
+		 * 2. add block to buffer
+		 * 3. calculate offset
+		 * 4. combine into blockID
+	*/ 
 
 	public boolean insertQuery(String tablename, String [][] query)
 	{
@@ -524,7 +526,6 @@ public class Main implements QueryEngine
 			}
 		}
 		
-		
 		// convert data to array of byte to write to the block and file
 		byte [] dataToWrite = Utility.dataToByte(query[0], query[1], atts); 
 		
@@ -585,7 +586,7 @@ public class Main implements QueryEngine
 		}
 		
 		// test if there is index, insert index
-		System.out.println("Searching for index in table");
+		//System.out.println("Searching for index in table");
 		if (relObj.getColsIndexed() > 0)
 		{
 			// get index info hashtable
@@ -596,13 +597,15 @@ public class Main implements QueryEngine
 			{
 				if (indexInfos.containsKey(query[0][i]))
 				{
-					if (Debug.get().debug()) System.out.println("Found index " + query[0][i]);
+					//if (Debug.get().debug()) System.out.println("Found index " + query[0][i]);
+					//System.out.println("Found index " + query[0][i]);
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
 					int key = Integer.parseInt(query[1][i]);
 					if (index.containsKey(key))
 					{
-						if (Debug.get().debug()) System.out.println("Key exists and append to array list " + key);
+						// if (Debug.get().debug()) 
+						//System.out.println("Key exists and append to array list " + key);
 						// add to array list of offset
 						ArrayList<Integer> offsets = (ArrayList)index.get(key);
 						// update array list of offset for that key
@@ -610,16 +613,30 @@ public class Main implements QueryEngine
 					}
 					else
 					{
-						if (Debug.get().debug()) System.out.println("Key doesn't exist " + key);
+						// if (Debug.get().debug()) 
+						//System.out.println("Key doesn't exist " + key);
 						ArrayList<Integer> offset = new ArrayList<Integer>();
 						offset.add(lastOffset);
 						// insert key and values into index
 					    index.put(key, offset);
 					}
+					// write index to file
+					//System.out.println("About to write key: " + key + "to file");
+					try {
+						File file = new File(tablename + "_" + indexInfo.getIdexName() + "_index.txt");
+						FileOutputStream output = new FileOutputStream(file, true);
+						String data = key + "\t" + lastOffset + "\n";
+						output.write(data.getBytes());
+						output.close();
+					}
+					catch (IOException e)
+					{
+						
+					}
 				}
 				else
 				{
-					System.out.println("Inserted field is not in index " + query[0][i]);
+					//System.out.println("Inserted field is not in index " + query[0][i]);
 				}
 			}
 		}
@@ -797,6 +814,36 @@ public class Main implements QueryEngine
 		return true;
 	}
 	
+	private void printOutRelation(RelationInfo R)
+	{
+		Iterator iterator = new Iterator(bufman, R, Integer.parseInt(R.getNumDataBlocks().trim()));
+		Hashtable atts = R.getAttributes();
+		int tupleSize = Utility.getTotalLength(atts);
+		Tuple tuple;
+		String [] attNames = Utility.getAttributeNames(atts);
+		for (int j = 0; j < attNames.length; j++)
+		{
+			System.out.print(attNames[j] + "\t");
+		}
+		System.out.println("");
+		System.out.println("==============================================");
+		
+		for (int i = 0; i < Integer.parseInt(R.getNumTuples().trim()); i++)
+		{
+			if (Debug.get().debug()) System.out.println("INFO: (main) index " + i);
+			tuple = iterator.getNext();
+			Block block = tuple.getBlock();
+			int offset = tuple.getOffset();
+			byte [] data = block.getTupleContent(offset, tupleSize);
+			String [] results = Utility.convertTupleToArray(atts, data);
+			for (int j = 0; j < attNames.length; j++)
+			{
+				System.out.print(results[j] + "\t");
+			}
+			System.out.println("");
+		}
+	}
+	
 	public boolean selectQuery(String[] tableNames, String [] fields, String [][] where)
 	{
 		OpTree ot = new OpTree(this.syscat, tableNames, fields, where);
@@ -838,7 +885,7 @@ public class Main implements QueryEngine
 				}
 				if (hasIndex)
 				{
-					System.out.println("It's indexe-based select and sort-based filter");
+					System.out.println("It's index-based select and sort-based filter");
 					Select myselect = new Select(this, R, conditions, true);
 					//RelationInfo temp = myselect.open();
 					//conditions[indexPos] = null;
@@ -853,7 +900,7 @@ public class Main implements QueryEngine
 					// Filter myfilter = new Filter(this, temp, conditions);
 					result = myselect.open();
 				}
-				
+				// THE COMMENTED FOLLOWING CODE IS FOR BUNDLED SELECT
 //				else if (hasIndex && conditions.length == 1)
 //				{
 //					System.out.println("It's sort-based select");
@@ -876,6 +923,7 @@ public class Main implements QueryEngine
 				op.info = result;
 				//optable.put(new Integer(op.getID()), op);
 				
+				/* PRINTING OUT TABLE 
 				Iterator iterator = new Iterator(bufman, result, Integer.parseInt(result.getNumDataBlocks().trim()));
 				Hashtable atts = result.getAttributes();
 				int tupleSize = Utility.getTotalLength(atts);
@@ -902,11 +950,11 @@ public class Main implements QueryEngine
 					}
 					System.out.println("");
 				}
-				 
+				*/ 
 			}
 			else if (op instanceof OpProject)
 			{
-				if (Debug.get().debug()) System.out.println("Calling project");
+				//if (Debug.get().debug()) System.out.println("Calling project");
 				
 				if (Debug.get().debug()) System.out.println("INFO: entered project");
 				
@@ -915,6 +963,7 @@ public class Main implements QueryEngine
 				if (Debug.get().debug()) System.out.println("TYPE: " + op.getType() + "/CHILDTYPE" + op.left().getType() + "/INFO" + op.left().getInfo());
 				String [] attList = (String [])op.getContents();
 				
+				/* PRINTING OUT TABLE
 				Iterator iterator = new Iterator(bufman, R, Integer.parseInt(R.getNumDataBlocks().trim()));
 				Hashtable atts = R.getAttributes();
 				int tupleSize = Utility.getTotalLength(atts);
@@ -941,7 +990,7 @@ public class Main implements QueryEngine
 					}
 					System.out.println("");
 				}
-				
+				*/
 				
 				// call project class here
 				Project myproject = new Project(this, R, attList);
@@ -1038,7 +1087,7 @@ public class Main implements QueryEngine
 		}
 		// print out results in currentOp here
 
-		
+		/*
 		if (Debug.get().debug()) System.out.println("INFO: printing out results");
 		RelationInfo relObj = currentOp.getInfo();
 		
@@ -1093,7 +1142,7 @@ public class Main implements QueryEngine
 		
 		// clear temp relation in system catalog
 		syscat.getTempRelation().clear();
-		
+		*/
 		return true;
 	}
 	
@@ -1188,31 +1237,147 @@ public class Main implements QueryEngine
 	
 	public static void main(String[] args) throws IOException
 	{
+		// start main object
 		Main mydb = new Main();
+		
 		String dbName = "db1";
 		System.out.println("create database db1");
+		// create database db1
 		mydb.createDB(dbName);
 		System.out.println("Use db1");
+		// use database
 		mydb.useDatabase(dbName);
 		System.out.println("***********************************************");
+		// create table student
 		System.out.println("create table student");
+		
+		// create table student with first_name, last_name, and dob attributes
 		String [][] student_attributes = {{"first_name", "string", "20", "no", "0", "0"},
                 					     {"last_name",   "string", "20", "no", "1", "0"},
                 					     {"dob",         "string", "10", "no", "2", "2"}};
 		mydb.createTable("student", student_attributes, false);
-		String [][] course_attributes = {{"course_name",   "string", "20", "no", "0", "0"},
-                					{"course_number", "string", "10", "no", "1", "0"},
-                					{"location",      "string", "10", "no", "2", "2"}};
+		
+		// create another table with coure_name, course_number, and professor
+		String [][] course_attributes = {{"course_id",   "int", "4", "no", "0", "0"},
+                					{"course_number", "int", "4", "no", "1", "0"},
+                					{"course_name", "string", "50", "no", "2", "2"}};
 		mydb.createTable("course", course_attributes, false);
+		
+		// create indexes for course id of 
+		mydb.createIndexQuery("course_id_index", "course", "course_id", false);
+		// create indexes
+		mydb.createIndexQuery("course_name_index", "course", "course_number", true);
+		
+		// insert tuples into student
 		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
-									  {"john", "smith", "01/01/2000"}};
-		String [][] insert_student1 = {{"first_name", "last_name"},
-				                       {"bill", "joe"}};
-		System.out.println("**********************************************");
+									 	{"john", "smith", "01/01/2000"}};
+		String [][] insert_student1 = {{"first_name", "last_name", "dob"},
+				                      	{"bill", "joe", "01/01/1998"}};
+		String [][] insert_student2 = {{"first_name", "last_name", "dob"},
+										{"sally", "may", "01/01/1985"}};
+		String [][] insert_student3 = {{"first_name", "last_name", "dob"},
+                					  	{"brittney", "spear", "01/01/2001"}};
+		String [][] insert_student4 = {{"first_name", "last_name", "dob"}, 
+				 						{"Tim", "joe", "01/01/1978"}};
+		String [][] insert_student5 = {{"first_name", "last_name", "dob"}, 
+				 						{"jimmy", "lou", "01/01/1947"}};
+		String [][] insert_student6 = {{"first_name", "last_name", "dob"}, 
+			 							{"deborah", "lin", "01/01/1987"}};
+		
 		mydb.insertQuery("student", insert_student);
 		mydb.insertQuery("student", insert_student1);
-		mydb.selectCatalogQuery();
+		mydb.insertQuery("student", insert_student2);
+		mydb.insertQuery("student", insert_student3);
+		mydb.insertQuery("student", insert_student4);
+		mydb.insertQuery("student", insert_student5);
+		mydb.insertQuery("student", insert_student6);
 
+		// insert tuples into course
+		String [][] insert_course = {{"course_id", "course_number", "course_name"},
+										{"1", "3039", "quality control"}};
+		String [][] insert_course1 = {{"course_id", "course_number", "course_name"},
+										{"2", "3103", "logistics"}};
+		String [][] insert_course2 = {{"course_id", "course_number", "course_name"},
+										{"3", "3232", "stochastic"}};
+		String [][] insert_course3 = {{"course_id", "course_number", "course_name"},
+										{"4", "3133", "optimization"}};
+		String [][] insert_course4 = {{"course_id", "course_number", "course_name"},
+									  	{"5", "3025", "simulation"}};
+		String [][] insert_course5 = {{"course_id", "course_number", "course_name"},
+										{"6", "4803", "financial engineering"}};
+		String [][] insert_course6 = {{"course_id", "course_number", "course_name"},
+										{"7", "4803", "advanced regression"}};
+		String [][] insert_course7 = {{"course_id", "course_number", "course_name"},
+										{"8", "2028", "statisitics"}};
+
+		mydb.insertQuery("course", insert_course);
+		mydb.insertQuery("course", insert_course1);
+		mydb.insertQuery("course", insert_course2);
+		mydb.insertQuery("course", insert_course3);
+		mydb.insertQuery("course", insert_course4);
+		mydb.insertQuery("course", insert_course5);
+		mydb.insertQuery("course", insert_course6);
+		mydb.insertQuery("course", insert_course7);
+		
+		RelationInfo R = (RelationInfo)mydb.syscat.getRelationCatalog().get("course");
+		/*
+		String [] condition = {"course_id", "3", ">"};
+		IndexScan myselect = new IndexScan(mydb, R, condition);
+		System.out.println("Printing select course_id > 3 using index");
+		mydb.printOutRelation(myselect.open());
+		*/
+		/*
+		String [] condition = {"course_id", "3", ">"};
+		Select myselect = new Select(mydb, R, condition, true);
+		System.out.println("Printing select course_id > 3");
+		mydb.printOutRelation(myselect.open());
+		
+		String [] condition1 = {"course_number", "4000", "<"};
+		myselect = new Select(mydb, R, condition1, true);
+		System.out.println("Printing select course_number < 4000");
+		mydb.printOutRelation(myselect.open());
+		*/
+		/*
+		String [] condition2 = {"course_name", "simulation", "="};
+		Select myselect = new Select(mydb, R, condition2, false);
+		System.out.println("Printing select course_name = simulation");
+		mydb.printOutRelation(myselect.open());
+		*/
+		/*
+		String [] attList = {"course_id", "course_name"};
+		Project myproject = new Project(mydb, R, attList);
+		System.out.println("Printing project course_id, course_name");
+		RelationInfo rel = myproject.open();
+		mydb.printOutRelation(rel);
+		*/
+		
+		RelationInfo R1 = (RelationInfo)mydb.syscat.getRelationCatalog().get("student");
+		/*
+		String [] condition3 = {"first_name", "john", "="};
+		myselect = new Select(mydb, R1, condition3, false);
+		System.out.println("Printing select first_name = john");
+		mydb.printOutRelation(myselect.open());
+		
+		String [] attList1 = {"dob"};
+		myproject = new Project(mydb, R1, attList1);
+		System.out.println("Printing project dob from student");
+		mydb.printOutRelation(myproject.open());
+		*/
+		/*
+		CrossProduct cp = new CrossProduct(mydb, R, R1);
+		RelationInfo rel = cp.open();
+		System.out.println("Printing cross product of course and student");
+		mydb.printOutRelation(rel);
+		*/
+		String [] condition = {"first_name", "last_name"};
+		
+		// select catalog from database db1
+		//mydb.selectCatalogQuery();
+		// select index for course id
+		//mydb.selectIndexQuery("course", "course_id_index");
+		// select index for course number
+		//mydb.selectIndexQuery("course", "course_number_index");
+		
 	}
 }
 
