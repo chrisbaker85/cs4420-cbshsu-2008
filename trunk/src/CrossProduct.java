@@ -92,15 +92,16 @@ public class CrossProduct implements IteratorInterface{
 				String [] results2 = Utility.convertTupleToArray(attHash2, content);
 				// combine result 
 				int l;
-				String [][] query = new String[2][attNames2.length + attNames2.length];
+				String [][] query = new String[2][attNames1.length + attNames2.length];
  				for (l = 0; l < attNames1.length; l++)
 				{
-					query[l][0] = attNames1[l];
+ 					// TODO: fixed array of bound exception below
+					query[l][0] = atts[l][0];
 					query[l][1] = results1[l];
 				}
  				for (int m = 0; m < attNames2.length; m++)
 				{
- 					query[l+m][0] = attNames2[l];
+ 					query[l+m][0] = atts[l+m][0];
 					query[l+m][1] = results2[l];
 				}
 				main.insertQuery(tempTableName, query);
