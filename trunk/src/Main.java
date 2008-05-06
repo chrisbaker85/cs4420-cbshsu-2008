@@ -1257,9 +1257,10 @@ public class Main implements QueryEngine
 		System.out.println("create table student");
 		
 		// create table student with first_name, last_name, and dob attributes
-		String [][] student_attributes = {{"first_name", "string", "20", "no", "0", "0"},
-                					     {"last_name",   "string", "20", "no", "1", "0"},
-                					     {"dob",         "string", "10", "no", "2", "2"}};
+		String [][] student_attributes = {{"student_id", "int", "4", "no", "no", "0", "0"},
+											{"first_name", "string", "20", "no", "1", "0"},
+											{"last_name", "string", "20", "no", "2", "0"},
+											{"dob", "string", "10", "no", "2", "3"}};
 		mydb.createTable("student", student_attributes, false);
 		
 		// create another table with coure_name, course_number, and professor
@@ -1274,20 +1275,20 @@ public class Main implements QueryEngine
 		mydb.createIndexQuery("course_name_index", "course", "course_number", true);
 		
 		// insert tuples into student
-		String [][] insert_student = {{"first_name", "last_name", "dob"}, 
-									 	{"john", "smith", "01/01/2000"}};
-		String [][] insert_student1 = {{"first_name", "last_name", "dob"},
-				                      	{"bill", "joe", "01/01/1998"}};
-		String [][] insert_student2 = {{"first_name", "last_name", "dob"},
-										{"sally", "may", "01/01/1985"}};
-		String [][] insert_student3 = {{"first_name", "last_name", "dob"},
-                					  	{"brittney", "spear", "01/01/2001"}};
-		String [][] insert_student4 = {{"first_name", "last_name", "dob"}, 
-				 						{"Tim", "joe", "01/01/1978"}};
-		String [][] insert_student5 = {{"first_name", "last_name", "dob"}, 
-				 						{"jimmy", "lou", "01/01/1947"}};
-		String [][] insert_student6 = {{"first_name", "last_name", "dob"}, 
-			 							{"deborah", "lin", "01/01/1987"}};
+		String [][] insert_student = {{"student_id","first_name", "last_name", "dob"}, 
+									 	{"0","john", "smith", "01/01/2000"}};
+		String [][] insert_student1 = {{"student_id","first_name", "last_name", "dob"},
+				                      	{"1","bill", "joe", "01/01/1998"}};
+		String [][] insert_student2 = {{"student_id","first_name", "last_name", "dob"},
+										{"2","sally", "may", "01/01/1985"}};
+		String [][] insert_student3 = {{"student_id","first_name", "last_name", "dob"},
+                					  	{"3","brittney", "spear", "01/01/2001"}};
+		String [][] insert_student4 = {{"student_id","first_name", "last_name", "dob"}, 
+				 						{"4","Tim", "joe", "01/01/1978"}};
+		String [][] insert_student5 = {{"student_id","first_name", "last_name", "dob"}, 
+				 						{"5","jimmy", "lou", "01/01/1947"}};
+		String [][] insert_student6 = {{"student_id","first_name", "last_name", "dob"}, 
+			 							{"6","deborah", "lin", "01/01/1987"}};
 		
 		mydb.insertQuery("student", insert_student);
 		mydb.insertQuery("student", insert_student1);
@@ -1326,12 +1327,15 @@ public class Main implements QueryEngine
 		
 		RelationInfo R = (RelationInfo)mydb.syscat.getRelationCatalog().get("course");
 		
+		/*
 		String [] condition = {"course_id", "3", ">"};
+		System.out.println("The number of blocks in R " + R.getNumDataBlocks());
+		System.out.println("The number of tuples in R " + R.getNumTuples());
 		IndexScan myindexscan = new IndexScan(mydb, R, condition);
 		RelationInfo rel = myindexscan.open();
 		System.out.println("Printing select course_id > 3 using index scan");
 		mydb.printOutRelation(rel);
-		
+		*/
 		
 		/*
 		String [] condition = {"course_id", "3", ">"};
@@ -1376,6 +1380,7 @@ public class Main implements QueryEngine
 		System.out.println("Printing cross product of course and student");
 		mydb.printOutRelation(rel);
 		*/
+		
 		/*
 		String [][] conditions = {{"course_id", "3", "<"},{"course_number", "3000", ">"}};
 		Filter myfilter = new Filter(mydb, R, conditions);
@@ -1383,6 +1388,11 @@ public class Main implements QueryEngine
 		RelationInfo rel = myfilter.open();
 		mydb.printOutRelation(rel);
 		*/
+		
+		String [] condition = {"course_id", "student_id", "="};
+		Join myjoin = new Join(mydb, R, R1, condition, false, 0);
+		RelationInfo rel = myjoin.open();
+		mydb.printOutRelation(myjoin.open());
 		
 		// select catalog from database db1
 		//mydb.selectCatalogQuery();

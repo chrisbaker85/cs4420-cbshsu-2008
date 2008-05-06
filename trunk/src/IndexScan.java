@@ -99,7 +99,10 @@ public class IndexScan implements IteratorInterface {
 				
 				for (int j = 0; j < offsets.size(); j++)
 				{
+					System.out.println("key = " + key + " value = " + offsets.get(j));
 					Block currentBlock = main.getBm().getBlock(Utility.combine(R.getId(), offsets.get(j)));
+					System.out.println("Number of tuples in block " + offsets.get(j) + " is " + currentBlock.getRecordNumber());
+					
 					int tupleOffset = 4;
 					
 					for (int k = 0; k < currentBlock.getRecordNumber(); k++)
@@ -107,7 +110,7 @@ public class IndexScan implements IteratorInterface {
 						byte [] data = currentBlock.getTupleContent(tupleOffset, tupleSize);
 						String [] results = Utility.convertTupleToArray(attHash, data);
 						Utility.printArray(results);
-						//System.out.println("comparing " + results[indexPos] + " and " + condition[1]);
+						System.out.println("comparing " + results[indexPos] + " and " + condition[1]);
 						if (Integer.parseInt(results[indexPos]) > Integer.parseInt(condition[1])) 
 						{
 							// insert the tuple into temporary table 
@@ -116,6 +119,7 @@ public class IndexScan implements IteratorInterface {
 						}
 						tupleOffset += tupleSize;
 					}
+					
 				}
 			}
 		} 
