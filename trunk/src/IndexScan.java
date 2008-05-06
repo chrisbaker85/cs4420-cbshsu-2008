@@ -60,7 +60,7 @@ public class IndexScan implements IteratorInterface {
 				break;
 			}
 		}
-		
+		System.out.println("Index position is " + indexPos);
 		// get index info
 		IndexInfo indexInfo = (IndexInfo)R.getIndexInfos().get(condition[0]);
 		
@@ -72,10 +72,8 @@ public class IndexScan implements IteratorInterface {
 		// check the type of operation ( >, < or =)
 		if (condition[2].equals(">"))
 		{
-			// get the sorted key larder than specified value 
-			SortedMap sortedmap = index.tailMap(condition[1]);
 			
-			System.out.println("In < and value is " + condition[1]);
+			SortedMap sortedmap = index.tailMap(Integer.parseInt(condition[1]));
 			
 			/**
 			 * 1. get the offsets
@@ -85,7 +83,9 @@ public class IndexScan implements IteratorInterface {
 			// TODO: fix treemap and set below
 			//TreeMap tempTree = new TreeMap(sortedmap);
 			
-			Set s = sortedmap.keySet();
+			System.out.println("Number of sorted list " + sortedmap.size());
+			
+			Set s = sortedmap.entrySet();
 			java.util.Iterator i = s.iterator();
 			while(i.hasNext())
 			{
@@ -100,12 +100,14 @@ public class IndexScan implements IteratorInterface {
 				for (int j = 0; j < offsets.size(); j++)
 				{
 					Block currentBlock = main.getBm().getBlock(Utility.combine(R.getId(), offsets.get(j)));
-					int tupleOffset = 3;
+					int tupleOffset = 4;
 					
 					for (int k = 0; k < currentBlock.getRecordNumber(); k++)
 					{
 						byte [] data = currentBlock.getTupleContent(tupleOffset, tupleSize);
 						String [] results = Utility.convertTupleToArray(attHash, data);
+						Utility.printArray(results);
+						//System.out.println("comparing " + results[indexPos] + " and " + condition[1]);
 						if (Integer.parseInt(results[indexPos]) > Integer.parseInt(condition[1])) 
 						{
 							// insert the tuple into temporary table 
@@ -156,7 +158,7 @@ public class IndexScan implements IteratorInterface {
 			 */
 			
 			// get the sorted key larder than specified value 
-			SortedMap sortedmap = index.headMap(condition[1]);
+			SortedMap sortedmap = index.headMap(Integer.parseInt(condition[1]));
 			
 			//TreeMap tempTree = new TreeMap(sortedmap);
 			

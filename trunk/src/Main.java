@@ -602,6 +602,10 @@ public class Main implements QueryEngine
 					IndexInfo indexInfo = (IndexInfo)relObj.getIndexInfos().get(query[0][i]);
 					TreeMap index = indexInfo.getIndex();
 					int key = Integer.parseInt(query[1][i]);
+					
+					// TODO: convert back to as value of index
+					//index.put(key, lastOffset);
+					
 					if (index.containsKey(key))
 					{
 						// if (Debug.get().debug()) 
@@ -620,6 +624,7 @@ public class Main implements QueryEngine
 						// insert key and values into index
 					    index.put(key, offset);
 					}
+					
 					// write index to file
 					//System.out.println("About to write key: " + key + "to file");
 					try {
@@ -1320,12 +1325,14 @@ public class Main implements QueryEngine
 		mydb.insertQuery("course", insert_course7);
 		
 		RelationInfo R = (RelationInfo)mydb.syscat.getRelationCatalog().get("course");
-		/*
+		
 		String [] condition = {"course_id", "3", ">"};
-		IndexScan myselect = new IndexScan(mydb, R, condition);
-		System.out.println("Printing select course_id > 3 using index");
-		mydb.printOutRelation(myselect.open());
-		*/
+		IndexScan myindexscan = new IndexScan(mydb, R, condition);
+		RelationInfo rel = myindexscan.open();
+		System.out.println("Printing select course_id > 3 using index scan");
+		mydb.printOutRelation(rel);
+		
+		
 		/*
 		String [] condition = {"course_id", "3", ">"};
 		Select myselect = new Select(mydb, R, condition, true);
@@ -1369,12 +1376,13 @@ public class Main implements QueryEngine
 		System.out.println("Printing cross product of course and student");
 		mydb.printOutRelation(rel);
 		*/
-		
+		/*
 		String [][] conditions = {{"course_id", "3", "<"},{"course_number", "3000", ">"}};
 		Filter myfilter = new Filter(mydb, R, conditions);
 		System.out.println("Printing filter course_id and course_name");
 		RelationInfo rel = myfilter.open();
 		mydb.printOutRelation(rel);
+		*/
 		
 		// select catalog from database db1
 		//mydb.selectCatalogQuery();

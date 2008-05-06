@@ -53,6 +53,7 @@ public class CrossProduct implements IteratorInterface{
 		{
 			Attribute att = (Attribute)attHash1.get(attNames1[i]);
 			atts[i][0] = R1.getName() + "." + attNames1[i];
+			atts[i][0] = attNames1[i];
 			atts[i][1] = att.getType();
 			atts[i][2] = att.getLength();
 			atts[i][3] = att.getIsNullable();
@@ -75,38 +76,40 @@ public class CrossProduct implements IteratorInterface{
 		{
 			Tuple tuple1 = iterator1.getNext();
 			Block block1 = tuple1.getBlock();
-			System.out.println("block1"+ block1);
+			//System.out.println("block1"+ block1);
 			int offset = tuple1.getOffset();
 			byte [] content = block1.getTupleContent(offset, tupleSize1);
 			String [] results1 = Utility.convertTupleToArray(attHash1, content);
 			
 			// Scan table 2 one by one and append it to result1 
 			// IteratorInterface iterator2 = new TableScan(main, R2);
-			Iterator iterator2 = new Iterator(main.getBm(), R1, Integer.parseInt(R1.getNumDataBlocks())); 
+			Iterator iterator2 = new Iterator(main.getBm(), R2, Integer.parseInt(R2.getNumDataBlocks())); 
 			for (int k = 0; k < Integer.parseInt(R2.getNumTuples().trim()); k++)
 			{
 				Tuple tuple2 = iterator2.getNext();
 				Block block2 = tuple2.getBlock();
 				offset = tuple2.getOffset();
-				content = block2.getTupleContent(offset, tupleSize1);
+				content = block2.getTupleContent(offset, tupleSize2);
 				String [] results2 = Utility.convertTupleToArray(attHash2, content);
 				// combine result 
+				//Utility.printArray(results2);
 				int l;
 				String [][] query = new String[2][attNames1.length + attNames2.length];
  				for (l = 0; l < attNames1.length; l++)
 				{
- 					// TODO: fixed array of bound exception below
-					query[l][0] = atts[l][0];
-					query[l][1] = results1[l];
+ 					
+					query[0][l] = atts[l][0];
+					query[1][l] = results1[l];
 				}
  				for (int m = 0; m < attNames2.length; m++)
 				{
- 					query[l+m][0] = atts[l+m][0];
-					query[l+m][1] = results2[l];
+ 					query[0][l+m] = atts[l+m][0];
+					query[1][l+m] = results2[m];
 				}
 				main.insertQuery(tempTableName, query);
 			}
 		}
+		
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		return (RelationInfo)hashTemp.get(tempTableName);
 	}

@@ -324,11 +324,20 @@ public class Utility {
 		
 	}
 	
-   public static String getTable(String fqf) {
+	public static String getTable(String fqf) {
         
         return fqf.substring(0, fqf.indexOf("."));
         
-    }
+	}
+	
+	public static void printArray(String [] array)
+	{
+		for (int i = 0; i < array.length - 1; i++)
+		{
+			System.out.print(array[i] + "|");
+		}
+		System.out.println(array[array.length-1]);
+	}
 	
 	/**
 	 * @param args
