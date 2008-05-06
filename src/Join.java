@@ -29,18 +29,9 @@ public class Join implements IteratorInterface{
 	
 	public RelationInfo open()
 	{
-		String tempTableName = R1.getColsIndexed() + "_JOIN_" + R2.getName();
-		/**
-		 * 1. get attributes of R1 and R2
-		 * 2. compare and merge them
-		 * 3. create table for that relation
-		 * OPERATION
-		 * ---------
-		 * 1. In table 1, get one tuple at a time
-		 * 2. select from table 2 with condition of field = value of table 1
-		 * 3. insert into new table
-		 */ 
 		
+		int pos1=0, pos2=0;
+		String tempTableName = R1.getName() + "_join_" + R2.getName();
 		Hashtable attHash1 = R1.getAttribute();
 		String [] attNames1 = Utility.getAttributeNames(attHash1);
 		int tupleSize1 = Utility.getTotalLength(R1.getAttribute());
@@ -49,12 +40,32 @@ public class Join implements IteratorInterface{
 		String [] attNames2 = Utility.getAttributeNames(attHash2);
 		int tupleSize2 = Utility.getTotalLength(R2.getAttribute());
 		
+		// get position of condition in R1 and R2
+		for (int i = 0; i < attNames1.length; i++)
+		{
+			if (condition[0].equals(attNames1[i]))
+			{
+				pos1 = i;
+				break;
+			}
+		}
+		for (int i = 0; i < attNames2.length; i++)
+		{
+			if (condition[0].equals(attNames2[i]))
+			{
+				pos2 = i;
+				break;
+			}
+		}
+		
 		String [][] atts = new String[attNames1.length + attNames2.length][4];
 		int i;
+		
 		for (i =0; i < attNames1.length; i++)
 		{
 			Attribute att = (Attribute)attHash1.get(attNames1[i]);
 			atts[i][0] = R1.getName() + "." + attNames1[i];
+			atts[i][0] = attNames1[i];
 			atts[i][1] = att.getType();
 			atts[i][2] = att.getLength();
 			atts[i][3] = att.getIsNullable();
@@ -70,45 +81,98 @@ public class Join implements IteratorInterface{
 		// create a temporary relation
 		main.createTable(tempTableName, atts, true);
 		
-		IteratorInterface iterator1 = new TableScan(main, R1);
+		//IteratorInterface iterator1 = new TableScan(main, R1);
+		System.out.println("R1 name " + R1.getName());
+		Iterator iterator1 = new Iterator(main.getBm(), R1, Integer.parseInt(R1.getNumDataBlocks())); 
 		for (int j = 0; j < Integer.parseInt(R1.getNumTuples().trim()); j++)
 		{
-			Tuple tuple1 = iterator1.next();
+			Tuple tuple1 = iterator1.getNext();
 			Block block1 = tuple1.getBlock();
+			//System.out.println("block1"+ block1);
 			int offset = tuple1.getOffset();
 			byte [] content = block1.getTupleContent(offset, tupleSize1);
 			String [] results1 = Utility.convertTupleToArray(attHash1, content);
 			
-			// If there is no index for relation 2, scan table 2 one by one and append it to result1 
-			IteratorInterface iterator2 = new TableScan(main, R2);
-			for (int k = 0; k < Integer.parseInt(R2.getNumTuples().trim()); k++)
-			{
-				Tuple tuple2 = iterator2.next();
-				Block block2 = tuple2.getBlock();
-				offset = tuple2.getOffset();
-				content = block2.getTupleContent(offset, tupleSize1);
-				String [] results2 = Utility.convertTupleToArray(attHash2, content);
-				
-				// TODO verify condition here before writing tuple. If found, write to new relation and break out of loop
-				// combine result 
-				int l;
-				String [][] query = new String[2][attNames2.length + attNames2.length];
- 				for (l = 0; l < attNames1.length; l++)
+			if (!index)
+			{	
+				// Scan table 2 one by one and append it to result1 
+				// IteratorInterface iterator2 = new TableScan(main, R2);
+				Iterator iterator2 = new Iterator(main.getBm(), R2, Integer.parseInt(R2.getNumDataBlocks())); 
+				for (int k = 0; k < Integer.parseInt(R2.getNumTuples().trim()); k++)
 				{
-					query[l][0] = attNames1[l];
-					query[l][1] = results1[l];
+					Tuple tuple2 = iterator2.getNext();
+					Block block2 = tuple2.getBlock();
+					offset = tuple2.getOffset();
+					content = block2.getTupleContent(offset, tupleSize2);
+					String [] results2 = Utility.convertTupleToArray(attHash2, content);
+					
+					// TODO need verify condition here
+					if (condition[2].equals(">"))
+					{
+						if (Integer.parseInt(results1[pos1]) > Integer.parseInt(results2[pos2]))
+						{
+							int l;					
+							String [][] query = new String[2][attNames1.length + attNames2.length];
+			 				for (l = 0; l < attNames1.length; l++)
+							{
+								query[0][l] = atts[l][0];
+								query[1][l] = results1[l];
+							}
+			 				for (int m = 0; m < attNames2.length; m++)
+							{
+			 					query[0][l+m] = atts[l+m][0];
+								query[1][l+m] = results2[m];
+							}
+							main.insertQuery(tempTableName, query);
+						}
+					}
+					if (condition[2].equals("<"))
+					{
+						if (Integer.parseInt(results1[pos1]) < Integer.parseInt(results2[pos2]))
+						{
+							int l;					
+							String [][] query = new String[2][attNames1.length + attNames2.length];
+			 				for (l = 0; l < attNames1.length; l++)
+							{
+								query[0][l] = atts[l][0];
+								query[1][l] = results1[l];
+							}
+			 				for (int m = 0; m < attNames2.length; m++)
+							{
+			 					query[0][l+m] = atts[l+m][0];
+								query[1][l+m] = results2[m];
+							}
+							main.insertQuery(tempTableName, query);
+						}
+					}
+					if (condition[2].equals("="))
+					{
+						if (results1[pos1].equals(results2[pos2]))
+						{
+							int l;					
+							String [][] query = new String[2][attNames1.length + attNames2.length];
+			 				for (l = 0; l < attNames1.length; l++)
+							{
+								query[0][l] = atts[l][0];
+								query[1][l] = results1[l];
+							}
+			 				for (int m = 0; m < attNames2.length; m++)
+							{
+			 					query[0][l+m] = atts[l+m][0];
+								query[1][l+m] = results2[m];
+							}
+							main.insertQuery(tempTableName, query);
+						}
+					}
 				}
- 				for (int m = 0; m < attNames2.length; m++)
-				{
- 					query[l+m][0] = attNames2[l];
-					query[l+m][1] = results2[l];
-				}
-				main.insertQuery(tempTableName, query);
 			}
-			
-			// TODO if there is index, get the key in relation 1, and search for value in relation 2 index
-			// If found, write it to new relation
+			else
+			{
+				// get offset of block in R2
+				// iterate through the block and verify condition
+			}
 		}
+		
 		Hashtable hashTemp = main.getSysCat().getTempRelation();
 		return (RelationInfo)hashTemp.get(tempTableName);
 	}
