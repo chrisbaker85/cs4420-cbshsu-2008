@@ -1,0 +1,7 @@
+WHERE DO I START?
+1. Look into System catalog
+2. Look into buffer manager
+3. Look into storage manager
+4. Look into index
+5. Look into query engine
+6. Look into query optimizer
